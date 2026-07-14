@@ -85,7 +85,7 @@ describe("speakerStatus", () => {
     const speaker = makeSpeaker({ id: "sp-2" });
     const events: EventWithSpeakers[] = [
       makeEvent({ id: "e1", event_date: "2026-06-01T00:00:00Z", speakers: [speaker] }),
-      makeEvent({ id: "e2", event_date: "2026-08-01T00:00:00Z", speakers: [] }),
+      makeEvent({ id: "e2", event_date: "2026-08-01T00:00:00Z", speakers: [speaker] }),
     ];
 
     expect(speakerStatus("sp-2", events, NOW)).toBe("past");
