@@ -45,8 +45,7 @@
   --color-dd-black: var(--dd-black);
 
   /* Type stacks. Headings prefer licensed Futura, then Oswald, then system. */
-  --font-display: "Futura Condensed", var(--font-oswald), "Arial Narrow",
-    sans-serif;
+  --font-display: "Futura Condensed", var(--font-oswald), sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     sans-serif;
 }
