@@ -335,7 +335,7 @@ Write printed URL/anon key into `.env.local` (NOT committed). Verify: `curl -s "
 
 - [ ] **Step 1:** Full suite: `npm test && npm run build && npm run test:e2e` — all green.
 - [ ] **Step 2:** Invoke `impeccable` skill (critique/audit mode) on landing + admin in the browser; fix findings worth fixing.
-- [ ] **Step 3:** Security pass: `git grep` secret-pattern scan on full history (`git log -p | grep -cE 'service_role|sb_secret'` → 0); confirm `.env.local` untracked; confirm `admins` table unreadable via anon REST; confirm anon insert to `events` REST returns 401/403.
+- [ ] **Step 3:** Security pass: history scan excluding the docs that quote these patterns as text — `git log -p -- . ':!docs/plan.md' ':!docs/spec.md' ':!package-lock.json' | grep -cE 'service_role|sb_secret'` → 0 (hits inside `docs/plan.md` are the plan quoting its own scan commands — known false positive, not a leak); confirm `.env.local` untracked; confirm `admins` table unreadable via anon REST; confirm anon insert to `events` REST returns 401/403.
 - [ ] **Step 4:** README final: deploy runbook (create cloud Supabase project → `npx supabase link` + `db push` → insert real admin email via SQL editor → set Vercel env vars → import repo in Vercel → set auth redirect URLs → point domain). List of owner-only steps (accounts, WhatsApp URL, Futura license).
 - [ ] **Step 5:** Push. Commit `docs: deploy runbook`.
 
