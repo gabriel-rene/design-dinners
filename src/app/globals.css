@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design Dinners — brand foundation
+   Palette, typography and global base styles. Source of truth: the March 2024
+   style sheet. Tokens are consumed via Tailwind utilities (bg-dd-cream,
+   text-dd-red, font-display, ...) and directly as CSS custom properties.
+--------------------------------------------------------------------------- */
+
+/* Licensed Futura Condensed, staged (gitignored) by scripts/copy-fonts.sh.
+   When the files are absent the @font-face simply resolves nothing and the
+   stack falls through to Oswald — no build or runtime failure. */
+@font-face {
+  font-family: "Futura Condensed";
+  src: url("/fonts/futura/futura-condensed-medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Futura Condensed";
+  src: url("/fonts/futura/futura-condensed-extrabold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Raw brand tokens (exact style-sheet hex values). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --dd-red: #d21432; /* Ketchup Red — primary */
+  --dd-yellow: #faa61a; /* Papita Yellow — accent */
+  --dd-brown: #964220; /* Patty Brown — accent / warm ink */
+  --dd-cream: #f8e3ca; /* Mayo Cream — page background */
+  --dd-blue: #1687ff; /* Blue Double Checkmark — punctual detail only */
+  --dd-black: #000000; /* Burnt Black — text */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Expose brand tokens to Tailwind (bg-dd-*, text-dd-*, border-dd-*). */
+  --color-dd-red: var(--dd-red);
+  --color-dd-yellow: var(--dd-yellow);
+  --color-dd-brown: var(--dd-brown);
+  --color-dd-cream: var(--dd-cream);
+  --color-dd-blue: var(--dd-blue);
+  --color-dd-black: var(--dd-black);
+
+  /* Type stacks. Headings prefer licensed Futura, then Oswald, then system. */
+  --font-display: "Futura Condensed", var(--font-oswald), "Arial Narrow",
+    sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background: var(--dd-cream);
+    color: var(--dd-black);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings default to the condensed display face; later UITasks opt in with
+     `font-display` where they need it explicitly. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
 }
