@@ -52,3 +52,5 @@ next-env.d.ts
 /public/fonts/futura/
 # local supabase state
 /supabase/.temp/
+# local agent tooling
+/.claude/
