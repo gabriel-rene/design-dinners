@@ -56,7 +56,7 @@ export default function Resources({ resources }: { resources: ResourceRow[] }) {
                         </span>
                       </span>
                       {resource.description && (
-                        <span className="mt-1 block max-w-[60ch] text-[15px] leading-snug text-dd-cream/85">
+                        <span className="mt-1 block max-w-[60ch] text-[15px] leading-snug text-dd-cream/90">
                           {resource.description}
                         </span>
                       )}
