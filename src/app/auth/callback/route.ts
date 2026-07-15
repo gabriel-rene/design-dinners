@@ -9,6 +9,7 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
+import { sanitizeNextPath } from "@/lib/redirects";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -16,7 +17,10 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/admin";
+  // Sanitized at the single read site: `next` is attacker-influencable, and
+  // `${origin}${next}` with e.g. `next=.evil.com` would otherwise produce
+  // `https://yoursite.example.evil.com` (open redirect / session fixation).
+  const next = sanitizeNextPath(searchParams.get("next"));
 
   const supabase = await createClient();
 
