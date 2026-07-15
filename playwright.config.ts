@@ -2,7 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: true,
+  // The admin suite mutates the shared local Supabase DB (create/delete rows)
+  // while the landing suite asserts the exact seeded state. A single worker
+  // serializes tests so those never interleave; each admin test also restores
+  // the seeded baseline before it finishes.
+  fullyParallel: false,
+  workers: 1,
   reporter: "list",
   use: {
     baseURL: "http://localhost:3000",
