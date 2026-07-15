@@ -6,13 +6,20 @@ import type { BrowserContext } from "@playwright/test";
 // admin by lifting the access token out of the browser session cookie. RLS
 // still enforces `is_admin()` — no service-role key anywhere, and the anon key
 // used as `apikey` is the public client key the browser already ships with
-// (read from env; falls back to the universal `supabase start` demo key, which
-// is identical for every local stack and not a secret).
+// (read from env; required — see below).
+
+function requireEnv(name: string, value: string | undefined): string {
+  if (!value) {
+    throw new Error(
+      `cleanup: ${name} is not set. Set it in the e2e environment (e.g. from ` +
+        "`supabase start` output or .env.local) before running the e2e suite.",
+    );
+  }
+  return value;
+}
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
-const ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
+const ANON_KEY = requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 /** Reassemble the @supabase/ssr auth cookie (possibly chunked as `.0`, `.1`, …)
  *  and pull the admin access token out of it. Returns null when no session

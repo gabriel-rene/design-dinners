@@ -7,10 +7,12 @@ import About from "@/components/landing/About";
 import { getEventsWithSpeakers, getResources, getSpeakers } from "@/lib/queries";
 import { splitEvents } from "@/lib/derive";
 
-// Cache indefinitely; the admin (Task 8) refreshes the page on-demand via
-// revalidatePath('/') after every mutation. Data fetches never opt into
-// no-store.
-export const revalidate = false;
+// Daily time floor bounds the staleness of the time-derived upcoming/past
+// split below (`now` is captured at prerender time, so without a ceiling a
+// past event could linger in "Próximo evento" indefinitely between admin
+// writes). The admin (Task 8) still refreshes the page on-demand via
+// revalidatePath('/') after every mutation, which layers on top of this.
+export const revalidate = 86400;
 
 export default async function Home() {
   const [events, speakers, resources] = await Promise.all([

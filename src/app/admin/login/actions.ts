@@ -18,6 +18,10 @@ export async function requestMagicLink(
     return { status: "error", email, error: "Ingresa tu correo electrónico." };
   }
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { status: "error", email, error: "Escribe un correo válido." };
+  }
+
   const supabase = await createClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
