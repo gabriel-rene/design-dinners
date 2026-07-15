@@ -24,7 +24,6 @@ const MIME_EXT: Record<string, string> = {
   "image/webp": "webp",
   "image/gif": "gif",
   "image/avif": "avif",
-  "image/svg+xml": "svg",
 };
 
 function extensionFor(file: File): string {
@@ -60,8 +59,13 @@ export async function uploadImageIfPresent(
     return { url: existingUrl };
   }
 
-  if (!entry.type.startsWith("image/")) {
-    return { error: "El archivo debe ser una imagen." };
+  // NOTE: `entry.type` is the client-supplied content-type, not sniffed from
+  // the bytes — a malicious admin could lie about it. Accepted risk: uploads are
+  // gated behind requireAdmin() + RLS, so only allowlisted admins reach this.
+  // SVG is rejected outright regardless: the bucket is public-read and SVGs can
+  // carry embedded script (stored-XSS vector when opened directly).
+  if (!entry.type.startsWith("image/") || entry.type === "image/svg+xml") {
+    return { error: "El archivo debe ser una imagen (JPG, PNG, WebP…; SVG no está permitido)." };
   }
   if (entry.size > MAX_IMAGE_BYTES) {
     return { error: "La imagen no puede pesar más de 4 MB." };
