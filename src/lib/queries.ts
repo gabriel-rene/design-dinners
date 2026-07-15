@@ -13,6 +13,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { EventRow, EventWithSpeakers, ResourceRow, SpeakerRow } from "./types";
+import { DEMO_EVENTS, DEMO_RESOURCES, DEMO_SPEAKERS, hasSupabaseConfig } from "./demo-data";
 
 type EventWithJoinedSpeakers = EventRow & {
   event_speakers: { speaker_id: string; speakers: SpeakerRow | null }[] | null;
@@ -34,6 +35,10 @@ function getAnonClient(): SupabaseClient {
 }
 
 export async function getEventsWithSpeakers(): Promise<EventWithSpeakers[]> {
+  if (!hasSupabaseConfig) {
+    return DEMO_EVENTS;
+  }
+
   const supabase = getAnonClient();
 
   const { data, error } = await supabase
@@ -56,6 +61,10 @@ export async function getEventsWithSpeakers(): Promise<EventWithSpeakers[]> {
 }
 
 export async function getSpeakers(): Promise<SpeakerRow[]> {
+  if (!hasSupabaseConfig) {
+    return DEMO_SPEAKERS;
+  }
+
   const supabase = getAnonClient();
 
   const { data, error } = await supabase.from("speakers").select("*").order("name");
@@ -68,6 +77,10 @@ export async function getSpeakers(): Promise<SpeakerRow[]> {
 }
 
 export async function getResources(): Promise<ResourceRow[]> {
+  if (!hasSupabaseConfig) {
+    return DEMO_RESOURCES;
+  }
+
   const supabase = getAnonClient();
 
   const { data, error } = await supabase
