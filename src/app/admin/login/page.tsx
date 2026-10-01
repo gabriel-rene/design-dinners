@@ -7,7 +7,17 @@ export const metadata: Metadata = {
   title: "Acceso administrador — Design Dinners",
 };
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ setup?: string }>;
+}) {
+  const { setup } = await searchParams;
+  const missingSupabase =
+    setup === "supabase" ||
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
       <div className="flex w-full max-w-sm flex-col items-center text-center">
@@ -24,6 +34,16 @@ export default function AdminLoginPage() {
         </p>
 
         <div className="mt-8 w-full">
+          {missingSupabase && (
+            <p
+              role="status"
+              className="mb-5 rounded-md border border-dd-red/30 bg-dd-red/5 px-4 py-3 text-sm leading-relaxed text-dd-black"
+            >
+              El CMS está instalado, pero Supabase Auth todavía no está conectado
+              en Vercel. Añade la URL y la llave publicable del proyecto para
+              activar el acceso.
+            </p>
+          )}
           <LoginForm />
         </div>
       </div>

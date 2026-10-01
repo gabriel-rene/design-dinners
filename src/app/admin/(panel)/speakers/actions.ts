@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireAdmin } from "@/lib/auth";
-import { isValidHttpUrl, uploadImageIfPresent } from "@/lib/admin-helpers";
-import type { SocialLink } from "@/lib/types";
 import type { FormState } from "@/components/admin/formStyles";
+import { isValidHttpUrl, uploadImageIfPresent } from "@/lib/admin-helpers";
+import { requireAdmin } from "@/lib/auth";
+import { getDb } from "@/lib/db";
+import type { SocialLink } from "@/lib/types";
 
 type ParsedSpeaker = {
   name: string;
@@ -15,19 +16,17 @@ type ParsedSpeaker = {
   social_links: SocialLink[];
 };
 
-/** Zip the repeated social_label/social_url inputs into SocialLink[]. Drops
- *  fully-empty rows; errors when a row has one field but not the other. */
-function parseSocialLinks(formData: FormData): { error: string } | { value: SocialLink[] } {
-  const labels = formData.getAll("social_label").map((v) => String(v).trim());
-  const urls = formData.getAll("social_url").map((v) => String(v).trim());
-  const count = Math.max(labels.length, urls.length);
-
+function parseSocialLinks(
+  formData: FormData,
+): { error: string } | { value: SocialLink[] } {
+  const labels = formData.getAll("social_label").map((value) => String(value).trim());
+  const urls = formData.getAll("social_url").map((value) => String(value).trim());
   const links: SocialLink[] = [];
-  for (let i = 0; i < count; i++) {
-    const label = labels[i] ?? "";
-    const url = urls[i] ?? "";
 
-    if (!label && !url) continue; // empty row → skip
+  for (let index = 0; index < Math.max(labels.length, urls.length); index++) {
+    const label = labels[index] ?? "";
+    const url = urls[index] ?? "";
+    if (!label && !url) continue;
     if (!label || !url) {
       return { error: "Cada enlace social necesita etiqueta y URL." };
     }
@@ -40,14 +39,14 @@ function parseSocialLinks(formData: FormData): { error: string } | { value: Soci
   return { value: links };
 }
 
-function parseSpeaker(formData: FormData): { error: string } | { value: ParsedSpeaker } {
+function parseSpeaker(
+  formData: FormData,
+): { error: string } | { value: ParsedSpeaker } {
   const name = String(formData.get("name") ?? "").trim();
-  if (!name) {
-    return { error: "El nombre es obligatorio." };
-  }
+  if (!name) return { error: "El nombre es obligatorio." };
 
-  const social = parseSocialLinks(formData);
-  if ("error" in social) return social;
+  const socialLinks = parseSocialLinks(formData);
+  if ("error" in socialLinks) return socialLinks;
 
   const roleTitle = String(formData.get("role_title") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
@@ -57,9 +56,16 @@ function parseSpeaker(formData: FormData): { error: string } | { value: ParsedSp
       name,
       role_title: roleTitle || null,
       bio: bio || null,
-      social_links: social.value,
+      social_links: socialLinks.value,
     },
   };
+}
+
+function refreshSpeakerPages() {
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/admin/speakers");
+  revalidatePath("/admin/eventos");
 }
 
 export async function createSpeaker(
@@ -67,23 +73,35 @@ export async function createSpeaker(
   formData: FormData,
 ): Promise<FormState> {
   const { supabase } = await requireAdmin();
-
   const parsed = parseSpeaker(formData);
   if ("error" in parsed) return parsed;
 
-  const image = await uploadImageIfPresent(supabase, formData, "photo", "speakers", null);
+  const image = await uploadImageIfPresent(
+    supabase,
+    formData,
+    "photo",
+    "speakers",
+    null,
+  );
   if ("error" in image) return image;
 
-  const { error } = await supabase
-    .from("speakers")
-    .insert({ ...parsed.value, photo_url: image.url });
-
-  if (error) {
+  const sql = getDb();
+  try {
+    await sql`
+      insert into speakers (name, role_title, bio, photo_url, social_links)
+      values (
+        ${parsed.value.name},
+        ${parsed.value.role_title},
+        ${parsed.value.bio},
+        ${image.url},
+        ${JSON.stringify(parsed.value.social_links)}::jsonb
+      )
+    `;
+  } catch {
     return { error: "No pudimos guardar el speaker. Intenta de nuevo." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/admin/speakers");
+  refreshSpeakerPages();
   redirect("/admin/speakers");
 }
 
@@ -93,50 +111,53 @@ export async function updateSpeaker(
   formData: FormData,
 ): Promise<FormState> {
   const { supabase } = await requireAdmin();
-
   const parsed = parseSpeaker(formData);
   if ("error" in parsed) return parsed;
 
-  const { data: current } = await supabase
-    .from("speakers")
-    .select("photo_url")
-    .eq("id", id)
-    .maybeSingle();
+  const sql = getDb();
+  const currentRows = await sql`
+    select photo_url from speakers where id = ${id} limit 1
+  `;
+  const currentUrl =
+    (currentRows[0] as { photo_url: string | null } | undefined)?.photo_url ?? null;
 
   const image = await uploadImageIfPresent(
     supabase,
     formData,
     "photo",
     "speakers",
-    current?.photo_url ?? null,
+    currentUrl,
   );
   if ("error" in image) return image;
 
-  const { error } = await supabase
-    .from("speakers")
-    .update({ ...parsed.value, photo_url: image.url })
-    .eq("id", id);
-
-  if (error) {
+  try {
+    await sql`
+      update speakers set
+        name = ${parsed.value.name},
+        role_title = ${parsed.value.role_title},
+        bio = ${parsed.value.bio},
+        photo_url = ${image.url},
+        social_links = ${JSON.stringify(parsed.value.social_links)}::jsonb
+      where id = ${id}
+    `;
+  } catch {
     return { error: "No pudimos guardar los cambios. Intenta de nuevo." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/admin/speakers");
+  refreshSpeakerPages();
   redirect("/admin/speakers");
 }
 
-// `(id)` only; bound via `.bind(null, id)` for DeleteButton's useActionState.
 export async function deleteSpeaker(id: string): Promise<FormState> {
-  const { supabase } = await requireAdmin();
+  await requireAdmin();
+  const sql = getDb();
 
-  // Cascade on event_speakers only unlinks; events themselves are untouched.
-  const { error } = await supabase.from("speakers").delete().eq("id", id);
-  if (error) {
+  try {
+    await sql`delete from speakers where id = ${id}`;
+  } catch {
     return { error: "No pudimos eliminar el speaker. Intenta de nuevo." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/admin/speakers");
+  refreshSpeakerPages();
   redirect("/admin/speakers");
 }

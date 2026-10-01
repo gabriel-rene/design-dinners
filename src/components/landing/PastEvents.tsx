@@ -4,7 +4,7 @@ import type { EventWithSpeakers } from "@/lib/types";
 
 /**
  * Cream archive grid. Designed empty state (per spec §7 this section shows an
- * empty state instead of hiding — only Speakers and Recursos hide when empty).
+ * empty state instead of hiding — only Speakers hides when empty).
  */
 export default function PastEvents({ past }: { past: EventWithSpeakers[] }) {
   return (

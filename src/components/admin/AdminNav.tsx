@@ -9,7 +9,6 @@ import { signOut } from "@/app/admin/actions";
 const sections = [
   { href: "/admin/eventos", label: "Eventos" },
   { href: "/admin/speakers", label: "Speakers" },
-  { href: "/admin/recursos", label: "Recursos" },
 ];
 
 export default function AdminNav({ email }: { email: string }) {

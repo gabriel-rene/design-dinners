@@ -1,14 +1,6 @@
-// Static content the landing falls back to when no Supabase project is
-// configured (`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-// unset). Lets the landing deploy stand alone for design review before a
-// cloud Supabase project exists — swap in real env vars and this fallback
-// stops being used automatically.
+// Static content the landing falls back to when DATABASE_URL is unset.
 
-import type { EventWithSpeakers, ResourceRow, SpeakerRow } from "./types";
-
-export const hasSupabaseConfig = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-);
+import type { EventWithSpeakers, SpeakerRow } from "./types";
 
 const DAY = 24 * 60 * 60 * 1000;
 const buildTime = Date.now();
@@ -59,24 +51,5 @@ export const DEMO_EVENTS: EventWithSpeakers[] = [
     cover_image_url: null,
     created_at: new Date(buildTime - 60 * DAY).toISOString(),
     speakers: [DEMO_SPEAKERS[1]],
-  },
-];
-
-export const DEMO_RESOURCES: ResourceRow[] = [
-  {
-    id: "demo-resource-1",
-    title: "Guía de tipografía para pantallas",
-    description: "Fundamentos de jerarquía, escala e interlineado para interfaces.",
-    url: "#",
-    category: "Lecturas",
-    created_at: new Date(buildTime - 20 * DAY).toISOString(),
-  },
-  {
-    id: "demo-resource-2",
-    title: "Kit de Figma: sistema de diseño",
-    description: "Componentes base y tokens para arrancar un sistema desde cero.",
-    url: "#",
-    category: "Herramientas",
-    created_at: new Date(buildTime - 30 * DAY).toISOString(),
   },
 ];

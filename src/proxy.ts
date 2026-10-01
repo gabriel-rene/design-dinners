@@ -17,10 +17,24 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function proxy(request: NextRequest) {
-  const { response, user } = await updateSession(request);
-
   const { pathname } = request.nextUrl;
   const isLoginPage = pathname === "/admin/login";
+  const hasSupabaseConfig = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+
+  if (!hasSupabaseConfig) {
+    if (isLoginPage) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/login";
+    url.searchParams.set("setup", "supabase");
+    return NextResponse.redirect(url);
+  }
+
+  const { response, user } = await updateSession(request);
 
   if (!user && !isLoginPage) {
     const url = request.nextUrl.clone();

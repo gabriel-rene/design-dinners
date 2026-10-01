@@ -2,9 +2,8 @@ import Hero from "@/components/landing/Hero";
 import NextEvent from "@/components/landing/NextEvent";
 import PastEvents from "@/components/landing/PastEvents";
 import Speakers from "@/components/landing/Speakers";
-import Resources from "@/components/landing/Resources";
 import About from "@/components/landing/About";
-import { getEventsWithSpeakers, getResources, getSpeakers } from "@/lib/queries";
+import { getEventsWithSpeakers, getSpeakers } from "@/lib/queries";
 import { splitEvents } from "@/lib/derive";
 
 // Daily time floor bounds the staleness of the time-derived upcoming/past
@@ -15,10 +14,9 @@ import { splitEvents } from "@/lib/derive";
 export const revalidate = 86400;
 
 export default async function Home() {
-  const [events, speakers, resources] = await Promise.all([
+  const [events, speakers] = await Promise.all([
     getEventsWithSpeakers(),
     getSpeakers(),
-    getResources(),
   ]);
 
   const now = new Date();
@@ -31,7 +29,6 @@ export default async function Home() {
       <NextEvent upcoming={upcoming} whatsappUrl={whatsappUrl} />
       <PastEvents past={past} />
       <Speakers speakers={speakers} events={events} now={now} />
-      <Resources resources={resources} />
       <About whatsappUrl={whatsappUrl} />
     </main>
   );

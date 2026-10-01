@@ -64,10 +64,4 @@ test.describe("Landing page smoke", () => {
     await expect(luisCard.getByText("Próximamente")).toHaveCount(0);
   });
 
-  test("recursos shows both seeded resource categories", async ({ page }) => {
-    const section = page.locator("#recursos");
-    await expect(section).toBeVisible();
-    await expect(section.getByRole("heading", { name: "plantillas" })).toBeVisible();
-    await expect(section.getByRole("heading", { name: "talleres" })).toBeVisible();
-  });
 });

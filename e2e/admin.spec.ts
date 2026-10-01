@@ -17,7 +17,6 @@ test.describe("Admin CRUD smoke", () => {
     const eventTitle = `E2E Cena ${stamp}`;
     const editedTitle = `${eventTitle} (editado)`;
     const speakerName = `E2E Speaker ${stamp}`;
-    const resourceTitle = `E2E Recurso ${stamp}`;
 
     // The shared local Supabase DB is mutable global state and the landing spec
     // asserts exact seeded counts, so restoring the baseline must survive ANY
@@ -78,17 +77,6 @@ test.describe("Admin CRUD smoke", () => {
         await expect(page.getByRole("heading", { name: speakerName })).toBeVisible();
       });
 
-      await test.step("create a resource", async () => {
-        await page.goto("/admin/recursos/nuevo");
-        await page.getByLabel("Título").fill(resourceTitle);
-        await page.getByLabel(/^Enlace/).fill("https://example.com/e2e");
-        await page.getByLabel("Categoría").fill("e2e");
-        await page.getByRole("button", { name: "Crear recurso" }).click();
-
-        await expect(page).toHaveURL(/\/admin\/recursos$/);
-        await expect(page.getByText(resourceTitle)).toBeVisible();
-      });
-
       await test.step("delete the event without deleting its speaker", async () => {
         await page.goto("/admin/eventos");
         await page
@@ -110,7 +98,7 @@ test.describe("Admin CRUD smoke", () => {
       // actions call revalidatePath('/'), so the public landing is re-rendered
       // without the test rows before the landing spec asserts its exact counts
       // (the REST fallback below deletes rows but cannot revalidate the page).
-      await test.step("clean up created speaker and resource via the UI", async () => {
+      await test.step("clean up the created speaker via the UI", async () => {
         await page.goto("/admin/speakers");
         await page
           .getByRole("listitem")
@@ -118,14 +106,6 @@ test.describe("Admin CRUD smoke", () => {
           .getByRole("button", { name: "Eliminar" })
           .click();
         await expect(page.getByRole("heading", { name: speakerName })).toHaveCount(0);
-
-        await page.goto("/admin/recursos");
-        await page
-          .getByRole("listitem")
-          .filter({ hasText: resourceTitle })
-          .getByRole("button", { name: "Eliminar" })
-          .click();
-        await expect(page.getByText(resourceTitle)).toHaveCount(0);
       });
     } finally {
       // Failure-safe net: always restore the seeded DB baseline, no matter which

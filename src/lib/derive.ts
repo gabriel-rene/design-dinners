@@ -2,7 +2,7 @@
 // Every function that depends on "now" takes it as an optional injected parameter
 // so behavior is fully deterministic in tests.
 
-import type { EventWithSpeakers, ResourceRow } from "./types";
+import type { EventWithSpeakers } from "./types";
 
 export function isUpcoming(event: { event_date: string }, now: Date = new Date()): boolean {
   return new Date(event.event_date).getTime() >= now.getTime();
@@ -45,32 +45,4 @@ export function speakerStatus(
   const hasPastEvent = speakerEvents.some((event) => !isUpcoming(event, now));
 
   return hasPastEvent ? "past" : "upcoming";
-}
-
-export function groupResources(resources: ResourceRow[]): Map<string, ResourceRow[]> {
-  const byCategory = new Map<string, ResourceRow[]>();
-
-  for (const resource of resources) {
-    const bucket = byCategory.get(resource.category);
-    if (bucket) {
-      bucket.push(resource);
-    } else {
-      byCategory.set(resource.category, [resource]);
-    }
-  }
-
-  for (const bucket of byCategory.values()) {
-    bucket.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    );
-  }
-
-  const sortedCategories = [...byCategory.keys()].sort((a, b) => a.localeCompare(b));
-
-  const result = new Map<string, ResourceRow[]>();
-  for (const category of sortedCategories) {
-    result.set(category, byCategory.get(category)!);
-  }
-
-  return result;
 }

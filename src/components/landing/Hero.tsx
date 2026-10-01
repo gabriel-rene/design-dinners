@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- local SVG brand assets need no optimization */
 
-const MARQUEE_ITEMS = ["Cenas", "Speakers", "Talleres", "Recursos", "Comunidad"];
+const MARQUEE_ITEMS = ["Cenas", "Speakers", "Talleres", "Conversaciones", "Comunidad"];
 
 function MarqueeRun() {
   return (
@@ -47,7 +47,7 @@ export default function Hero({ whatsappUrl }: { whatsappUrl: string }) {
         </h1>
         <p className="dd-rise mt-6 max-w-xl text-lg leading-relaxed [--dd-rise-delay:220ms]">
           Somos la comunidad de diseño de Puerto Rico que se junta alrededor de
-          la mesa: cenas con speakers, talleres y recursos que se comparten
+          la mesa: cenas con speakers, talleres e ideas que se comparten
           como el pan.
         </p>
         <div className="dd-rise mt-9 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 [--dd-rise-delay:320ms]">

@@ -28,13 +28,4 @@ export interface SpeakerRow {
   created_at: string;
 }
 
-export interface ResourceRow {
-  id: string;
-  title: string;
-  description: string | null;
-  url: string;
-  category: string;
-  created_at: string;
-}
-
 export type EventWithSpeakers = EventRow & { speakers: SpeakerRow[] };

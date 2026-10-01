@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { groupResources, isUpcoming, speakerStatus, splitEvents } from "./derive";
-import type { EventWithSpeakers, ResourceRow, SpeakerRow } from "./types";
+import { isUpcoming, speakerStatus, splitEvents } from "./derive";
+import type { EventWithSpeakers, SpeakerRow } from "./types";
 
 const NOW = new Date("2026-07-14T12:00:00Z");
 
@@ -29,17 +29,6 @@ function makeSpeaker(overrides: Partial<SpeakerRow> & { id: string }): SpeakerRo
     bio: overrides.bio ?? null,
     photo_url: overrides.photo_url ?? null,
     social_links: overrides.social_links ?? [],
-    created_at: overrides.created_at ?? "2026-01-01T00:00:00Z",
-  };
-}
-
-function makeResource(overrides: Partial<ResourceRow> & { id: string }): ResourceRow {
-  return {
-    id: overrides.id,
-    title: overrides.title ?? "Recurso",
-    description: overrides.description ?? null,
-    url: overrides.url ?? "https://example.com",
-    category: overrides.category ?? "General",
     created_at: overrides.created_at ?? "2026-01-01T00:00:00Z",
   };
 }
@@ -97,21 +86,5 @@ describe("speakerStatus", () => {
     ];
 
     expect(speakerStatus("sp-missing", events, NOW)).toBe("upcoming");
-  });
-});
-
-describe("groupResources", () => {
-  it("groups by category alphabetically with items ordered by created_at desc", () => {
-    const resources: ResourceRow[] = [
-      makeResource({ id: "r1", category: "Tipografía", created_at: "2026-01-01T00:00:00Z" }),
-      makeResource({ id: "r2", category: "Color", created_at: "2026-03-01T00:00:00Z" }),
-      makeResource({ id: "r3", category: "Color", created_at: "2026-05-01T00:00:00Z" }),
-    ];
-
-    const grouped = groupResources(resources);
-
-    expect([...grouped.keys()]).toEqual(["Color", "Tipografía"]);
-    expect(grouped.get("Color")!.map((r) => r.id)).toEqual(["r3", "r2"]);
-    expect(grouped.get("Tipografía")!.map((r) => r.id)).toEqual(["r1"]);
   });
 });

@@ -1,16 +1,15 @@
 import Link from "next/link";
 
 import { requireAdmin } from "@/lib/auth";
-import { getEventsWithSpeakers, getResources, getSpeakers } from "@/lib/queries";
+import { getEventsWithSpeakers, getSpeakers } from "@/lib/queries";
 import { primaryBtn, secondaryBtn } from "@/components/admin/formStyles";
 
 export default async function AdminDashboardPage() {
   await requireAdmin();
 
-  const [events, speakers, resources] = await Promise.all([
+  const [events, speakers] = await Promise.all([
     getEventsWithSpeakers(),
     getSpeakers(),
-    getResources(),
   ]);
 
   const sections = [
@@ -28,13 +27,6 @@ export default async function AdminDashboardPage() {
       noun: speakers.length === 1 ? "speaker" : "speakers",
       blurb: "Las voces de la comunidad, con foto y enlaces.",
     },
-    {
-      href: "/admin/recursos",
-      label: "Recursos",
-      count: resources.length,
-      noun: resources.length === 1 ? "recurso" : "recursos",
-      blurb: "El menú de enlaces, agrupado por categoría.",
-    },
   ];
 
   return (
@@ -47,7 +39,7 @@ export default async function AdminDashboardPage() {
         público de inmediato.
       </p>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {sections.map((section) => (
           <section
             key={section.href}

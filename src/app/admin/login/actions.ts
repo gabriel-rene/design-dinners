@@ -14,6 +14,18 @@ export async function requestMagicLink(
 ): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim();
 
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return {
+      status: "error",
+      email,
+      error:
+        "El acceso al CMS todavía no está configurado. Añade Supabase Auth en Vercel.",
+    };
+  }
+
   if (!email) {
     return { status: "error", email, error: "Ingresa tu correo electrónico." };
   }
