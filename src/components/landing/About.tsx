@@ -78,7 +78,7 @@ export default function About({ whatsappUrl }: { whatsappUrl: string }) {
                 href="https://gabrielrodz.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-bold text-white underline decoration-dd-yellow decoration-2 underline-offset-4 transition-colors hover:text-dd-yellow"
+                className="underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
               >
                 gabrielrodz.com
               </a>
