@@ -7,24 +7,6 @@
    text-dd-red, font-display, ...) and directly as CSS custom properties.
 --------------------------------------------------------------------------- */
 
-/* Licensed Futura Condensed, staged (gitignored) by scripts/copy-fonts.sh.
-   When the files are absent the @font-face simply resolves nothing and the
-   stack falls through to Oswald — no build or runtime failure. */
-@font-face {
-  font-family: "Futura Condensed";
-  src: url("/fonts/futura/futura-condensed-medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Futura Condensed";
-  src: url("/fonts/futura/futura-condensed-extrabold.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Raw brand tokens (exact style-sheet hex values). */
 :root {
   --dd-red: #d21432; /* Ketchup Red — primary */
@@ -44,8 +26,8 @@
   --color-dd-blue: var(--dd-blue);
   --color-dd-black: var(--dd-black);
 
-  /* Type stacks. Headings prefer licensed Futura, then Oswald, then system. */
-  --font-display: "Futura Condensed", var(--font-oswald), sans-serif;
+  /* Type stacks. Headings use Jost (Google Fonts' Futura match). */
+  --font-display: var(--font-jost), sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     sans-serif;
 }
@@ -64,7 +46,7 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Headings default to the condensed display face; later UITasks opt in with
+  /* Headings default to the display face; later UITasks opt in with
      `font-display` where they need it explicitly. */
   h1,
   h2,
