@@ -72,7 +72,17 @@ export default function About({ whatsappUrl }: { whatsappUrl: string }) {
 
           <div className="mt-16 flex flex-col gap-2 border-t border-white/20 pt-6 text-sm text-white/70 md:flex-row md:items-center md:justify-between">
             <p>© 2026 Design Dinners · Delicious Collective · San Juan, PR</p>
-            <p>Identidad y mascota: brand kit de la comunidad, marzo 2024</p>
+            <p>
+              Website cooked by:{" "}
+              <a
+                href="https://gabrielrodz.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-white underline decoration-dd-yellow decoration-2 underline-offset-4 transition-colors hover:text-dd-yellow"
+              >
+                gabrielrodz.com
+              </a>
+            </p>
           </div>
         </div>
       </footer>
