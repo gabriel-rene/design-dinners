@@ -27,17 +27,28 @@ export default function Speakers({
       <div className="mx-auto w-full max-w-6xl px-5 md:px-8">
         <h2
           id="speakers-titulo"
-          className="font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none"
+          className="dd-reveal-title font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none"
         >
           Speakers
         </h2>
-        <p className="mt-3 text-lg italic">Las voces que ya pusieron la mesa.</p>
+        <p className="mt-3 text-lg italic">
+          Las voces que ya pusieron la mesa.
+        </p>
 
         <ul className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-12 md:mt-14 md:justify-start">
           {speakers.map((speaker, i) => {
-            const upcoming = speakerStatus(speaker.id, events, now) === "upcoming";
+            const upcoming =
+              speakerStatus(speaker.id, events, now) === "upcoming";
             return (
-              <li key={speaker.id} className="w-[max(220px,calc(50%-1rem))] max-w-[250px]">
+              <li
+                key={speaker.id}
+                className="dd-reveal-plate w-[max(220px,calc(50%-1rem))] max-w-[250px]"
+                style={
+                  {
+                    "--dd-tilt": i % 2 === 0 ? "-2deg" : "2deg",
+                  } as React.CSSProperties
+                }
+              >
                 <div className="relative">
                   <BrandImage
                     src={speaker.photo_url}

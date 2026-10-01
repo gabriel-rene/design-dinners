@@ -3,7 +3,11 @@
 import BrandImage from "@/components/BrandImage";
 import EventCard from "@/components/EventCard";
 import type { EventWithSpeakers } from "@/lib/types";
-import { EVENT_TYPE_LABEL, formatEventDate, formatEventTime } from "@/lib/format";
+import {
+  EVENT_TYPE_LABEL,
+  formatEventDate,
+  formatEventTime,
+} from "@/lib/format";
 
 /**
  * Drenched Ketchup Red block. Always visible: featured soonest upcoming event,
@@ -30,14 +34,14 @@ export default function NextEvent({
       <div className="mx-auto w-full max-w-6xl px-5 md:px-8">
         <h2
           id="proximo-evento-titulo"
-          className="font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none text-dd-cream"
+          className="dd-reveal-title text-center font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none text-dd-cream"
         >
           Próximo evento
         </h2>
 
         {featured ? (
           <>
-            <p className="mt-3 text-lg italic text-white">
+            <p className="mt-3 text-center text-lg italic text-white">
               Reserva antes de que se enfríe.
             </p>
 
@@ -46,7 +50,7 @@ export default function NextEvent({
                 src={featured.cover_image_url}
                 alt={`Cover del evento ${featured.title}`}
                 tone="yellow"
-                className="aspect-[4/3] w-full rounded-2xl border-2 border-dd-black"
+                className="dd-reveal-plate aspect-[4/3] w-full rounded-2xl border-2 border-dd-black"
               />
 
               <div className="flex flex-col items-start gap-4">
@@ -63,7 +67,9 @@ export default function NextEvent({
                   {formatEventTime(featured.event_date)}
                 </p>
                 {featured.location && (
-                  <p className="-mt-2 text-lg text-white">{featured.location}</p>
+                  <p className="-mt-2 text-lg text-white">
+                    {featured.location}
+                  </p>
                 )}
                 {featured.description && (
                   <p className="max-w-lg leading-relaxed text-white">
@@ -83,7 +89,7 @@ export default function NextEvent({
                     href={featured.registration_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 rounded-full border-2 border-dd-black bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black transition-transform duration-200 ease-out hover:-translate-y-0.5"
+                    className="mt-2 rounded-full border-2 border-dd-black bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black dd-btn"
                   >
                     Reservar mi puesto ↗
                   </a>
@@ -111,7 +117,12 @@ export default function NextEvent({
           </>
         ) : (
           <div className="mx-auto flex max-w-xl flex-col items-center py-10 text-center md:py-14">
-            <img src="/brand/icon-mayo-cream.svg" alt="" aria-hidden className="h-14 w-14" />
+            <img
+              src="/brand/icon-mayo-cream.svg"
+              alt=""
+              aria-hidden
+              className="dd-float h-14 w-14"
+            />
             <h3 className="mt-6 font-display text-[clamp(2rem,6vw,3.25rem)] font-bold uppercase leading-[0.95] text-dd-cream">
               Estamos cocinando la próxima cena
             </h3>
@@ -121,7 +132,7 @@ export default function NextEvent({
             </p>
             <a
               href={whatsappUrl}
-              className="mt-8 rounded-full border-2 border-dd-black bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black transition-transform duration-200 ease-out hover:-translate-y-0.5"
+              className="mt-8 rounded-full border-2 border-dd-black bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black dd-btn"
             >
               Únete al WhatsApp
             </a>

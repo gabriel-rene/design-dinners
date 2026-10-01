@@ -16,16 +16,23 @@ export default function PastEvents({ past }: { past: EventWithSpeakers[] }) {
       <div className="mx-auto w-full max-w-6xl px-5 md:px-8">
         <h2
           id="eventos-pasados-titulo"
-          className="font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none text-dd-red"
+          className="dd-reveal-title font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none text-dd-red"
         >
           Eventos pasados
         </h2>
-        <p className="mt-3 text-lg italic text-dd-brown">Lo que ya se sirvió.</p>
+        <p className="mt-3 text-lg italic text-dd-brown">
+          Lo que ya se sirvió.
+        </p>
 
         {past.length > 0 ? (
           <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(270px,1fr))] md:mt-12">
             {past.map((event, i) => (
-              <EventCard key={event.id} event={event} variant="past" tone={toneAt(i)} />
+              <EventCard
+                key={event.id}
+                event={event}
+                variant="past"
+                tone={toneAt(i)}
+              />
             ))}
           </div>
         ) : (

@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- local brand assets need no optimization */
 
+import { INSTAGRAM_URL } from "@/lib/social";
+
 /**
  * Sobre / footer: full-bleed community-table photo, then the black closing
  * block with the Papita Yellow primary logo, the WhatsApp CTA and the brand
@@ -9,12 +11,14 @@
 export default function About({ whatsappUrl }: { whatsappUrl: string }) {
   return (
     <section id="sobre" aria-labelledby="sobre-titulo">
-      <img
-        src="/brand/mesa-comunidad.jpg"
-        alt="Una mesa vista desde arriba: hamburguesas, papitas fritas y las manos de la comunidad compartiendo el plato"
-        loading="lazy"
-        className="h-56 w-full border-y-2 border-dd-black object-cover md:h-80"
-      />
+      <div className="h-56 overflow-hidden border-y-2 border-dd-black md:h-80">
+        <img
+          src="/brand/mesa-comunidad.jpg"
+          alt="Una mesa vista desde arriba: hamburguesas, papitas fritas y las manos de la comunidad compartiendo el plato"
+          loading="lazy"
+          className="dd-parallax h-full w-full object-cover"
+        />
+      </div>
 
       <footer className="bg-dd-black py-16 text-white md:py-24">
         <div className="mx-auto w-full max-w-6xl px-5 md:px-8">
@@ -36,13 +40,13 @@ export default function About({ whatsappUrl }: { whatsappUrl: string }) {
             <div className="flex flex-col items-start gap-5 md:pt-2">
               <h2
                 id="sobre-titulo"
-                className="font-display text-[clamp(2rem,5vw,2.75rem)] font-bold uppercase leading-none text-dd-cream"
+                className="dd-reveal-title font-display text-[clamp(2rem,5vw,2.75rem)] font-bold uppercase leading-none text-dd-cream"
               >
                 ¿Te guardamos una silla?
               </h2>
               <a
                 href={whatsappUrl}
-                className="rounded-full border-2 border-dd-cream bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black transition-transform duration-200 ease-out hover:-translate-y-0.5"
+                className="rounded-full border-2 border-dd-cream bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black dd-btn dd-btn--on-dark"
               >
                 Únete al WhatsApp
               </a>
@@ -55,6 +59,14 @@ export default function About({ whatsappUrl }: { whatsappUrl: string }) {
                 />
                 Doble check: aquí sí se lee el grupo.
               </p>
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-bold uppercase tracking-wide text-dd-cream underline decoration-dd-yellow decoration-2 underline-offset-4 transition-colors hover:text-dd-yellow"
+              >
+                Síguenos en Instagram ↗
+              </a>
             </div>
           </div>
 

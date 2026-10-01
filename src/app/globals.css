@@ -62,9 +62,15 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Landing motion. Two moves only: a one-time hero entrance and the red
-   marquee band. Everything else is hover transitions via utilities.
+   Landing motion. One hero entrance (headline words rise, mascot strolls in
+   and keeps a gentle sway), the red marquee band, scroll-linked reveals that
+   only ever enhance already-visible content, and tactile sticker buttons.
 --------------------------------------------------------------------------- */
+
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
 
 @keyframes dd-rise {
   from {
@@ -80,8 +86,69 @@
 /* Elements start visible (animation fills backwards only while running), so
    content never depends on the animation firing. */
 .dd-rise {
-  animation: dd-rise 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: dd-rise 0.65s var(--ease-out-expo) both;
   animation-delay: var(--dd-rise-delay, 0s);
+}
+
+/* Headline words: each one rises out of its own slot, staggered by --i. */
+.dd-word {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding-bottom: 0.04em;
+  vertical-align: top;
+}
+.dd-word > span {
+  display: inline-block;
+  animation: dd-word-up 0.9s var(--ease-out-expo) both;
+  animation-delay: calc(140ms + var(--i, 0) * 70ms);
+}
+@keyframes dd-word-up {
+  from {
+    transform: translateY(105%) rotate(4deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Mascot: strolls in, then sways on its feet like it's waiting for a table. */
+.dd-mascot {
+  transform-origin: 50% 95%;
+  animation:
+    dd-stroll-in 0.9s var(--ease-out-expo) both,
+    dd-sway 3.6s ease-in-out 0.9s infinite alternate;
+}
+@keyframes dd-stroll-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(-8deg) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-2.5deg);
+  }
+}
+@keyframes dd-sway {
+  from {
+    transform: rotate(-2.5deg);
+  }
+  to {
+    transform: rotate(2.5deg) translateY(-3px);
+  }
+}
+
+/* Empty-state plate icon: a slow steam-like float. */
+.dd-float {
+  animation: dd-float 4.2s ease-in-out infinite alternate;
+}
+@keyframes dd-float {
+  from {
+    transform: translateY(0) rotate(-6deg);
+  }
+  to {
+    transform: translateY(-8px) rotate(6deg);
+  }
 }
 
 @keyframes dd-marquee {
@@ -96,15 +163,101 @@
 .dd-marquee-track {
   animation: dd-marquee 28s linear infinite;
 }
+.dd-marquee:hover .dd-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Sticker buttons: lift onto a hard black shadow on hover, press flat on
+   click — the same flat, outlined drawing language as the mascot. */
+.dd-btn {
+  box-shadow: 0 0 0 0 var(--dd-black);
+  transition:
+    transform 220ms var(--ease-out-quart),
+    box-shadow 220ms var(--ease-out-quart);
+}
+.dd-btn:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 2px 4px 0 0 var(--dd-black);
+}
+.dd-btn:active {
+  transform: translate(0, 0) scale(0.98);
+  box-shadow: 0 0 0 0 var(--dd-black);
+  transition-duration: 90ms;
+}
+.dd-btn--on-dark:hover {
+  box-shadow: 2px 4px 0 0 var(--dd-cream);
+}
+
+/* Scroll-linked reveals. Progressive enhancement: where scroll timelines are
+   unsupported nothing animates and everything is simply visible. */
+@supports (animation-timeline: view()) {
+  /* Section titles rise out of a slot as they enter the viewport. */
+  .dd-reveal-title {
+    animation: dd-slot-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+  @keyframes dd-slot-up {
+    from {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(0.6em);
+    }
+    to {
+      clip-path: inset(0 0 -0.2em 0);
+      transform: none;
+    }
+  }
+
+  /* Cards are set down on the table: a small drop with a settling tilt. */
+  .dd-reveal-plate {
+    animation: dd-plate linear both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 85%;
+  }
+  @keyframes dd-plate {
+    from {
+      opacity: 0;
+      transform: translateY(40px) rotate(var(--dd-tilt, -2deg)) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Full-bleed table photo: slow parallax drift through the viewport. */
+  .dd-parallax {
+    animation: dd-parallax linear both;
+    animation-timeline: view();
+  }
+  @keyframes dd-parallax {
+    from {
+      transform: translateY(-7%) scale(1.16);
+    }
+    to {
+      transform: translateY(7%) scale(1.16);
+    }
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  .dd-rise {
+  .dd-rise,
+  .dd-word > span,
+  .dd-mascot,
+  .dd-float,
+  .dd-marquee-track,
+  .dd-reveal-title,
+  .dd-reveal-plate,
+  .dd-parallax {
     animation: none;
   }
-  .dd-marquee-track {
-    animation: none;
+  .dd-btn,
+  .dd-btn:hover,
+  .dd-btn:active {
+    transform: none;
+    transition: box-shadow 150ms linear;
   }
 }
