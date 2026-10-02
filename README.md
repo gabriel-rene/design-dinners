@@ -65,7 +65,7 @@ The CMS lives at `/admin`.
 ## RSVPs
 
 Each event has a public page at `/eventos/[id]` with a reservation form.
-Every event has a seat limit. When it is full, new guests join a waitlist.
+Events can have a seat limit; when full, new guests join a waitlist.
 Admins manage reservations at `/admin/eventos/[id]/reservas`: change the seat
 limit, review the list, and export it as CSV.
 
@@ -84,9 +84,9 @@ migration only adds tables and columns.
 
 1. Import `gabriel-rene/design-dinners` into Vercel.
 2. Add the Neon integration or manually set `DATABASE_URL`.
-3. Add the public environment variables and `RSVP_IP_SALT` listed above for
-   Production and Preview, using the production domain for
-   `NEXT_PUBLIC_SITE_URL`.
+3. Add the environment variables listed above for Production and Preview,
+   using the production domain for `NEXT_PUBLIC_SITE_URL`. `RSVP_IP_SALT` is a
+   secret: mark it Sensitive in Vercel.
 4. Add these Supabase Auth URLs:
 
    - `https://your-domain.com/auth/callback`

@@ -25,7 +25,7 @@ This takes about 20 minutes. It is free. Do the steps in order.
    - Choose a database password and save it in your password manager. You will not need it again for this guide.
    - Click **Create new project**. Wait 1 or 2 minutes.
 
-2. **Create the tables and the image folder**
+2. **Create the admin list and the image folder**
    - In the left menu, click **SQL Editor**.
    - Click **New query**.
    - Open the file `supabase/migrations/20260714000000_init.sql`. Copy all of it.
@@ -72,7 +72,9 @@ This takes about 20 minutes. It is free. Do the steps in order.
      | `NEXT_PUBLIC_WHATSAPP_URL`      | the WhatsApp group invite link (only if it is not there)   |
 
    - **How to make `RSVP_IP_SALT`:** open Terminal and run `openssl rand -hex 32`. Copy the long text it prints and paste it as the value. Do not share it and do not put it in any file.
-   - If a variable already exists, leave it as it is.
+   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `NEXT_PUBLIC_SITE_URL` must **replace** any value that is already there. Edit the old one. Do not keep it.
+   - `NEXT_PUBLIC_WHATSAPP_URL`: if it already exists, leave it as it is.
+   - `RSVP_IP_SALT`: if it was already set, leave it as it is. Mark it **Sensitive** in Vercel. It is a secret.
    - When the website gets its own domain, change `NEXT_PUBLIC_SITE_URL` to `https://designdinners.com` and redeploy.
 
 7. **Redeploy**
@@ -82,7 +84,7 @@ This takes about 20 minutes. It is free. Do the steps in order.
 
 8. **Test the login**
    - Open https://design-dinners.vercel.app/admin/login
-   - Type the email from step 3. Send the link.
+   - Type the email from step 3. Click **Enviar enlace de acceso**.
    - Open your email. Click the link.
    - You should land in the admin panel.
 
@@ -93,7 +95,7 @@ This takes about 20 minutes. It is free. Do the steps in order.
 - **You see "Acceso no autorizado".** Your email is not in the admin list. Check step 3. Use the same email you typed on the login page.
 - **Images do not upload.** Check step 2 ran without errors. Check that you are logged in as an admin.
 
-## Antes de publicar las reservas
+## Before you publish RSVPs
 
 Before the RSVP feature goes live, one small database update is needed. This is a different database from Supabase. It is the **Neon** one.
 

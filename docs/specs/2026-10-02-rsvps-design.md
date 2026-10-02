@@ -105,7 +105,7 @@ All pages and actions call `requireAdmin()` first (existing rule).
 
 - **Event form:** new optional "Cupo (asientos)" number field → `capacity`. Validation: empty or an integer 1–1000. Lowering capacity below the confirmed count is allowed; the UI shows "sobrecupo" and nobody is removed automatically.
 - **Events list:** shows `confirmed/capacity` (or `confirmed` when no limit) per event.
-- **RSVP page `/admin/eventos/[id]/reservas`** (linked as "Reservas" from the list; the edit page stays as is): summary with the plate table, an inline capacity form, and a banner when a seat is free and someone is waiting. Then the RSVP section with two lists — Confirmados and Lista de espera (ordered by `created_at`) — plus a collapsed Cancelados list.
+- **RSVP page `/admin/eventos/[id]/reservas`** (linked as "Reservas" from the list; the edit page stays as is): summary with the plate table, an inline capacity form, and a banner when a seat is free and someone is waiting. Then the RSVP section with two lists — Confirmados and Lista de espera (ordered by `updated_at`) — plus a collapsed Cancelados list.
   - Actions per row: "Subir a confirmado" (waitlist → confirmed, allowed even when it exceeds capacity — the admin decides), "Cancelar" (→ cancelled), "Restaurar" (cancelled → waitlist).
   - "Descargar CSV" → route handler `/admin/eventos/[id]/reservas/csv` (admin-checked) with name, email, status, created_at. Cells are escaped against CSV formula injection (prefix `'` on values starting with `= + - @`).
 - RSVP data is personal data: it is shown only in the admin panel and never on public pages.
