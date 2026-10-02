@@ -58,6 +58,24 @@ export function formatEventTime(isoDate: string): string {
   return time.format(new Date(isoDate));
 }
 
+const parts = new Intl.DateTimeFormat("es-PR", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: TIME_ZONE,
+});
+
+/** { weekday: "jue", day: "23", month: "oct" } for the date sticker. */
+export function formatDateParts(isoDate: string): { weekday: string; day: string; month: string } {
+  const out = { weekday: "", day: "", month: "" };
+  for (const part of parts.formatToParts(new Date(isoDate))) {
+    if (part.type === "weekday") out.weekday = part.value.replace(".", "");
+    if (part.type === "day") out.day = part.value;
+    if (part.type === "month") out.month = part.value.replace(".", "");
+  }
+  return out;
+}
+
 export const EVENT_TYPE_LABEL: Record<EventRow["event_type"], string> = {
   cena: "Cena",
   taller: "Taller",
