@@ -6,13 +6,12 @@ import { headers } from "next/headers";
 import { getDb, hasDatabaseConfig } from "@/lib/db";
 import {
   RATE_LIMIT_PER_HOUR,
-  clientIpFrom,
-  hashIp,
   isHoneypotFilled,
   isUuid,
   parseRsvpInput,
   type RsvpFieldErrors,
 } from "@/lib/rsvp";
+import { clientIpFrom, hashIp } from "@/lib/rsvp-server";
 import { countRecentByIp, insertRsvp, isEventOpenForRsvp } from "@/lib/rsvp-db";
 
 export type RsvpState =

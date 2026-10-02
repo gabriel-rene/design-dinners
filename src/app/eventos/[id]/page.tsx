@@ -129,7 +129,8 @@ export default async function EventPage({ params }: Props) {
           <Link
             href="/"
             aria-label="Volver a la portada de Design Dinners"
-            className="flex items-center gap-2.5 md:gap-3.5"
+            // 44px hit area; the negative margin keeps the bar's height.
+            className="-my-[11px] flex min-h-11 items-center gap-2.5 md:-my-1.5 md:gap-3.5"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M19 12H5" />

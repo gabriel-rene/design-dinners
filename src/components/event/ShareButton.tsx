@@ -29,7 +29,7 @@ export default function ShareButton({ url, title }: { url: string; title: string
     <button
       type="button"
       onClick={share}
-      className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full border-2 border-dd-black px-4 text-sm font-bold dd-btn md:h-[42px] md:px-[18px]"
+      className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border-2 border-dd-black px-4 text-sm font-bold dd-btn md:px-[18px]"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />

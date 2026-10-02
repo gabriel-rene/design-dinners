@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRsvpCsv,
-  clientIpFrom,
-  hashIp,
   isHoneypotFilled,
   isUuid,
   parseCapacity,
@@ -114,22 +112,6 @@ describe("parseCapacity", () => {
     expect(parseCapacity("0")).toEqual({ error: "El cupo debe estar entre 1 y 1000." });
     expect(parseCapacity("1001")).toEqual({ error: "El cupo debe estar entre 1 y 1000." });
     expect(parseCapacity("2.5")).toEqual({ error: "El cupo debe ser un número entero." });
-  });
-});
-
-describe("clientIpFrom + hashIp", () => {
-  it("takes the first forwarded hop", () => {
-    expect(clientIpFrom("203.0.113.9, 10.0.0.1")).toBe("203.0.113.9");
-    expect(clientIpFrom(null)).toBeNull();
-    expect(clientIpFrom("  ")).toBeNull();
-  });
-  it("hashes deterministically and never returns the raw ip", () => {
-    const a = hashIp("203.0.113.9", "salt");
-    expect(a).toMatch(/^[0-9a-f]{64}$/);
-    expect(a).toBe(hashIp("203.0.113.9", "salt"));
-    expect(a).not.toBe(hashIp("203.0.113.9", "other"));
-    expect(hashIp(null, "salt")).toBeNull();
-    expect(hashIp("203.0.113.9", undefined)).toBeNull();
   });
 });
 

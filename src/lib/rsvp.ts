@@ -1,7 +1,6 @@
-// Pure RSVP logic — no network, no Next imports. "now" is injectable so every
-// function is deterministic in tests.
-import { createHash } from "node:crypto";
-
+// Pure RSVP logic — no network, no Next imports, no Node built-ins: client
+// components import it (the IP helpers live in rsvp-server.ts). "now" is
+// injectable so every function is deterministic in tests.
 import type { EventRow, RsvpRow, RsvpStatus } from "./types";
 
 export const MAX_NAME = 120;
@@ -84,18 +83,6 @@ export function parseCapacity(raw: unknown): { value: number | null } | { error:
   const value = Number(text);
   if (value < 1 || value > 1000) return { error: "El cupo debe estar entre 1 y 1000." };
   return { value };
-}
-
-/** First hop of `x-forwarded-for` (set by Vercel). */
-export function clientIpFrom(forwardedFor: string | null): string | null {
-  const first = forwardedFor?.split(",")[0]?.trim();
-  return first ? first : null;
-}
-
-/** Salted SHA-256 so the raw IP is never stored. */
-export function hashIp(ip: string | null, salt: string | undefined): string | null {
-  if (!ip || !salt) return null;
-  return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
 }
 
 export const RSVP_STATUS_LABEL: Record<RsvpStatus, string> = {
