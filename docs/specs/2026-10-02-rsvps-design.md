@@ -1,7 +1,9 @@
 # RSVPs — design spec
 
 **Date:** 2026-10-02
-**Status:** approved in chat, pending written-spec review
+**Status:** approved (owner said "build it" after the mockup)
+**Mockup:** https://claude.ai/artifact/MEVTrUn9L8zfCSSRSgYqWM
+**Plan:** `docs/plans/2026-10-02-rsvps.md`
 **Scope:** public RSVP for events, seat limit + waitlist, admin RSVP management, and bringing the admin panel live with a cloud Supabase project.
 
 Admin event creation already exists (`/admin/eventos`). This phase adds the RSVP layer on top of it.
@@ -39,18 +41,20 @@ create table if not exists rsvps (
   status text not null default 'confirmed'
     check (status in ('confirmed', 'waitlist', 'cancelled')),
   ip_hash text,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create unique index if not exists rsvps_event_email_uidx
   on rsvps (event_id, lower(email));
 create index if not exists rsvps_event_status_idx
-  on rsvps (event_id, status, created_at);
+  on rsvps (event_id, status, updated_at);
 create index if not exists rsvps_ip_hash_created_idx
   on rsvps (ip_hash, created_at);
 ```
 
 - `capacity = null` means no limit.
+- `updated_at` changes on every status change; lists are ordered by it, so a promoted or restored person goes to the end of their new list.
 - Email is stored trimmed; uniqueness is case-insensitive via `lower(email)`.
 - `ip_hash` = SHA-256 of `client IP + RSVP_IP_SALT` (new server-only secret). The raw IP is never stored.
 - `src/lib/types.ts` gains `capacity: number | null` on `EventRow` and a new `RsvpRow`.
@@ -66,6 +70,9 @@ create index if not exists rsvps_ip_hash_created_idx
   - Upcoming + `registration_url` set → the external "Reservar" link, as today. No internal form.
   - Past event → "Este evento ya pasó" and no form.
 - Has its own `<title>` / Open Graph metadata so WhatsApp link previews show the event.
+- **Seats as plates around a long table** (mockup): red = taken, white = free, yellow = yours after confirming. Above 40 seats, a simple bar.
+- **Confirmation is a ticket** (red header "¡Tienes puesto!", name, when, where, seat N de C, perforation) with "Agregar a mi calendario" (`/eventos/[id]/calendario.ics`) and "Invita a un pana por WhatsApp" (`wa.me` share text with the event URL). Waitlist ticket is yellow with the place in line.
+- **Compartir** button in the top bar: Web Share API, falls back to copying the link.
 - Built with the existing brand system and the `impeccable` skill. Spanish copy.
 
 ### Landing changes
@@ -87,7 +94,7 @@ create index if not exists rsvps_ip_hash_created_idx
 6. Result
    - `confirmed` → "¡Listo! Tu puesto está confirmado."
    - `waitlist` → "El evento está lleno. Quedaste en la lista de espera."
-   - Duplicate (no row returned) → the same confirmed-style message, so the form does not reveal who already signed up.
+   - Duplicate (no row returned) → a neutral "¡Anotado!" ticket ("Recibimos tu reserva. Si ya te habías anotado con ese correo, todo sigue igual."), so the form does not reveal who already signed up. A filled honeypot gets the same answer.
 7. `revalidatePath` for `/`, `/eventos/[id]`, and the admin event pages.
 
 Pure helpers (validation, seat math, status labels, CSV building) live in `src/lib/rsvp.ts` and are unit-tested.
@@ -98,9 +105,9 @@ All pages and actions call `requireAdmin()` first (existing rule).
 
 - **Event form:** new optional "Cupo (asientos)" number field → `capacity`. Validation: empty or an integer 1–1000. Lowering capacity below the confirmed count is allowed; the UI shows "sobrecupo" and nobody is removed automatically.
 - **Events list:** shows `confirmed/capacity` (or `confirmed` when no limit) per event.
-- **Event edit page:** new RSVP section with two lists — Confirmados and Lista de espera (ordered by `created_at`) — plus a collapsed Cancelados list.
+- **RSVP page `/admin/eventos/[id]/reservas`** (linked as "Reservas" from the list; the edit page stays as is): summary with the plate table, an inline capacity form, and a banner when a seat is free and someone is waiting. Then the RSVP section with two lists — Confirmados and Lista de espera (ordered by `created_at`) — plus a collapsed Cancelados list.
   - Actions per row: "Subir a confirmado" (waitlist → confirmed, allowed even when it exceeds capacity — the admin decides), "Cancelar" (→ cancelled), "Restaurar" (cancelled → waitlist).
-  - "Descargar CSV" → route handler `/admin/eventos/[id]/rsvps.csv` (admin-checked) with name, email, status, created_at. Cells are escaped against CSV formula injection (prefix `'` on values starting with `= + - @`).
+  - "Descargar CSV" → route handler `/admin/eventos/[id]/reservas/csv` (admin-checked) with name, email, status, created_at. Cells are escaped against CSV formula injection (prefix `'` on values starting with `= + - @`).
 - RSVP data is personal data: it is shown only in the admin panel and never on public pages.
 
 ## 5. Cloud Supabase (admin live)
