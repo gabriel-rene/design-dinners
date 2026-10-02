@@ -69,7 +69,9 @@ export async function submitRsvp(
     return result.status === "confirmed"
       ? { status: "confirmed", name: parsed.name, position: result.position }
       : { status: "waitlist", name: parsed.name, email: parsed.email, position: result.position };
-  } catch {
+  } catch (error) {
+    // Log the error object only, never the visitor's name or email.
+    console.error("submitRsvp failed", error);
     return { status: "error", message: "No pudimos guardar tu reserva. Intenta de nuevo.", values };
   }
 }

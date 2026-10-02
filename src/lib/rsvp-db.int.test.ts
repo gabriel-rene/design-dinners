@@ -64,6 +64,22 @@ describe.skipIf(!url)("rsvp-db (needs DATABASE_URL)", () => {
     expect(results.filter((r) => r?.status === "waitlist")).toHaveLength(5);
   });
 
+  it("never overbooks when the event id differs only in letter case", async () => {
+    const eventId = await makeEvent({ capacity: 1 });
+    const results = await Promise.all(
+      Array.from({ length: 6 }, (_, i) =>
+        insertRsvp(sql, {
+          eventId: i % 2 === 0 ? eventId : eventId.toUpperCase(),
+          name: `C${i}`,
+          email: `c${i}@x.co`,
+          ipHash: null,
+        }),
+      ),
+    );
+    expect(results.filter((r) => r?.status === "confirmed")).toHaveLength(1);
+    expect(results.filter((r) => r?.status === "waitlist")).toHaveLength(5);
+  });
+
   it("counts recent RSVPs per ip hash", async () => {
     const eventId = await makeEvent({ capacity: null });
     const ipHash = `${stamp}-ip`;

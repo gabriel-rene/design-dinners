@@ -11,13 +11,15 @@ type InsertResult = { status: "confirmed" | "waitlist"; position: number };
  * the insert runs as a separate statement after the lock, so under READ
  * COMMITTED its confirmed-count sees every earlier commit: seats are never
  * overbooked. Returns null for a duplicate email or a closed / external /
- * missing event. `position` is the seat number (confirmed) or the place in line
- * (waitlist); the CTE's subquery cannot see the new row, hence `+ 1`.
+ * missing event. The lock key is the canonical uuid text, so differently-cased
+ * ids of one event share a lock. `position` is the seat number (confirmed) or
+ * the place in line (waitlist); the CTE's subquery cannot see the new row, hence `+ 1`.
  */
 export async function insertRsvp(sql: Sql, input: InsertInput): Promise<InsertResult | null> {
   const { eventId, name, email, ipHash } = input;
   const results = await sql.transaction((txn) => [
-    txn`select pg_advisory_xact_lock(hashtext(${eventId}))`,
+    // Canonical uuid text: the id may arrive in any letter case.
+    txn`select pg_advisory_xact_lock(hashtext(${eventId}::uuid::text))`,
     txn`
       with ins as (
         insert into rsvps (event_id, name, email, status, ip_hash)
