@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:unit": "vitest",
     "test:db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/rsvp-db.int.test.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:rsvp": "node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/rsvp.spec.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
