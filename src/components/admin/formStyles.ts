@@ -24,3 +24,17 @@ export const secondaryBtn =
 
 export const dangerBtn =
   "inline-flex items-center justify-center rounded-md border border-dd-red/45 bg-white px-4 py-2 text-sm font-semibold text-dd-red transition-colors hover:bg-dd-red hover:text-dd-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dd-red/40 disabled:opacity-60";
+
+// Black button, same size as primaryBtn: the event row's "Reservas" link and
+// the freed-seat banner's call to action, so they don't compete with the red
+// primary.
+export const darkBtn =
+  "inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-dd-black px-5 py-2.5 text-[15px] font-semibold text-dd-cream transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dd-black/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-60";
+
+// Compact variants for buttons that repeat on every row of a list, sized to
+// match `dangerBtn` (px-4 py-2 text-sm).
+export const primaryBtnSm =
+  "inline-flex items-center justify-center gap-1.5 rounded-md border border-transparent bg-dd-red px-3.5 py-2 text-sm font-semibold text-dd-cream transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dd-red/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-60";
+
+export const secondaryBtnSm =
+  "inline-flex items-center justify-center gap-1.5 rounded-md border border-dd-black/25 bg-white px-3.5 py-2 text-sm font-medium text-dd-black transition-colors hover:border-dd-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dd-black/20 disabled:opacity-60";
