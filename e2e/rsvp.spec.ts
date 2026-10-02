@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { cleanupTestRows, createTestEvent } from "./helpers/cleanup";
+import { cleanupTestRows, createTestEvent, listRsvps } from "./helpers/cleanup";
 import { loginAsAdmin } from "./helpers/login";
 
 test.describe("RSVP", () => {
@@ -44,6 +44,12 @@ test.describe("RSVP", () => {
     await page.goto(`/eventos/${id}`);
     await rsvp(page, "Diego otra vez", `DIEGO-${stamp}@ejemplo.com`);
     await expect(page.getByRole("heading", { name: "¡Anotado!" })).toBeVisible();
+
+    // Duplicate (case-insensitive email) must not add a row or rewrite the original.
+    const rows = await listRsvps(id);
+    expect(rows).toHaveLength(2);
+    expect(rows[1]).toMatchObject({ name: "Diego Torres", status: "waitlist" });
+    expect(rows[1].email.toLowerCase()).toBe(`diego-${stamp}@ejemplo.com`.toLowerCase());
   });
 
   test("past and external events show no form", async ({ page }) => {

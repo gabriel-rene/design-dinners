@@ -33,3 +33,13 @@ export async function createTestEvent(opts: {
   `) as { id: string }[];
   return rows[0].id;
 }
+
+/** Reads an event's RSVP rows straight from Neon, oldest first. */
+export async function listRsvps(
+  eventId: string,
+): Promise<{ name: string; email: string; status: string }[]> {
+  const sql = neon(process.env.DATABASE_URL!);
+  return (await sql`
+    select name, email, status from rsvps where event_id = ${eventId} order by created_at
+  `) as { name: string; email: string; status: string }[];
+}
