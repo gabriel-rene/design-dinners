@@ -9,11 +9,28 @@ function escapeText(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 }
 
+const encoder = new TextEncoder();
+
+/** RFC 5545 §3.1: lines are at most 75 octets (not characters). Count UTF-8
+ *  bytes and never split a character; a continuation line starts with one
+ *  space, which counts toward its 75. */
 function fold(line: string): string {
-  if (line.length <= 75) return line;
-  const chunks = [line.slice(0, 75)];
-  for (let i = 75; i < line.length; i += 74) chunks.push(` ${line.slice(i, i + 74)}`);
-  return chunks.join("\r\n");
+  if (encoder.encode(line).length <= 75) return line;
+  const lines: string[] = [];
+  let current = "";
+  let bytes = 0;
+  for (const ch of line) {
+    const size = encoder.encode(ch).length;
+    if (bytes + size > 75) {
+      lines.push(current);
+      current = " ";
+      bytes = 1;
+    }
+    current += ch;
+    bytes += size;
+  }
+  lines.push(current);
+  return lines.join("\r\n");
 }
 
 export function buildIcs(

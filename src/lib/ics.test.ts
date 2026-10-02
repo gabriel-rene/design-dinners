@@ -36,4 +36,18 @@ describe("buildIcs", () => {
   it("folds lines longer than 75 characters", () => {
     for (const line of lines) expect(line.length).toBeLessThanOrEqual(75);
   });
+
+  it("folds by UTF-8 octets and never splits a character", () => {
+    const title = `${"áéíóúñ".repeat(12)} cena 🍽️ ${"ü".repeat(30)} 🎉 fin`;
+    const out = buildIcs(
+      { id: "id-1", title, description: null, location: null, event_date: "2026-10-23T23:00:00Z" },
+      "https://designdinners.com/eventos/id-1",
+      new Date("2026-10-02T12:00:00Z"),
+    );
+    const encoder = new TextEncoder();
+    for (const line of out.split("\r\n")) expect(encoder.encode(line).length).toBeLessThanOrEqual(75);
+    const unfolded = out.replace(/\r\n /g, "");
+    expect(unfolded).not.toContain("\uFFFD");
+    expect(unfolded).toContain(`SUMMARY:${title}`);
+  });
 });
