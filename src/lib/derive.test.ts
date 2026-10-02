@@ -15,8 +15,11 @@ function makeEvent(
     location: overrides.location ?? null,
     event_type: overrides.event_type ?? "cena",
     registration_url: overrides.registration_url ?? null,
+    capacity: overrides.capacity ?? null,
     cover_image_url: overrides.cover_image_url ?? null,
     created_at: overrides.created_at ?? "2026-01-01T00:00:00Z",
+    confirmed_count: overrides.confirmed_count ?? 0,
+    waitlist_count: overrides.waitlist_count ?? 0,
     speakers: overrides.speakers ?? [],
   };
 }
