@@ -122,5 +122,5 @@ export function buildRsvpCsv(
       new Date(row.created_at).toISOString(),
     ]),
   ].map((cols) => cols.map(csvCell).join(","));
-  return `﻿${lines.join("\r\n")}\r\n`;
+  return `\uFEFF${lines.join("\r\n")}\r\n`;
 }

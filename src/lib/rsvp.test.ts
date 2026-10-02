@@ -138,7 +138,7 @@ describe("buildRsvpCsv", () => {
     const csv = buildRsvpCsv([
       { name: '=HYPERLINK("x")', email: "a@b.co", status: "waitlist", created_at: "2026-10-02T13:14:00.000Z" },
     ]);
-    expect(csv.startsWith("﻿")).toBe(true);
+    expect(csv.startsWith("\uFEFF")).toBe(true);
     const lines = csv.slice(1).trimEnd().split("\r\n");
     expect(lines[0]).toBe('"Nombre","Correo","Estado","Reservó (UTC)"');
     expect(lines[1]).toBe('"\'=HYPERLINK(""x"")","a@b.co","Lista de espera","2026-10-02T13:14:00.000Z"');
