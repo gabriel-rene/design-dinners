@@ -10,7 +10,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:unit": "vitest",
-    "test:e2e": "playwright test"
+    "test:db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/rsvp-db.int.test.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:rsvp": "node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/rsvp.spec.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -19,7 +21,8 @@
     "@supabase/supabase-js": "^2.110.5",
     "next": "^16.2.12",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

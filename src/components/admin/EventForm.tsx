@@ -24,6 +24,7 @@ export type EventFormDefaults = {
   location?: string | null;
   event_type?: string;
   registration_url?: string | null;
+  capacity?: number | null;
   cover_image_url?: string | null;
   speaker_ids?: string[];
 };
@@ -134,7 +135,7 @@ export default function EventForm({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="registration_url" className={labelClass}>
-            Enlace de registro
+            Enlace de registro externo (opcional)
           </label>
           <input
             id="registration_url"
@@ -143,8 +144,32 @@ export default function EventForm({
             defaultValue={defaults.registration_url ?? ""}
             className={inputClass}
             placeholder="https://…"
+            aria-describedby="registration_url-hint"
           />
+          <p id="registration_url-hint" className={hintClass}>
+            Si lo llenas, el botón «Reservar» lleva a ese enlace y la página no usa su propio formulario.
+          </p>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="capacity" className={labelClass}>Cupo (asientos)</label>
+        <input
+          id="capacity"
+          name="capacity"
+          type="number"
+          inputMode="numeric"
+          min={1}
+          max={1000}
+          step={1}
+          defaultValue={defaults.capacity ?? ""}
+          className={`${inputClass} max-w-[10rem]`}
+          placeholder="Sin límite"
+          aria-describedby="capacity-hint"
+        />
+        <p id="capacity-hint" className={hintClass}>
+          Déjalo vacío si no hay límite. Cuando se llene, las nuevas reservas van a la lista de espera.
+        </p>
       </div>
 
       <ImageField

@@ -14,6 +14,7 @@ export interface EventRow {
   location: string | null;
   event_type: "cena" | "taller" | "otro";
   registration_url: string | null;
+  capacity: number | null;
   cover_image_url: string | null;
   created_at: string;
 }
@@ -28,4 +29,21 @@ export interface SpeakerRow {
   created_at: string;
 }
 
-export type EventWithSpeakers = EventRow & { speakers: SpeakerRow[] };
+export interface EventCounts {
+  confirmed_count: number;
+  waitlist_count: number;
+}
+
+export type EventWithSpeakers = EventRow & EventCounts & { speakers: SpeakerRow[] };
+
+export type RsvpStatus = "confirmed" | "waitlist" | "cancelled";
+
+export interface RsvpRow {
+  id: string;
+  event_id: string;
+  name: string;
+  email: string;
+  status: RsvpStatus;
+  created_at: string;
+  updated_at: string;
+}

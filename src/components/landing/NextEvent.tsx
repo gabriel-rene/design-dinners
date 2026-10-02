@@ -8,6 +8,35 @@ import {
   formatEventDate,
   formatEventTime,
 } from "@/lib/format";
+import { seatsLeft } from "@/lib/rsvp";
+
+/** Five small plates that fill in proportion to the seats taken. */
+function SeatsLine({ capacity, confirmed }: { capacity: number; confirmed: number }) {
+  const left = seatsLeft(capacity, confirmed) ?? 0;
+  const filled = left === 0 ? 5 : Math.min(4, Math.floor((confirmed / capacity) * 5));
+  const label =
+    left === 0
+      ? "Mesa llena · únete a la lista de espera"
+      : left === 1
+        ? `Queda 1 de ${capacity} asientos`
+        : `Quedan ${left} de ${capacity} asientos`;
+
+  return (
+    <div className="mt-1.5 flex items-center gap-2.5">
+      <div aria-hidden className="flex gap-1">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span
+            key={i}
+            className={`size-2.5 rounded-full border-[1.5px] ${
+              i < filled ? "border-dd-black bg-dd-yellow" : "border-dd-cream"
+            }`}
+          />
+        ))}
+      </div>
+      <p className="text-sm font-semibold text-white">{label}</p>
+    </div>
+  );
+}
 
 /**
  * Drenched Ketchup Red block. Always visible: featured soonest upcoming event,
@@ -84,7 +113,7 @@ export default function NextEvent({
                     </span>
                   </p>
                 )}
-                {featured.registration_url && (
+                {featured.registration_url ? (
                   <a
                     href={featured.registration_url}
                     target="_blank"
@@ -93,6 +122,20 @@ export default function NextEvent({
                   >
                     Reservar mi puesto ↗
                   </a>
+                ) : (
+                  <a
+                    href={`/eventos/${featured.id}`}
+                    className="mt-2 inline-flex items-center gap-2.5 rounded-full border-2 border-dd-black bg-dd-yellow px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black dd-btn"
+                  >
+                    Reservar mi puesto
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M5 12h14" />
+                      <path d="M13 6l6 6-6 6" />
+                    </svg>
+                  </a>
+                )}
+                {featured.capacity !== null && !featured.registration_url && (
+                  <SeatsLine capacity={featured.capacity} confirmed={featured.confirmed_count} />
                 )}
               </div>
             </div>

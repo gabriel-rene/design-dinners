@@ -31,6 +31,8 @@ Requirements: Node 22 and npm.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase publishable/anon key
    - `NEXT_PUBLIC_SITE_URL`: `http://localhost:3000`
    - `NEXT_PUBLIC_WHATSAPP_URL`: WhatsApp group invitation
+   - `RSVP_IP_SALT`: secret salt for hashing RSVP IPs (generate with
+     `openssl rand -hex 32`)
 
 3. Create the Neon schema:
 
@@ -60,12 +62,31 @@ Requirements: Node 22 and npm.
 
 The CMS lives at `/admin`.
 
+## RSVPs
+
+Each event has a public page at `/eventos/[id]` with a reservation form.
+Events can have a seat limit; when full, new guests join a waitlist.
+Admins manage reservations at `/admin/eventos/[id]/reservas`: change the seat
+limit, review the list, and export it as CSV.
+
+RSVPs are stored in Neon, so run `npm run db:migrate` before using them. The
+migration only adds tables and columns.
+
+## Tests
+
+- `npm test`: unit tests (Vitest).
+- `npm run test:db`: RSVP database tests against the Neon branch in
+  `.env.local`.
+- `npm run test:e2e`: Playwright end-to-end tests.
+- `npm run test:e2e:rsvp`: RSVP end-to-end flow only (needs `.env.local`).
+
 ## Vercel deployment
 
 1. Import `gabriel-rene/design-dinners` into Vercel.
 2. Add the Neon integration or manually set `DATABASE_URL`.
-3. Add the four public environment variables listed above for Production and
-   Preview, using the production domain for `NEXT_PUBLIC_SITE_URL`.
+3. Add the environment variables listed above for Production and Preview,
+   using the production domain for `NEXT_PUBLIC_SITE_URL`. `RSVP_IP_SALT` is a
+   secret: mark it Sensitive in Vercel.
 4. Add these Supabase Auth URLs:
 
    - `https://your-domain.com/auth/callback`
@@ -73,6 +94,10 @@ The CMS lives at `/admin`.
 
 5. Run `npm run db:migrate` once against the production Neon branch.
 6. Deploy.
+
+For the non-technical, step-by-step Supabase setup (project, admin email,
+login URLs, Vercel variables), see
+[`docs/supabase-cloud-setup.md`](docs/supabase-cloud-setup.md).
 
 Neon is accessed only from Server Components and Server Actions through the
 official serverless driver. The database connection string must never use a

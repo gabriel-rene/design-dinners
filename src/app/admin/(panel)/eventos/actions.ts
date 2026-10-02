@@ -7,6 +7,7 @@ import type { FormState } from "@/components/admin/formStyles";
 import { isValidHttpUrl, uploadImageIfPresent } from "@/lib/admin-helpers";
 import { requireAdmin } from "@/lib/auth";
 import { getDb } from "@/lib/db";
+import { parseCapacity } from "@/lib/rsvp";
 
 const EVENT_TYPES = new Set(["cena", "taller", "otro"]);
 
@@ -17,6 +18,7 @@ type ParsedEvent = {
   location: string | null;
   event_type: string;
   registration_url: string | null;
+  capacity: number | null;
   speaker_ids: string[];
 };
 
@@ -37,6 +39,9 @@ function parseEvent(formData: FormData): { error: string } | { value: ParsedEven
     return { error: "El enlace de registro debe ser una URL http(s) válida." };
   }
 
+  const capacity = parseCapacity(formData.get("capacity"));
+  if ("error" in capacity) return { error: capacity.error };
+
   const description = String(formData.get("description") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
 
@@ -48,6 +53,7 @@ function parseEvent(formData: FormData): { error: string } | { value: ParsedEven
       location: location || null,
       event_type: eventType,
       registration_url: registrationUrl || null,
+      capacity: capacity.value,
       speaker_ids: formData
         .getAll("speaker_ids")
         .map(String)
@@ -60,6 +66,8 @@ function refreshEventPages() {
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/eventos");
+  // Dynamic-segment form: refreshes every public event page at once.
+  revalidatePath("/eventos/[id]", "page");
 }
 
 export async function createEvent(
@@ -88,11 +96,11 @@ export async function createEvent(
       txn`
         insert into events (
           id, title, description, event_date, location, event_type,
-          registration_url, cover_image_url
+          registration_url, capacity, cover_image_url
         ) values (
           ${id}, ${event.title}, ${event.description}, ${event.event_date},
           ${event.location}, ${event.event_type}, ${event.registration_url},
-          ${image.url}
+          ${event.capacity}, ${image.url}
         )
       `,
       ...speaker_ids.map(
@@ -148,6 +156,7 @@ export async function updateEvent(
           location = ${event.location},
           event_type = ${event.event_type},
           registration_url = ${event.registration_url},
+          capacity = ${event.capacity},
           cover_image_url = ${image.url}
         where id = ${id}
       `,

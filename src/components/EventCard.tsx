@@ -52,16 +52,25 @@ export default function EventCard({
           {variant === "upcoming" && event.location && (
             <p className="text-[15px] leading-snug">{event.location}</p>
           )}
-          {variant === "upcoming" && event.registration_url && (
+          {variant === "upcoming" && (
             <p className="mt-auto pt-2">
-              <a
-                href={event.registration_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[15px] font-bold text-dd-red underline decoration-2 underline-offset-4 hover:text-dd-brown"
-              >
-                Reservar puesto ↗
-              </a>
+              {event.registration_url ? (
+                <a
+                  href={event.registration_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[15px] font-bold text-dd-red underline decoration-2 underline-offset-4 hover:text-dd-brown"
+                >
+                  Reservar puesto ↗
+                </a>
+              ) : (
+                <a
+                  href={`/eventos/${event.id}`}
+                  className="text-[15px] font-bold text-dd-red underline decoration-2 underline-offset-4 hover:text-dd-brown"
+                >
+                  Reservar puesto →
+                </a>
+              )}
             </p>
           )}
         </div>
