@@ -240,6 +240,85 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Event page: RSVP ticket and seat plates.
+--------------------------------------------------------------------------- */
+
+/* Ticket perforation notches: a circle in the page color whose border shows
+   only on the half inside the ticket, so it reads as a cut-out. */
+.dd-notch-l,
+.dd-notch-r {
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  margin-top: -14px;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background: var(--dd-cream);
+  transform: rotate(45deg);
+}
+.dd-notch-l {
+  left: -15px;
+  border-top-color: var(--dd-black);
+  border-right-color: var(--dd-black);
+}
+.dd-notch-r {
+  right: -15px;
+  border-bottom-color: var(--dd-black);
+  border-left-color: var(--dd-black);
+}
+
+/* The ticket is "printed": it slides down out of a slot. The end inset leaves
+   room for the hard shadow; the fill is backwards-only so no clip remains
+   once it has printed. */
+@keyframes dd-ticket-in {
+  from {
+    clip-path: inset(0 -12px 100% -12px);
+    transform: translateY(-12px);
+  }
+  to {
+    clip-path: inset(0 -12px -20px -12px);
+    transform: none;
+  }
+}
+.dd-ticket-in {
+  animation: dd-ticket-in 0.7s var(--ease-out-expo) backwards;
+}
+
+/* The mascot peeks over the ticket once it has printed. Translate only: the
+   element's tilt comes from Tailwind's `rotate-*`, a separate property. */
+@keyframes dd-peek {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dd-peek {
+  animation: dd-peek 0.6s var(--ease-out-expo) 0.55s both;
+}
+
+/* The visitor's plate pops when it turns yellow. */
+@keyframes dd-plate-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.dd-plate-pop {
+  animation: dd-plate-pop 0.5s var(--ease-out-quart) 0.35s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -251,7 +330,10 @@
   .dd-marquee-track,
   .dd-reveal-title,
   .dd-reveal-plate,
-  .dd-parallax {
+  .dd-parallax,
+  .dd-ticket-in,
+  .dd-peek,
+  .dd-plate-pop {
     animation: none;
   }
   .dd-btn,
