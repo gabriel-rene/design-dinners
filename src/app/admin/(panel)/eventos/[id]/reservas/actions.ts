@@ -20,7 +20,12 @@ function refresh(eventId: string) {
 export async function changeRsvpStatus(eventId: string, rsvpId: string, status: RsvpStatus): Promise<void> {
   await requireAdmin();
   if (!isUuid(eventId) || !isUuid(rsvpId) || !STATUSES.has(status)) return;
-  await setRsvpStatus(getDb(), { eventId, rsvpId, status });
+  try {
+    await setRsvpStatus(getDb(), { eventId, rsvpId, status });
+  } catch (error) {
+    console.error("changeRsvpStatus failed", error);
+    return;
+  }
   refresh(eventId);
 }
 
@@ -33,7 +38,13 @@ export async function updateCapacity(
   if (!isUuid(eventId)) return { error: "Evento no válido." };
   const parsed = parseCapacity(formData.get("capacity"));
   if ("error" in parsed) return { error: parsed.error };
-  await setEventCapacity(getDb(), eventId, parsed.value);
+  try {
+    const updated = await setEventCapacity(getDb(), eventId, parsed.value);
+    if (!updated) return { error: "Ese evento ya no existe." };
+  } catch (error) {
+    console.error("updateCapacity failed", error);
+    return { error: "No pudimos guardar el cupo. Intenta de nuevo." };
+  }
   refresh(eventId);
   return { ok: true };
 }

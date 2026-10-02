@@ -75,6 +75,8 @@ export async function setRsvpStatus(
   `;
 }
 
-export async function setEventCapacity(sql: Sql, eventId: string, capacity: number | null): Promise<void> {
-  await sql`update events set capacity = ${capacity} where id = ${eventId}`;
+/** Returns false when no event has that id. */
+export async function setEventCapacity(sql: Sql, eventId: string, capacity: number | null): Promise<boolean> {
+  const rows = (await sql`update events set capacity = ${capacity} where id = ${eventId} returning id`) as { id: string }[];
+  return rows.length > 0;
 }

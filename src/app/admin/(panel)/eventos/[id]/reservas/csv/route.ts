@@ -23,6 +23,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="reservas-${slug}.csv"`,
       "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

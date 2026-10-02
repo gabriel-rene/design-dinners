@@ -11,7 +11,7 @@ import {
   parseRsvpInput,
   type RsvpFieldErrors,
 } from "@/lib/rsvp";
-import { clientIpFrom, hashIp } from "@/lib/rsvp-server";
+import { clientIpFrom, hashIp, warnIfRateLimitDisabled } from "@/lib/rsvp-server";
 import { countRecentByIp, insertRsvp, isEventOpenForRsvp } from "@/lib/rsvp-db";
 
 export type RsvpState =
@@ -42,6 +42,7 @@ export async function submitRsvp(
 
   const sql = getDb();
   const ip = clientIpFrom((await headers()).get("x-forwarded-for"));
+  warnIfRateLimitDisabled(process.env.RSVP_IP_SALT);
   const ipHash = hashIp(ip, process.env.RSVP_IP_SALT);
 
   try {

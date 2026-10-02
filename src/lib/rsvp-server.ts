@@ -14,6 +14,16 @@ export function clientIpFrom(forwardedFor: string | null): string | null {
   return first;
 }
 
+let warnedNoSalt = false;
+
+/** Production without `RSVP_IP_SALT` silently disables the per-IP rate limit.
+ *  Say so once per server instance. Never logs the salt or any IP. */
+export function warnIfRateLimitDisabled(salt: string | undefined): void {
+  if (warnedNoSalt || salt || process.env.NODE_ENV !== "production") return;
+  warnedNoSalt = true;
+  console.warn("RSVP_IP_SALT is not set: the RSVP rate limit is disabled.");
+}
+
 /** Salted SHA-256 so the raw IP is never stored. */
 export function hashIp(ip: string | null, salt: string | undefined): string | null {
   if (!ip || !salt) return null;

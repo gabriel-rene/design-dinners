@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
+
 import { neon } from "@neondatabase/serverless";
 import { afterAll, describe, expect, it } from "vitest";
 
-import { countRecentByIp, insertRsvp, isEventOpenForRsvp, setRsvpStatus } from "./rsvp-db";
+import { countRecentByIp, insertRsvp, isEventOpenForRsvp, setEventCapacity, setRsvpStatus } from "./rsvp-db";
 
 const url = process.env.DATABASE_URL;
 const stamp = `RSVPTEST-${Date.now()}`;
@@ -99,5 +101,13 @@ describe.skipIf(!url)("rsvp-db (needs DATABASE_URL)", () => {
     await setRsvpStatus(sql, { eventId, rsvpId: id, status: "cancelled" });
     rows = (await sql`select status from rsvps where id = ${id}`) as { status: string }[];
     expect(rows[0].status).toBe("cancelled");
+  });
+
+  it("reports whether setEventCapacity updated a row", async () => {
+    const eventId = await makeEvent({ capacity: 1 });
+    expect(await setEventCapacity(sql, eventId, 5)).toBe(true);
+    const rows = (await sql`select capacity from events where id = ${eventId}`) as { capacity: number }[];
+    expect(rows[0].capacity).toBe(5);
+    expect(await setEventCapacity(sql, randomUUID(), 5)).toBe(false);
   });
 });
