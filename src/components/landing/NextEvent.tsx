@@ -101,7 +101,7 @@ export default function NextEvent({
                   </p>
                 )}
                 {featured.description && (
-                  <p className="max-w-lg leading-relaxed text-white">
+                  <p className="max-w-lg whitespace-pre-line leading-relaxed text-white">
                     {featured.description}
                   </p>
                 )}
