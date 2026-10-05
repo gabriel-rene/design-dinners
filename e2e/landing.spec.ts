@@ -47,21 +47,18 @@ test.describe("Landing page smoke", () => {
     ).toBeVisible();
   });
 
-  test("speakers section shows both seeded speakers as cards", async ({ page }) => {
+  test("speakers section shows only upcoming speakers", async ({ page }) => {
     const section = page.locator("#speakers");
     await expect(section).toBeVisible();
+    await expect(
+      section.getByRole("heading", { name: "Próximos Speakers" }),
+    ).toBeVisible();
 
+    // Ana Rivera speaks at the upcoming event; Luis Ortiz already spoke.
     const cards = section.locator("li");
-    await expect(cards).toHaveCount(2);
-
+    await expect(cards).toHaveCount(1);
     await expect(section.getByRole("heading", { name: "Ana Rivera" })).toBeVisible();
-    await expect(section.getByRole("heading", { name: "Luis Ortiz" })).toBeVisible();
-
-    // Ana Rivera speaks at the upcoming event, so she carries the badge.
-    const anaCard = section.locator("li", { hasText: "Ana Rivera" });
-    await expect(anaCard.getByText("Próximamente")).toBeVisible();
-    const luisCard = section.locator("li", { hasText: "Luis Ortiz" });
-    await expect(luisCard.getByText("Próximamente")).toHaveCount(0);
+    await expect(section.getByRole("heading", { name: "Luis Ortiz" })).toHaveCount(0);
   });
 
 });
