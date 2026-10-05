@@ -158,21 +158,22 @@ export default async function EventPage({ params }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1224px] flex-1 pb-14 md:grid md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:grid-rows-[auto_1fr] md:gap-x-10 md:px-8 md:pt-12 lg:gap-x-16">
-        {/* Cover + title */}
-        <div className="md:col-start-1 md:row-start-1">
-          <div className="relative">
+      <main className="mx-auto w-full max-w-[1224px] flex-1 pb-14 md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:items-start md:gap-x-10 md:px-8 md:pt-12 lg:gap-x-16">
+        {/* Poster: the full 3:4 flyer, never cropped. Stays in view on desktop
+            while the details column scrolls past it. */}
+        <div className="px-5 pt-5 md:sticky md:top-8 md:px-0 md:pt-0">
+          <div className="relative sm:max-w-md md:max-w-none">
             <BrandImage
               src={event.cover_image_url}
               alt={`Cover del evento ${event.title}`}
               tone="yellow"
-              className={`h-[268px] w-full border-b-2 border-dd-black md:h-[400px] md:rounded-2xl md:border-2 ${
+              className={`aspect-[3/4] w-full rounded-2xl border-2 border-dd-black ${
                 isPast ? "grayscale-[0.85] contrast-[1.05]" : ""
               }`}
             />
             <p
               aria-hidden
-              className={`absolute -bottom-[30px] left-5 flex w-[74px] rotate-[-4deg] flex-col items-center rounded-xl border-2 border-dd-black pb-2 pt-1.5 shadow-[2px_3px_0_0_#000] md:-bottom-[34px] md:left-7 md:w-[88px] md:rounded-[14px] md:pb-2.5 md:pt-2 md:shadow-[3px_4px_0_0_#000] ${
+              className={`absolute -right-2 -top-4 flex w-[74px] rotate-[4deg] flex-col items-center rounded-xl border-2 border-dd-black pb-2 pt-1.5 shadow-[2px_3px_0_0_#000] md:-right-5 md:-top-5 md:w-[88px] md:rounded-[14px] md:pb-2.5 md:pt-2 md:shadow-[3px_4px_0_0_#000] ${
                 isPast ? "bg-[#FFF8EE]" : "bg-dd-yellow"
               }`}
             >
@@ -181,8 +182,11 @@ export default async function EventPage({ params }: Props) {
               <span className={STICKER_TEXT}>{parts.month}</span>
             </p>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-3.5 px-5 pt-12 md:gap-0 md:px-0 md:pt-[60px]">
+        {/* Details: title, RSVP, about, speakers */}
+        <div className="min-w-0">
+          <div className="flex flex-col gap-3.5 px-5 pt-8 md:gap-0 md:px-0 md:pt-0">
             <div className="flex flex-wrap items-center gap-2.5">
               <span className={`${PILL} bg-[#FFF8EE]`}>{EVENT_TYPE_LABEL[event.event_type]}</span>
               {isPast && <span className={`${PILL} bg-dd-black text-dd-cream`}>Ya pasó</span>}
@@ -228,110 +232,107 @@ export default async function EventPage({ params }: Props) {
               )}
             </ul>
           </div>
-        </div>
 
-        {/* RSVP area */}
-        <aside
-          aria-label="Reservas"
-          className="mt-[30px] px-5 md:sticky md:top-8 md:col-start-2 md:row-span-2 md:row-start-1 md:mt-0 md:self-start md:px-0"
-        >
-          {(mode === "open" || mode === "full") && (
-            <RsvpPanel
-              event={{
-                id: event.id,
-                title: event.title,
-                capacity: event.capacity,
-                confirmedCount: event.confirmed_count,
-                waitlistCount: event.waitlist_count,
-                mode,
-                whenLabel: `${cap(parts.weekday)} ${parts.day} ${parts.month} · ${timeLabel}`,
-                location: event.location,
-                calendarHref: `/eventos/${event.id}/calendario.ics`,
-                whatsappInviteHref: `https://wa.me/?text=${encodeURIComponent(
-                  `Vente conmigo a ${event.title} de Design Dinners: ${url}`,
-                )}`,
-                whatsappGroupHref: whatsappGroup,
-              }}
-            />
-          )}
+          {/* RSVP area */}
+            <aside aria-label="Reservas" className="mt-[30px] px-5 md:mt-9 md:px-0">
+            {(mode === "open" || mode === "full") && (
+              <RsvpPanel
+                event={{
+                  id: event.id,
+                  title: event.title,
+                  capacity: event.capacity,
+                  confirmedCount: event.confirmed_count,
+                  waitlistCount: event.waitlist_count,
+                  mode,
+                  whenLabel: `${cap(parts.weekday)} ${parts.day} ${parts.month} · ${timeLabel}`,
+                  location: event.location,
+                  calendarHref: `/eventos/${event.id}/calendario.ics`,
+                  whatsappInviteHref: `https://wa.me/?text=${encodeURIComponent(
+                    `Vente conmigo a ${event.title} de Design Dinners: ${url}`,
+                  )}`,
+                  whatsappGroupHref: whatsappGroup,
+                }}
+              />
+            )}
 
-          {mode === "external" && event.registration_url && (
-            <section
-              aria-labelledby="rsvp-external-title"
-              className="rounded-2xl border-2 border-dd-black bg-dd-red px-5 pb-[22px] pt-6 shadow-[4px_6px_0_0_var(--dd-black)] md:px-[26px] md:pb-6 md:pt-7"
-            >
-              <h2 id="rsvp-external-title" className="font-display text-[32px] font-bold uppercase leading-none text-dd-cream md:text-4xl">
-                Aparta tu puesto
-              </h2>
-              <p className="mt-2.5 text-[15px] leading-normal text-white">
-                Las reservas de este evento se hacen en otra página. Te llevamos allá.
-              </p>
-              <a
-                href={event.registration_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-[22px] flex h-14 w-full items-center justify-center rounded-full border-2 border-dd-black bg-dd-yellow font-display text-[19px] font-bold uppercase tracking-[0.03em] text-dd-black dd-btn md:h-[58px] md:text-xl"
+            {mode === "external" && event.registration_url && (
+              <section
+                aria-labelledby="rsvp-external-title"
+                className="rounded-2xl border-2 border-dd-black bg-dd-red px-5 pb-[22px] pt-6 shadow-[4px_6px_0_0_var(--dd-black)] md:px-[26px] md:pb-6 md:pt-7"
               >
-                Reservar mi puesto ↗
-              </a>
-            </section>
-          )}
-
-          {mode === "closed" && (
-            <section
-              aria-labelledby="past-title"
-              className="rounded-2xl border-2 border-dd-black bg-dd-brown px-5 pb-[22px] pt-[26px] shadow-[4px_6px_0_0_var(--dd-black)] md:px-[26px]"
-            >
-              <img src="/brand/icon-mayo-cream.svg" alt="" aria-hidden className="size-10" />
-              <h2 id="past-title" className="mt-4 font-display text-[32px] font-bold uppercase leading-none text-dd-cream md:text-4xl">
-                Este evento ya pasó
-              </h2>
-              <p className="mt-2.5 text-[15px] leading-relaxed text-white">
-                Gracias a todos los que se sentaron a la mesa. La próxima ya se está cocinando.
-              </p>
-              <div className="mt-5 flex flex-col gap-2.5">
-                <Link
-                  href="/#proximo-evento"
-                  className="flex h-[54px] items-center justify-center rounded-full border-2 border-dd-black bg-dd-yellow font-display text-lg font-bold uppercase tracking-[0.03em] text-dd-black dd-btn"
-                >
-                  Ver el próximo evento
-                </Link>
+                <h2 id="rsvp-external-title" className="font-display text-[32px] font-bold uppercase leading-none text-dd-cream md:text-4xl">
+                  Aparta tu puesto
+                </h2>
+                <p className="mt-2.5 text-[15px] leading-normal text-white">
+                  Las reservas de este evento se hacen en otra página. Te llevamos allá.
+                </p>
                 <a
-                  href={whatsappGroup}
-                  className="flex h-12 items-center justify-center text-[15px] font-bold text-dd-cream underline underline-offset-4"
+                  href={event.registration_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-[22px] flex h-14 w-full items-center justify-center rounded-full border-2 border-dd-black bg-dd-yellow font-display text-[19px] font-bold uppercase tracking-[0.03em] text-dd-black dd-btn md:h-[58px] md:text-xl"
                 >
-                  Únete al WhatsApp
+                  Reservar mi puesto ↗
                 </a>
-              </div>
-            </section>
-          )}
-        </aside>
+              </section>
+            )}
 
-        {/* About + speakers */}
-        {(event.description || event.speakers.length > 0) && (
-          <div className="mt-11 flex flex-col gap-9 px-5 md:col-start-1 md:row-start-2 md:mt-10 md:border-t-2 md:border-dd-black md:px-0 md:pt-8 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
-            {event.description && (
-              <section aria-labelledby="about-title">
-                <h2 id="about-title" className={SECTION_TITLE}>
-                  De qué se trata
+            {mode === "closed" && (
+              <section
+                aria-labelledby="past-title"
+                className="rounded-2xl border-2 border-dd-black bg-dd-brown px-5 pb-[22px] pt-[26px] shadow-[4px_6px_0_0_var(--dd-black)] md:px-[26px]"
+              >
+                <img src="/brand/icon-mayo-cream.svg" alt="" aria-hidden className="size-10" />
+                <h2 id="past-title" className="mt-4 font-display text-[32px] font-bold uppercase leading-none text-dd-cream md:text-4xl">
+                  Este evento ya pasó
                 </h2>
-                <p className="mt-3 max-w-[65ch] whitespace-pre-line leading-[1.65] md:text-[17px]">{event.description}</p>
+                <p className="mt-2.5 text-[15px] leading-relaxed text-white">
+                  Gracias a todos los que se sentaron a la mesa. La próxima ya se está cocinando.
+                </p>
+                <div className="mt-5 flex flex-col gap-2.5">
+                  <Link
+                    href="/#proximo-evento"
+                    className="flex h-[54px] items-center justify-center rounded-full border-2 border-dd-black bg-dd-yellow font-display text-lg font-bold uppercase tracking-[0.03em] text-dd-black dd-btn"
+                  >
+                    Ver el próximo evento
+                  </Link>
+                  <a
+                    href={whatsappGroup}
+                    className="flex h-12 items-center justify-center text-[15px] font-bold text-dd-cream underline underline-offset-4"
+                  >
+                    Únete al WhatsApp
+                  </a>
+                </div>
               </section>
             )}
-            {event.speakers.length > 0 && (
-              <section aria-labelledby="speakers-title">
-                <h2 id="speakers-title" className={SECTION_TITLE}>
-                  En la mesa
-                </h2>
-                <ul className="mt-4 flex flex-col gap-4">
-                  {event.speakers.map((speaker) => (
-                    <Speaker key={speaker.id} speaker={speaker} />
-                  ))}
-                </ul>
-              </section>
-            )}
-          </div>
-        )}
+          </aside>
+
+          {/* About + speakers */}
+          {(event.description || event.speakers.length > 0) && (
+            <div className="mt-11 flex flex-col gap-9 px-5 md:mt-10 md:border-t-2 md:border-dd-black md:px-0 md:pt-8">
+              {event.description && (
+                <section aria-labelledby="about-title">
+                  <h2 id="about-title" className={SECTION_TITLE}>
+                    De qué se trata
+                  </h2>
+                  <p className="mt-3 max-w-[65ch] whitespace-pre-line leading-[1.65] md:text-[17px]">{event.description}</p>
+                </section>
+              )}
+              {event.speakers.length > 0 && (
+                <section aria-labelledby="speakers-title">
+                  <h2 id="speakers-title" className={SECTION_TITLE}>
+                    En la mesa
+                  </h2>
+                  <ul className="mt-4 flex flex-col gap-4">
+                    {event.speakers.map((speaker) => (
+                      <Speaker key={speaker.id} speaker={speaker} />
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+          )}
+        </div>
       </main>
 
       <footer className="border-t-2 border-dd-black bg-dd-red">
