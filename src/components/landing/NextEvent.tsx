@@ -74,12 +74,12 @@ export default function NextEvent({
               Reserva antes de que se enfríe.
             </p>
 
-            <div className="mt-10 grid items-center gap-8 md:mt-14 md:grid-cols-[6fr_5fr] md:gap-12">
+            <div className="mt-10 grid items-center gap-8 md:mt-14 md:grid-cols-[5fr_6fr] md:gap-12">
               <BrandImage
                 src={featured.cover_image_url}
                 alt={`Cover del evento ${featured.title}`}
                 tone="yellow"
-                className="dd-reveal-plate aspect-[4/3] w-full rounded-2xl border-2 border-dd-black"
+                className="dd-reveal-plate aspect-[3/4] w-full rounded-2xl border-2 border-dd-black"
               />
 
               <div className="flex flex-col items-start gap-4">
