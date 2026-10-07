@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import AdminNav from "@/components/admin/AdminNav";
 import { requireAdmin } from "@/lib/auth";
+import { getServiceClient, hasServiceConfig } from "@/lib/supabase/service";
+import { countPending } from "@/lib/vitrina/db";
 
 export const metadata: Metadata = {
   title: "Panel de administración — Design Dinners",
@@ -19,10 +21,13 @@ export default async function PanelLayout({
   children: React.ReactNode;
 }) {
   const { user } = await requireAdmin();
+  const vitrinaPending = hasServiceConfig
+    ? await countPending(getServiceClient()).catch(() => 0)
+    : 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-dd-cream">
-      <AdminNav email={user.email ?? ""} />
+      <AdminNav email={user.email ?? ""} vitrinaPending={vitrinaPending} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 md:px-8 md:py-12">
         {children}
       </main>
