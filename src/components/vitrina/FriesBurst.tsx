@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 
 import { FRY } from "./FriesIcon";
 
-export type Burst = { id: number; x: number; y: number };
+/** `aim` is the direction the fan opens, in degrees (-90 = straight up). */
+export type Burst = { id: number; x: number; y: number; aim?: number };
 
 const FRIES = 7;
 const SPARKLES = 2;
@@ -45,8 +46,8 @@ function jitter(amount: number) {
 }
 
 /** A fry flies out along its own spoke, tumbles over the apex and drops out of frame. */
-function flyFry(el: Element, i: number) {
-  const spoke = -90 + (i - (FRIES - 1) / 2) * 21 + jitter(5); // a fan opening upward
+function flyFry(el: Element, i: number, aim: number) {
+  const spoke = aim + (i - (FRIES - 1) / 2) * 21 + jitter(5); // a fan opening upward
   const rad = (spoke * Math.PI) / 180;
   const reach = 74 + (i % 3) * 20 + jitter(8);
   const dx = Math.cos(rad) * reach;
@@ -97,7 +98,7 @@ export default function FriesBurst({ burst, onDone }: { burst: Burst; onDone: (i
     let cancelled = false;
     const pieces = Array.from(el.children);
     const animations = [
-      ...pieces.slice(0, FRIES).map(flyFry),
+      ...pieces.slice(0, FRIES).map((piece, i) => flyFry(piece, i, burst.aim ?? -90)),
       ...pieces.slice(FRIES).map(twinkle),
     ];
     Promise.all(animations.map((a) => a.finished))
@@ -109,10 +110,10 @@ export default function FriesBurst({ burst, onDone }: { burst: Burst; onDone: (i
       cancelled = true;
       animations.forEach((a) => a.cancel());
     };
-  }, [burst.id, onDone]);
+  }, [burst.id, burst.aim, onDone]);
 
   return (
-    <div ref={root} aria-hidden className="pointer-events-none absolute z-10" style={{ left: burst.x, top: burst.y }}>
+    <div ref={root} aria-hidden data-testid="fries-burst" className="pointer-events-none absolute z-10" style={{ left: burst.x, top: burst.y }}>
       {Array.from({ length: FRIES }, (_, i) => (
         <FryPiece key={`fry-${i}`} />
       ))}

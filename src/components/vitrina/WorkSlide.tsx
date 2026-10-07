@@ -13,6 +13,8 @@ const DOUBLE_TAP_MS = 300;
 const DOUBLE_TAP_PX = 40;
 /** Some mobile browsers also fire dblclick after a double-tap; ignore it. */
 const TOUCH_DBLCLICK_MS = 600;
+/** From the rail button the fan opens up and to the left, away from the frame's edge. */
+const BUTTON_AIM = -120;
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -23,7 +25,10 @@ function onControl(target: EventTarget) {
   return target instanceof Element && target.closest("a, button") !== null;
 }
 
-/** A Vitrina slide with papitas: the rail button toggles, a double-tap / double-click only gives. */
+/**
+ * A Vitrina slide with papitas: the rail button toggles, a double-tap / double-click only gives.
+ * Giving one either way sends fries flying; taking one back only pops the button.
+ */
 export default function WorkSlide({ work, index, eager }: { work: PublicWork; index: number; eager: boolean }) {
   const [fries, setFries] = useState({ count: work.friesCount, given: work.given });
   const [bursts, setBursts] = useState<Burst[]>([]);
@@ -44,12 +49,16 @@ export default function WorkSlide({ work, index, eager }: { work: PublicWork; in
     setFries(result ?? before);
   }
 
-  function giveAt(clientX: number, clientY: number) {
+  function burstAt(clientX: number, clientY: number, aim?: number) {
     const box = frame.current?.getBoundingClientRect();
     if (box && !prefersReducedMotion()) {
-      const burst = { id: ++burstId.current, x: clientX - box.left, y: clientY - box.top };
+      const burst = { id: ++burstId.current, x: clientX - box.left, y: clientY - box.top, aim };
       setBursts((list) => [...list, burst]);
     }
+  }
+
+  function giveAt(clientX: number, clientY: number) {
+    burstAt(clientX, clientY);
     setPop((n) => n + 1);
     void change(true); // a double-tap only ever gives
   }
@@ -88,7 +97,11 @@ export default function WorkSlide({ work, index, eager }: { work: PublicWork; in
           given={fries.given}
           count={fries.count}
           pop={pop}
-          onToggle={() => {
+          onToggle={(button) => {
+            if (!fries.given) {
+              const box = button.firstElementChild?.getBoundingClientRect(); // the round icon, not the count
+              if (box) burstAt(box.left + box.width / 2, box.top + box.height / 2, BUTTON_AIM);
+            }
             setPop((n) => n + 1);
             void change(!fries.given);
           }}
