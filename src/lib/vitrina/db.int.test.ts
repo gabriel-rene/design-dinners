@@ -1,12 +1,14 @@
 import { randomUUID } from "node:crypto";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { decodeCursor } from "./cursor";
 import {
   PENDING_BUCKET,
   PUBLIC_BUCKET,
+  PUBLIC_MAX_EDGE,
   approveWork,
   countPending,
   countRecentSubmissions,
@@ -39,10 +41,13 @@ describe.skipIf(!isLocal || !serviceKey)("vitrina db (local Supabase)", () => {
   const db = createClient(clientUrl, serviceKey ?? "skipped", { auth: { persistSession: false } });
   const ipHash = `ip-${stamp}`;
 
-  async function submitted(title = "obra") {
-    const path = `${randomUUID()}.png`;
+  async function submitted(
+    title = "obra",
+    image: { body: Buffer; ext: string; mime: string } = { body: PNG, ext: "png", mime: "image/png" },
+  ) {
+    const path = `${randomUUID()}.${image.ext}`;
     await createUploadTicket(db, path, ipHash);
-    await db.storage.from(PENDING_BUCKET).upload(path, PNG, { contentType: "image/png" });
+    await db.storage.from(PENDING_BUCKET).upload(path, image.body, { contentType: image.mime });
     const id = await insertWork(
       db,
       {
@@ -84,7 +89,9 @@ describe.skipIf(!isLocal || !serviceKey)("vitrina db (local Supabase)", () => {
     const fan = randomUUID();
     await toggleFry(db, { workId: b, fanId: fan, ipHash, on: true });
 
-    const first = await listFeed(db, { cursor: null, onlyAvailable: false, fanId: fan, limit: 2 });
+    // Start just above this test's rows so other suites' rows (or leftovers) never interleave.
+    const start = { ts: "2099-02-01T00:00:04Z", id: "ffffffff-ffff-ffff-ffff-ffffffffffff" };
+    const first = await listFeed(db, { cursor: start, onlyAvailable: false, fanId: fan, limit: 2 });
     expect(first.works.map((w) => w.id)).toEqual([a, b]);
     expect(first.works[1]).toMatchObject({ given: true, friesCount: 1 });
     expect(first.works[0]).not.toHaveProperty("creatorEmail");
@@ -94,7 +101,7 @@ describe.skipIf(!isLocal || !serviceKey)("vitrina db (local Supabase)", () => {
     });
     expect(second.works.map((w) => w.id)).toEqual([c]);
 
-    const available = await listFeed(db, { cursor: null, onlyAvailable: true, fanId: null, limit: 1 });
+    const available = await listFeed(db, { cursor: start, onlyAvailable: true, fanId: null, limit: 1 });
     expect(available.works[0].id).toBe(b);
 
     expect((await getPublishedWork(db, b, fan))?.given).toBe(true);
@@ -118,6 +125,36 @@ describe.skipIf(!isLocal || !serviceKey)("vitrina db (local Supabase)", () => {
     const row = rejected.find((w) => w.id === id);
     expect(row?.creatorEmail).toBe("ana@ejemplo.com");
     expect(row?.imageUrl).toMatch(/token=/);
+  });
+
+  it("approve re-encodes: EXIF/GPS stripped, orientation applied, long edge capped, ICC kept", async () => {
+    // 3000×1200 stored with EXIF orientation 6 (rotate 90°) → shown as 1200×3000.
+    const body = await sharp({ create: { width: 3000, height: 1200, channels: 3, background: { r: 210, g: 20, b: 50 } } })
+      .jpeg()
+      .withMetadata({ orientation: 6, exif: { IFD0: { Copyright: "x" } } })
+      .toBuffer();
+    const before = await sharp(body).metadata();
+    expect(before.exif).toBeDefined();
+    expect(before.icc).toBeDefined();
+
+    const { id, path } = await submitted("exif", { body, ext: "jpg", mime: "image/jpeg" });
+    expect(await approveWork(db, id)).toBe(true);
+
+    const { data: blob, error } = await db.storage.from(PUBLIC_BUCKET).download(path);
+    expect(error).toBeNull();
+    const meta = await sharp(Buffer.from(await blob!.arrayBuffer())).metadata();
+    expect(meta.format).toBe("jpeg");
+    expect(meta.exif).toBeUndefined();
+    expect(meta.orientation).toBeUndefined();
+    expect(meta.icc).toBeDefined();
+    expect(Math.max(meta.width, meta.height)).toBeLessThanOrEqual(PUBLIC_MAX_EDGE);
+    expect([meta.width, meta.height]).toEqual([1024, 2560]);
+
+    const { data: row } = await db.from("vitrina_works").select("image_width,image_height").eq("id", id).single();
+    expect(row).toEqual({ image_width: meta.width, image_height: meta.height });
+
+    const { data: listed } = await db.storage.from(PUBLIC_BUCKET).list("", { search: path, limit: 10 });
+    expect(listed?.find((o) => o.name === path)?.metadata?.cacheControl).toBe("max-age=60");
   });
 
   it("reject only from pending; delete removes row and image", async () => {

@@ -5,10 +5,20 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 
 import { encodeCursor, type FeedCursor } from "./cursor";
 import type { AdminWork, FeedPage, PublicWork, WorkStatus } from "./types";
-import { FEED_PAGE_SIZE, LINK_KEYS, mimeForPath, type Badge, type WorkInput, type WorkLinks } from "./validate";
+import {
+  FEED_PAGE_SIZE,
+  LINK_KEYS,
+  MAX_IMAGE_BYTES,
+  mimeForPath,
+  type Badge,
+  type ImageMime,
+  type WorkInput,
+  type WorkLinks,
+} from "./validate";
 
 export const PENDING_BUCKET = "vitrina-pending";
 export const PUBLIC_BUCKET = "vitrina";
@@ -16,6 +26,10 @@ export const PUBLIC_BUCKET = "vitrina";
 const HOUR_MS = 36e5;
 const DAY_MS = 24 * HOUR_MS;
 const SIGNED_URL_SECONDS = 3600;
+/** Long edge of a published image, in px. */
+export const PUBLIC_MAX_EDGE = 2560;
+/** Short CDN cache on public images, so a hidden or deleted one stops being served quickly. */
+const PUBLIC_CACHE_SECONDS = "60";
 
 type LinkColumns = Record<`link_${(typeof LINK_KEYS)[number]}`, string | null>;
 
@@ -304,6 +318,66 @@ async function moveObject(db: SupabaseClient, from: string, to: string, path: st
   if (removeError) throw removeError;
 }
 
+type ImageSize = { width: number; height: number };
+
+/**
+ * Re-encodes an image for the public bucket: applies the EXIF orientation,
+ * fits the long edge in PUBLIC_MAX_EDGE, keeps the ICC profile and drops all
+ * other metadata (EXIF, GPS, XMP, IPTC). Same format as the path extension.
+ */
+export async function encodePublicImage(
+  input: Buffer,
+  mime: ImageMime,
+): Promise<{ body: Buffer; width: number; height: number }> {
+  // Normal quality first; one lower step if the result would not fit the bucket (PNG is lossless).
+  for (const quality of mime === "image/png" ? [100] : [85, 70]) {
+    const image = sharp(input)
+      .rotate()
+      .resize({ width: PUBLIC_MAX_EDGE, height: PUBLIC_MAX_EDGE, fit: "inside", withoutEnlargement: true })
+      .keepIccProfile();
+    const encoded =
+      mime === "image/jpeg"
+        ? image.jpeg({ quality, mozjpeg: true })
+        : mime === "image/webp"
+          ? image.webp({ quality })
+          : image.png({ compressionLevel: 9 });
+    const { data, info } = await encoded.toBuffer({ resolveWithObject: true });
+    if (data.length <= MAX_IMAGE_BYTES) return { body: data, width: info.width, height: info.height };
+  }
+  throw new Error("re-encoded image is larger than the bucket limit");
+}
+
+/**
+ * Pending → public, re-encoded (see encodePublicImage). Returns the published
+ * size. Idempotent like moveObject: if the source is already gone but the public
+ * object exists (a previous attempt died mid-move), the move counts as done and
+ * the size is read from the public object.
+ */
+async function publishObject(db: SupabaseClient, path: string): Promise<ImageSize | null> {
+  const mime = mimeForPath(path);
+  if (!mime) throw new Error(`unsupported image path ${path}`);
+  const { data: blob, error } = await db.storage.from(PENDING_BUCKET).download(path);
+  if (error || !blob) {
+    if (!(await objectExists(db, PUBLIC_BUCKET, path))) throw error ?? new Error(`download ${PENDING_BUCKET}/${path} failed`);
+    const { data: existing } = await db.storage.from(PUBLIC_BUCKET).download(path);
+    if (!existing) return null;
+    try {
+      const meta = await sharp(Buffer.from(await existing.arrayBuffer())).metadata();
+      return { width: meta.autoOrient.width, height: meta.autoOrient.height };
+    } catch {
+      return null;
+    }
+  }
+  const { body, width, height } = await encodePublicImage(Buffer.from(await blob.arrayBuffer()), mime);
+  const { error: uploadError } = await db.storage
+    .from(PUBLIC_BUCKET)
+    .upload(path, body, { contentType: mime, upsert: true, cacheControl: PUBLIC_CACHE_SECONDS });
+  if (uploadError) throw uploadError;
+  const { error: removeError } = await db.storage.from(PENDING_BUCKET).remove([path]);
+  if (removeError) throw removeError;
+  return { width, height };
+}
+
 /** Updates only while the row is still in one of `expected`; false when nothing matched (lost a race). */
 async function transition(
   db: SupabaseClient,
@@ -316,13 +390,18 @@ async function transition(
   return (data ?? []).length > 0;
 }
 
-/** Pending or rejected → published. Goes to the top of the feed. */
+/** Pending or rejected → published (image re-encoded, see publishObject). Goes to the top of the feed. */
 export async function approveWork(db: SupabaseClient, id: string): Promise<boolean> {
   const row = await getRow(db, id);
   if (!row || row.status === "published") return false;
-  await moveObject(db, PENDING_BUCKET, PUBLIC_BUCKET, row.image_path);
+  const size = await publishObject(db, row.image_path);
   const now = new Date().toISOString();
-  return transition(db, id, ["pending", "rejected"], { status: "published", published_at: now, reviewed_at: now });
+  return transition(db, id, ["pending", "rejected"], {
+    status: "published",
+    published_at: now,
+    reviewed_at: now,
+    ...(size ? { image_width: size.width, image_height: size.height } : {}),
+  });
 }
 
 export async function rejectWork(db: SupabaseClient, id: string): Promise<boolean> {
