@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // PORT lets a second worktree run e2e without reusing another dev server on 3000.
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT) || 3000;
 
 export default defineConfig({
   testDir: "./e2e",

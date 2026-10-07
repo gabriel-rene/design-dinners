@@ -111,6 +111,12 @@ with a double-tap or the button. The data lives in Supabase (tables plus the
   never reuses a dev server running on 3000. Needs local Supabase, the service
   role key and the seeded admin. It creates and deletes only rows whose title
   carries its own `E2E-VITRINA-` stamp.
+  The script sets `NEXT_PUBLIC_SITE_URL=http://localhost:3100`, so the magic
+  link points back at that server. Local GoTrue accepts localhost redirects on
+  any port because the hostname matches `site_url` (`supabase/config.toml` lists
+  only `:3000` URLs). If login ever lands on `:3000`, add
+  `http://localhost:3100/auth/callback` to `additional_redirect_urls` and
+  restart Supabase.
 
 ## Vercel deployment
 
