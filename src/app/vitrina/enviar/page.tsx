@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SubmitWorkForm from "@/components/vitrina/SubmitWorkForm";
-import { INSTAGRAM_URL } from "@/lib/social";
 
 export const metadata: Metadata = {
   title: "Comparte tu trabajo — La Vitrina — Design Dinners",
@@ -27,8 +26,8 @@ export default function EnviarPage() {
           <SubmitWorkForm />
         </div>
         <p className="mt-12 text-sm text-dd-black/65">
-          ¿Quieres quitar una obra? Escríbenos por{" "}
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="underline">Instagram</a>.
+          ¿Quieres quitar una obra? Escríbenos a{" "}
+          <a href="mailto:rodz.gabriel@gmail.com?subject=Quitar%20obra%20de%20La%20Vitrina" className="underline">rodz.gabriel@gmail.com</a>.
         </p>
       </div>
     </main>

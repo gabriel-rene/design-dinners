@@ -155,7 +155,7 @@ Add "Vitrina" to the landing header nav (`Hero.tsx`), next to Instagram and What
 
 - **Rate limit:** max 3 submissions per IP hash per 24 h. Use the same salted hash as RSVPs. Move `hashIp` from `rsvp-server.ts` to a shared `src/lib/ip-hash.ts`.
 - **Success screen:** "¡Gracias! Revisamos cada obra antes de publicarla."
-- **Footer note:** to remove a piece, write to Design Dinners on Instagram (`INSTAGRAM_URL` from `src/lib/social.ts`).
+- **Footer note:** to remove a piece, write to rodz.gabriel@gmail.com (a `mailto:` link with the subject "Quitar obra de La Vitrina").
 - Errors show in Spanish next to the field. The form keeps the values the person typed.
 
 ## 5. Papitas (fries like)

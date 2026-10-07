@@ -154,12 +154,17 @@ export default function SubmitWorkForm() {
         </label>
       </div>
 
+      <p className={hintClass}><span aria-hidden="true" className="text-dd-red">*</span> Obligatorio</p>
+
       <div className="space-y-1.5">
-        <label htmlFor="image" className={labelClass}>Imagen de la obra</label>
+        <label htmlFor="image" className={`${labelClass} inline`}>Imagen de la obra</label>{" "}
+        <span aria-hidden="true" className="text-dd-red">*</span>
         <input
           id="image"
           name="image"
           type="file"
+          required
+          aria-required="true"
           accept="image/jpeg,image/png,image/webp"
           onChange={onFileChange}
           aria-invalid={Boolean(errors.image)}
@@ -174,8 +179,9 @@ export default function SubmitWorkForm() {
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="title" className={labelClass}>Título de la obra</label>
-        <input id="title" name="title" maxLength={LIMITS.title} className={inputClass}
+        <label htmlFor="title" className={`${labelClass} inline`}>Título de la obra</label>{" "}
+        <span aria-hidden="true" className="text-dd-red">*</span>
+        <input id="title" name="title" required aria-required="true" maxLength={LIMITS.title} className={inputClass}
           aria-invalid={Boolean(errors.title)} aria-describedby={describedBy("title")} />
         <ErrorText id="title-error" text={errors.title} />
       </div>
@@ -191,29 +197,32 @@ export default function SubmitWorkForm() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-1.5">
-          <label htmlFor="name" className={labelClass}>Nombre</label>
-          <input id="name" name="name" autoComplete="name" maxLength={LIMITS.name} className={inputClass}
+          <label htmlFor="name" className={`${labelClass} inline`}>Nombre</label>{" "}
+          <span aria-hidden="true" className="text-dd-red">*</span>
+          <input id="name" name="name" required aria-required="true" autoComplete="name" maxLength={LIMITS.name} className={inputClass}
             aria-invalid={Boolean(errors.name)} aria-describedby={describedBy("name")} />
           <ErrorText id="name-error" text={errors.name} />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="role" className={labelClass}>Rol o disciplina</label>
-          <input id="role" name="role" placeholder="Diseñadora gráfica" maxLength={LIMITS.role} className={inputClass}
+          <label htmlFor="role" className={`${labelClass} inline`}>Rol o disciplina</label>{" "}
+          <span aria-hidden="true" className="text-dd-red">*</span>
+          <input id="role" name="role" required aria-required="true" placeholder="Diseñadora gráfica" maxLength={LIMITS.role} className={inputClass}
             aria-invalid={Boolean(errors.role)} aria-describedby={describedBy("role")} />
           <ErrorText id="role-error" text={errors.role} />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="email" className={labelClass}>Correo electrónico</label>
-        <input id="email" name="email" type="email" autoComplete="email" maxLength={LIMITS.email} className={inputClass}
+        <label htmlFor="email" className={`${labelClass} inline`}>Correo electrónico</label>{" "}
+        <span aria-hidden="true" className="text-dd-red">*</span>
+        <input id="email" name="email" required aria-required="true" type="email" autoComplete="email" maxLength={LIMITS.email} className={inputClass}
           aria-invalid={Boolean(errors.email)} aria-describedby={describedBy("email", true)} />
         <p id="email-hint" className={hintClass}>No se muestra públicamente. Solo lo usamos si hay que contactarte.</p>
         <ErrorText id="email-error" text={errors.email} />
       </div>
 
       <fieldset className="space-y-3" aria-describedby={describedBy("links", true)}>
-        <legend className={labelClass}>Dónde encontrarte</legend>
+        <legend className={labelClass}>Dónde encontrarte <span aria-hidden="true" className="text-dd-red">*</span></legend>
         <p id="links-hint" className={hintClass}>Al menos uno. Aparecen como botones en tu obra.</p>
         <div className="grid gap-3 md:grid-cols-2">
           {LINK_KEYS.map((key) => (
@@ -240,9 +249,12 @@ export default function SubmitWorkForm() {
 
       <div className="space-y-1.5">
         <label className="flex items-start gap-3 text-[15px] text-dd-black">
-          <input type="checkbox" name="ownership" className="mt-1 h-4 w-4 accent-dd-red"
+          <input type="checkbox" name="ownership" required aria-required="true" className="mt-1 h-4 w-4 accent-dd-red"
             aria-invalid={Boolean(errors.ownership)} aria-describedby={describedBy("ownership")} />
-          Esta obra es mía y autorizo que se muestre en Design Dinners.
+          <span>
+            Esta obra es mía y autorizo que se muestre en Design Dinners.{" "}
+            <span aria-hidden="true" className="text-dd-red">*</span>
+          </span>
         </label>
         <ErrorText id="ownership-error" text={errors.ownership} />
       </div>
