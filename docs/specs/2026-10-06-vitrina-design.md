@@ -1,7 +1,7 @@
 # La Vitrina — design spec
 
 **Date:** 2026-10-06
-**Status:** approved (owner: "write the plan and kick it off", 2026-10-06)
+**Status:** implemented on branch feat/vitrina (2026-10-06)
 **Plan:** `docs/plans/2026-10-06-vitrina.md`
 **Scope:** a public, vertical-swipe feed of work by community members. Anyone can submit a piece. An admin approves it before it shows. Visitors give "papitas" (a fries-shaped like) by double-tapping.
 

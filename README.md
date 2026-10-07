@@ -33,6 +33,9 @@ Requirements: Node 22 and npm.
    - `NEXT_PUBLIC_WHATSAPP_URL`: WhatsApp group invitation
    - `RSVP_IP_SALT`: secret salt for hashing RSVP IPs (generate with
      `openssl rand -hex 32`)
+   - `SUPABASE_SERVICE_ROLE_KEY`: server-only key used by La Vitrina. Locally,
+     copy `SERVICE_ROLE_KEY` from `npx supabase status`. Never give it a
+     `NEXT_PUBLIC_` prefix.
 
 3. Create the Neon schema:
 
@@ -72,6 +75,29 @@ limit, review the list, and export it as CSV.
 RSVPs are stored in Neon, so run `npm run db:migrate` before using them. The
 migration only adds tables and columns.
 
+## La Vitrina
+
+`/vitrina` is a vertical, Shorts-style feed of work by community members.
+Anyone can send a piece at `/vitrina/enviar`; it stays hidden until an admin
+approves it at `/admin/vitrina`. Visitors give "papitas" (a fries-shaped like)
+with a double-tap or the button. The data lives in Supabase (tables plus the
+`vitrina-pending` and `vitrina` storage buckets); apply the migrations with
+`npx supabase migration up` (never `db reset` on a shared local stack).
+
+## Security model
+
+- Admin access: Supabase Auth magic links plus the `admins` allowlist. Every
+  admin page and server action calls `requireAdmin()` first; the proxy is UX
+  only and is never the gate.
+- The Supabase anon key is public by design and only reads what RLS allows.
+- La Vitrina uses the Supabase service role on the server only
+  (`SUPABASE_SERVICE_ROLE_KEY`, never `NEXT_PUBLIC_`). Its tables deny
+  `anon`/`authenticated` entirely; public actions validate and rate-limit
+  before using it, admin actions call `requireAdmin()` first.
+- Submitter emails and IP hashes never reach public pages or the client.
+- Neon (events, RSVPs) is reached only from Server Components and Server
+  Actions.
+
 ## Tests
 
 - `npm test`: unit tests (Vitest).
@@ -79,6 +105,12 @@ migration only adds tables and columns.
   `.env.local`.
 - `npm run test:e2e`: Playwright end-to-end tests.
 - `npm run test:e2e:rsvp`: RSVP end-to-end flow only (needs `.env.local`).
+- `npm run test:vitrina-db`: La Vitrina data-layer tests against the local
+  Supabase stack (needs `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`).
+- `npm run test:e2e:vitrina`: La Vitrina end-to-end flow on port 3100, so it
+  never reuses a dev server running on 3000. Needs local Supabase, the service
+  role key and the seeded admin. It creates and deletes only rows whose title
+  carries its own `E2E-VITRINA-` stamp.
 
 ## Vercel deployment
 
