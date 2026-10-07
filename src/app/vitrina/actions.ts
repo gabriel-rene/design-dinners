@@ -4,6 +4,7 @@ import { isUuid } from "@/lib/rsvp";
 import { getServiceClient, hasServiceConfig } from "@/lib/supabase/service";
 import { decodeCursor } from "@/lib/vitrina/cursor";
 import { countRecentFries, getPublishedWork, listFeed, toggleFry } from "@/lib/vitrina/db";
+import { logSafe } from "@/lib/vitrina/log";
 import { ensureFanId, readFanId, requestIpHash } from "@/lib/vitrina/request";
 import type { FeedPage } from "@/lib/vitrina/types";
 import { FRIES_PER_HOUR } from "@/lib/vitrina/validate";
@@ -32,7 +33,7 @@ export async function setFry(workId: string, on: boolean): Promise<{ count: numb
     const count = await toggleFry(db, { workId, fanId, ipHash, on });
     return count === null ? null : { count, given: on };
   } catch (error) {
-    console.error("setFry failed", error);
+    logSafe("setFry failed", error);
     return null;
   }
 }

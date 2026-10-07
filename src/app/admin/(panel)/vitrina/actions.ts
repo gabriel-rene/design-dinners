@@ -8,6 +8,7 @@ import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/rsvp";
 import { getServiceClient } from "@/lib/supabase/service";
 import { approveWork, deleteWork, hideWork, rejectWork } from "@/lib/vitrina/db";
+import { logSafe } from "@/lib/vitrina/log";
 
 type Transition = (db: SupabaseClient, id: string) => Promise<boolean>;
 
@@ -19,7 +20,7 @@ async function apply(id: string, transition: Transition): Promise<FormState> {
       return { error: "Esa obra ya cambió. Recarga la página." };
     }
   } catch (error) {
-    console.error("vitrina admin action failed", error);
+    logSafe("vitrina admin action failed", error);
     return { error: "No pudimos guardar el cambio. Intenta de nuevo." };
   }
   revalidatePath("/admin/vitrina");

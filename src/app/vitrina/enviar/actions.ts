@@ -12,6 +12,7 @@ import {
   isRecordedUpload,
   pendingObjectInfo,
 } from "@/lib/vitrina/db";
+import { logSafe } from "@/lib/vitrina/log";
 import { requestIpHash } from "@/lib/vitrina/request";
 import {
   IMAGE_EXT,
@@ -50,7 +51,7 @@ export async function startVitrinaUpload(mime: string, size: number): Promise<St
     const { token } = await createUploadTicket(db, path, ipHash);
     return { ok: true, path, token };
   } catch (error) {
-    console.error("startVitrinaUpload failed", error);
+    logSafe("startVitrinaUpload failed", error);
     return { ok: false, message: "No pudimos preparar la subida. Intenta de nuevo." };
   }
 }
@@ -80,8 +81,8 @@ export async function submitVitrinaWork(_prev: SubmitState, formData: FormData):
   } catch (error) {
     // Unique image_path: this upload was already used by another submission.
     if ((error as { code?: string }).code === "23505") return reupload;
-    // Log the error object only, never the visitor's name or email.
-    console.error("submitVitrinaWork failed", error);
+    // Code + message only: never the visitor's name, email, or the failing row.
+    logSafe("submitVitrinaWork failed", error);
     return { status: "error", message: "No pudimos enviar tu obra. Intenta de nuevo." };
   }
 
