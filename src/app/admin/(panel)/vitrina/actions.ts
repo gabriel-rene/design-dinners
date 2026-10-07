@@ -26,6 +26,7 @@ async function apply(id: string, transition: Transition): Promise<FormState> {
   revalidatePath("/admin/vitrina");
   revalidatePath("/admin", "layout");
   revalidatePath("/vitrina", "layout");
+  revalidatePath("/"); // the landing storefront shows the latest pieces
   return {};
 }
 
