@@ -11,8 +11,10 @@
     "test": "vitest run",
     "test:unit": "vitest",
     "test:db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/rsvp-db.int.test.ts",
+    "test:vitrina-db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/vitrina",
     "test:e2e": "playwright test",
-    "test:e2e:rsvp": "node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/rsvp.spec.ts"
+    "test:e2e:rsvp": "node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/rsvp.spec.ts",
+    "test:e2e:vitrina": "PORT=3100 NEXT_PUBLIC_SITE_URL=http://localhost:3100 node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/vitrina.spec.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -22,7 +24,8 @@
     "next": "^16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

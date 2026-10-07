@@ -9,9 +9,16 @@ import { signOut } from "@/app/admin/actions";
 const sections = [
   { href: "/admin/eventos", label: "Eventos" },
   { href: "/admin/speakers", label: "Speakers" },
+  { href: "/admin/vitrina", label: "Vitrina" },
 ];
 
-export default function AdminNav({ email }: { email: string }) {
+export default function AdminNav({
+  email,
+  vitrinaPending = 0,
+}: {
+  email: string;
+  vitrinaPending?: number;
+}) {
   const pathname = usePathname();
 
   return (
@@ -47,6 +54,12 @@ export default function AdminNav({ email }: { email: string }) {
                 }`}
               >
                 {section.label}
+                {section.href === "/admin/vitrina" && vitrinaPending > 0 && (
+                  <span className="ml-1.5 rounded-full bg-dd-yellow px-1.5 py-0.5 text-xs font-bold text-dd-black">
+                    {vitrinaPending}
+                    <span className="sr-only"> pendientes</span>
+                  </span>
+                )}
               </Link>
             );
           })}

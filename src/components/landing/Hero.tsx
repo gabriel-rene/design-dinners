@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- local SVG brand assets need no optimization */
 
+import Link from "next/link";
+
 import { INSTAGRAM_URL } from "@/lib/social";
 
 const HEADLINE = "El diseño se sienta a cenar";
@@ -39,20 +41,26 @@ export default function Hero({ whatsappUrl }: { whatsappUrl: string }) {
         <img
           src="/brand/primary-black.svg"
           alt="Design Dinners"
-          className="h-8 w-auto md:h-9"
+          className="h-7 w-auto sm:h-8 md:h-9"
         />
-        <nav aria-label="Redes" className="flex items-center gap-5 md:gap-7">
+        <nav aria-label="Enlaces" className="flex items-center gap-3 sm:gap-5 md:gap-7">
+          <Link
+            href="/vitrina"
+            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
+          >
+            Vitrina
+          </Link>
           <a
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-bold uppercase tracking-wide underline decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
+            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
           >
             Instagram
           </a>
           <a
             href={whatsappUrl}
-            className="text-sm font-bold uppercase tracking-wide underline decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
+            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
           >
             WhatsApp
           </a>
