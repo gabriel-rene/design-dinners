@@ -339,6 +339,98 @@
   animation: dd-fry-pop 360ms var(--ease-out-quart);
 }
 
+/* ---------------------------------------------------------------------------
+   La Vitrina storefront (landing). A red awning with an outlined scalloped
+   edge, a dark glass shop window, and the work hanging in it: each piece
+   rests at its own tilt and fans out when the window is hovered or a piece
+   is focused. A single light sheen sweeps across the glass on hover.
+--------------------------------------------------------------------------- */
+
+/* A solid red band with an outlined scalloped valance hanging from it. Each
+   tile is a little narrower than its circle, so neighbours overlap and meet in
+   outlined cusps below the band. `round` fits a whole number of scallops to
+   the width, so none is cut off at the edges. */
+.dd-awning {
+  --scallop: 22px;
+  --band: 10px;
+  /* content-box: the top border must not eat into the scallops' room. */
+  box-sizing: content-box;
+  height: calc(var(--band) + var(--scallop) + 2px);
+  border-top: 2px solid var(--dd-black);
+  background:
+    linear-gradient(var(--dd-red), var(--dd-red)) 0 0 / 100% var(--band) no-repeat,
+    radial-gradient(
+        circle at 50% 0,
+        var(--dd-red) calc(var(--scallop) - 2px),
+        var(--dd-black) calc(var(--scallop) - 2px) var(--scallop),
+        transparent calc(var(--scallop) + 0.5px)
+      )
+      50% var(--band) / calc(var(--scallop) * 1.8) calc(var(--scallop) + 2px)
+      round no-repeat;
+}
+@media (min-width: 768px) {
+  .dd-awning {
+    --scallop: 30px;
+    --band: 14px;
+  }
+}
+
+.dd-vitrina-glass {
+  background: color-mix(in oklch, var(--dd-brown) 35%, var(--dd-black));
+}
+
+.dd-vitrina-tilt {
+  transform: rotate(var(--rest, 0deg));
+  transition: transform 520ms var(--ease-out-expo);
+}
+.dd-vitrina-window:hover .dd-vitrina-tilt,
+.dd-vitrina-window:focus-within .dd-vitrina-tilt {
+  transform: translateX(var(--fan-x, 0)) rotate(var(--fan-r, 0deg));
+}
+.dd-vitrina-piece:hover .dd-vitrina-tilt,
+.dd-vitrina-piece:focus-visible .dd-vitrina-tilt {
+  transform: translate(var(--fan-x, 0), -4%) rotate(var(--fan-r, 0deg)) scale(1.04);
+}
+.dd-vitrina-piece:hover,
+.dd-vitrina-piece:focus-visible {
+  z-index: 20;
+}
+
+.dd-vitrina-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.14) 45%,
+    rgb(255 255 255 / 0.04) 52%,
+    transparent 60%
+  );
+  transform: translateX(-35%);
+  transition: transform 1100ms var(--ease-out-quart);
+}
+.dd-vitrina-window:hover .dd-vitrina-sheen {
+  transform: translateX(35%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dd-vitrina-tilt,
+  .dd-vitrina-sheen {
+    transition: none;
+  }
+  .dd-vitrina-window:hover .dd-vitrina-tilt,
+  .dd-vitrina-window:focus-within .dd-vitrina-tilt,
+  .dd-vitrina-piece:hover .dd-vitrina-tilt,
+  .dd-vitrina-piece:focus-visible .dd-vitrina-tilt {
+    transform: rotate(var(--rest, 0deg));
+  }
+  .dd-vitrina-window:hover .dd-vitrina-sheen {
+    transform: translateX(-35%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
