@@ -27,7 +27,7 @@ export default function EnviarPage() {
         </div>
         <p className="mt-12 text-sm text-dd-black/65">
           ¿Quieres quitar una obra? Escríbenos a{" "}
-          <a href="mailto:rodz.gabriel@gmail.com?subject=Quitar%20obra%20de%20La%20Vitrina" className="underline">rodz.gabriel@gmail.com</a>.
+          <a href="mailto:hola@gaborene.com?subject=Quitar%20obra%20de%20La%20Vitrina" className="underline">hola@gaborene.com</a>.
         </p>
       </div>
     </main>
