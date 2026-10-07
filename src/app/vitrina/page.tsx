@@ -19,5 +19,14 @@ export default async function VitrinaPage({
   const page = hasServiceConfig
     ? await listFeed(getServiceClient(), { cursor: null, onlyAvailable, fanId: await readFanId() })
     : { works: [], nextCursor: null };
-  return <VitrinaFeed initialWorks={page.works} initialCursor={page.nextCursor} onlyAvailable={onlyAvailable} />;
+  // Keyed so the "Disponible" chip (a soft navigation between /vitrina and
+  // /vitrina?disponible=1) remounts the feed instead of keeping the old list in state.
+  return (
+    <VitrinaFeed
+      key={String(onlyAvailable)}
+      initialWorks={page.works}
+      initialCursor={page.nextCursor}
+      onlyAvailable={onlyAvailable}
+    />
+  );
 }

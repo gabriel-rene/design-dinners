@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { loadMoreWorks } from "@/app/vitrina/actions";
 import type { PublicWork } from "@/lib/vitrina/types";
 
-import VitrinaSlide from "./VitrinaSlide";
+import WorkSlide from "./WorkSlide";
 
 type LoadState = "idle" | "loading" | "error";
 
@@ -161,7 +161,7 @@ export default function VitrinaFeed({
         className="h-[100dvh] snap-y snap-mandatory overflow-y-scroll overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {works.map((work, index) => (
-          <VitrinaSlide key={work.id} work={work} index={index} eager={index === 0} />
+          <WorkSlide key={work.id} work={work} index={index} eager={index === 0} />
         ))}
         <section
           aria-label={works.length === 0 ? "Sin obras" : "Final de La Vitrina"}
