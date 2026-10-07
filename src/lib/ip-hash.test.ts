@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { clientIpFrom, hashIp } from "./rsvp-server";
+import { clientIpFrom, hashIp } from "./ip-hash";
 
 describe("clientIpFrom", () => {
   it("takes the first forwarded hop", () => {

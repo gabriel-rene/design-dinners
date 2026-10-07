@@ -1,5 +1,5 @@
 // Pure RSVP logic — no network, no Next imports, no Node built-ins: client
-// components import it (the IP helpers live in rsvp-server.ts). "now" is
+// components import it (the IP helpers live in ip-hash.ts). "now" is
 // injectable so every function is deterministic in tests.
 import type { EventRow, RsvpRow, RsvpStatus } from "./types";
 
@@ -9,7 +9,7 @@ export const RATE_LIMIT_PER_HOUR = 5;
 /** Above this many seats the plates get too small; show a bar instead. */
 export const PLATE_VISUAL_MAX = 40;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function isUuid(value: string): boolean {

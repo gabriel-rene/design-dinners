@@ -11,7 +11,7 @@ import {
   parseRsvpInput,
   type RsvpFieldErrors,
 } from "@/lib/rsvp";
-import { clientIpFrom, hashIp, warnIfRateLimitDisabled } from "@/lib/rsvp-server";
+import { clientIpFrom, hashIp, warnIfRateLimitDisabled } from "@/lib/ip-hash";
 import { countRecentByIp, insertRsvp, isEventOpenForRsvp } from "@/lib/rsvp-db";
 
 export type RsvpState =

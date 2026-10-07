@@ -1,5 +1,4 @@
-// Server-only RSVP helpers. Kept apart from rsvp.ts so client components that
-// import the pure logic never pull node:crypto into the browser bundle.
+// Server-only IP helpers shared by RSVPs and La Vitrina. Kept apart from the pure modules so client components never pull node:crypto into the browser bundle.
 import "server-only";
 
 import { createHash } from "node:crypto";
@@ -16,12 +15,12 @@ export function clientIpFrom(forwardedFor: string | null): string | null {
 
 let warnedNoSalt = false;
 
-/** Production without `RSVP_IP_SALT` silently disables the per-IP rate limit.
+/** Production without `RSVP_IP_SALT` silently disables the RSVP and Vitrina per-IP rate limits.
  *  Say so once per server instance. Never logs the salt or any IP. */
 export function warnIfRateLimitDisabled(salt: string | undefined): void {
   if (warnedNoSalt || salt || process.env.NODE_ENV !== "production") return;
   warnedNoSalt = true;
-  console.warn("RSVP_IP_SALT is not set: the RSVP rate limit is disabled.");
+  console.warn("RSVP_IP_SALT is not set: the RSVP and Vitrina rate limits are disabled.");
 }
 
 /** Salted SHA-256 so the raw IP is never stored. */
