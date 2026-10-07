@@ -19,7 +19,7 @@ export default function VitrinaReviewCard({ work }: { work: AdminWork }) {
     <article aria-label={work.title} className="grid gap-5 rounded-xl border border-dd-black/15 bg-white p-4 md:grid-cols-[220px_1fr] md:p-5">
       <div className="overflow-hidden rounded-lg bg-dd-black/5">
         {work.imageUrl ? (
-          <img src={work.imageUrl} alt={work.title} className="h-64 w-full object-contain md:h-72" />
+          <img src={work.imageUrl} alt={work.title} loading="lazy" className="h-64 w-full object-contain md:h-72" />
         ) : (
           <p className="p-6 text-sm text-dd-black/60">Imagen no disponible</p>
         )}
@@ -33,7 +33,7 @@ export default function VitrinaReviewCard({ work }: { work: AdminWork }) {
         </div>
         <p className="text-[15px]">
           {work.creatorName} · {work.creatorRole} ·{" "}
-          <a href={`mailto:${work.creatorEmail}`} className="underline">{work.creatorEmail}</a>
+          <a href={`mailto:${encodeURIComponent(work.creatorEmail)}`} className="underline">{work.creatorEmail}</a>
         </p>
         {work.description && <p className="whitespace-pre-line text-[15px] text-dd-black/80">{work.description}</p>}
         <ul className="flex flex-wrap gap-2 text-sm">

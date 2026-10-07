@@ -69,6 +69,8 @@ test.describe("La Vitrina", () => {
 
     await page.goto(`/vitrina/${newer}`);
     await expect(page.getByRole("article", { name: `Menor ${stamp}, por E2E Prueba` })).toBeVisible();
+    // A key pressed before hydration is lost (no listener yet), so wait for the feed.
+    await page.locator("[data-keys-ready]").waitFor({ state: "attached" });
     await page.keyboard.press("ArrowDown");
     await expect(page).toHaveURL(new RegExp(`/vitrina/${older}$`));
     await page.getByRole("button", { name: "Obra anterior" }).click();

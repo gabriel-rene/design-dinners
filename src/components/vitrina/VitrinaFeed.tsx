@@ -112,6 +112,8 @@ export default function VitrinaFeed({
       }
     }
     window.addEventListener("keydown", onKey);
+    // Marks the feed as keyboard-ready (after hydration); e2e waits on it.
+    scroller.current?.setAttribute("data-keys-ready", "");
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
 

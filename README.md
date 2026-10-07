@@ -123,8 +123,12 @@ with a double-tap or the button. The data lives in Supabase (tables plus the
 1. Import `gabriel-rene/design-dinners` into Vercel.
 2. Add the Neon integration or manually set `DATABASE_URL`.
 3. Add the environment variables listed above for Production and Preview,
-   using the production domain for `NEXT_PUBLIC_SITE_URL`. `RSVP_IP_SALT` is a
-   secret: mark it Sensitive in Vercel.
+   using the production domain for `NEXT_PUBLIC_SITE_URL`. `RSVP_IP_SALT` and
+   `SUPABASE_SERVICE_ROLE_KEY` are secrets: mark both Sensitive in Vercel.
+   Preview deployments use the same production Supabase project, so a test
+   submission sent from a preview lands in production data (and its image in
+   the production buckets). Delete such test works from `/admin/vitrina`
+   afterwards.
 4. Add these Supabase Auth URLs:
 
    - `https://your-domain.com/auth/callback`
