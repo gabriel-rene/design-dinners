@@ -5,7 +5,6 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import sharp from "sharp";
 
 import { encodeCursor, type FeedCursor } from "./cursor";
 import type { AdminWork, FeedPage, PublicWork, WorkStatus } from "./types";
@@ -329,6 +328,8 @@ export async function encodePublicImage(
   input: Buffer,
   mime: ImageMime,
 ): Promise<{ body: Buffer; width: number; height: number }> {
+  // Lazy: only the admin approve path needs libvips; the public feed must not load it.
+  const { default: sharp } = await import("sharp");
   // Normal quality first; one lower step if the result would not fit the bucket (PNG is lossless).
   for (const quality of mime === "image/png" ? [100] : [85, 70]) {
     const image = sharp(input)
@@ -362,6 +363,7 @@ async function publishObject(db: SupabaseClient, path: string): Promise<ImageSiz
     const { data: existing } = await db.storage.from(PUBLIC_BUCKET).download(path);
     if (!existing) return null;
     try {
+      const { default: sharp } = await import("sharp");
       const meta = await sharp(Buffer.from(await existing.arrayBuffer())).metadata();
       return { width: meta.autoOrient.width, height: meta.autoOrient.height };
     } catch {
