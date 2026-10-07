@@ -58,6 +58,10 @@ test.describe("La Vitrina", () => {
     await expect(slide.getByTestId("fries-count")).toHaveText("1");
     await slide.getByRole("button", { name: "Quitar papitas" }).click();
     await expect(slide.getByTestId("fries-count")).toHaveText("0");
+    // Giving from the rail button sends fries flying too.
+    await slide.getByRole("button", { name: "Dar papitas" }).click();
+    await expect(slide.getByTestId("fries-burst")).toBeAttached();
+    await expect(slide.getByTestId("fries-count")).toHaveText("1");
   });
 
   test("desktop keys and mobile scroll move one piece at a time", async ({ page }) => {

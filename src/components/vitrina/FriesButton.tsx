@@ -20,7 +20,7 @@ export default function FriesButton({
   given: boolean;
   count: number;
   pop: number;
-  onToggle: () => void;
+  onToggle: (button: HTMLButtonElement) => void;
 }) {
   const countId = useId();
   return (
@@ -29,7 +29,7 @@ export default function FriesButton({
       aria-pressed={given}
       aria-label={given ? "Quitar papitas" : "Dar papitas"}
       aria-describedby={countId}
-      onClick={onToggle}
+      onClick={(event) => onToggle(event.currentTarget)}
       className="group flex flex-col items-center gap-1 text-dd-cream focus-visible:outline-none"
     >
       <span
