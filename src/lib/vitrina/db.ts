@@ -279,10 +279,23 @@ async function getRow(db: SupabaseClient, id: string) {
   return data as { status: WorkStatus; image_path: string } | null;
 }
 
-/** Download + upload + remove: works on every Storage version, and files are ≤ 4.5 MB. */
+async function objectExists(db: SupabaseClient, bucket: string, path: string): Promise<boolean> {
+  const { data, error } = await db.storage.from(bucket).list("", { search: path, limit: 10 });
+  if (error) throw error;
+  return Boolean(data?.some((object) => object.name === path));
+}
+
+/**
+ * Download + upload + remove: works on every Storage version, and files are ≤ 4.5 MB.
+ * Idempotent: if the source is already gone but the destination has the object
+ * (a previous attempt died mid-move), the move counts as done.
+ */
 async function moveObject(db: SupabaseClient, from: string, to: string, path: string): Promise<void> {
   const { data: blob, error } = await db.storage.from(from).download(path);
-  if (error || !blob) throw error ?? new Error(`download ${from}/${path} failed`);
+  if (error || !blob) {
+    if (await objectExists(db, to, path)) return;
+    throw error ?? new Error(`download ${from}/${path} failed`);
+  }
   const { error: uploadError } = await db.storage
     .from(to)
     .upload(path, blob, { contentType: mimeForPath(path) ?? undefined, upsert: true });
@@ -291,9 +304,16 @@ async function moveObject(db: SupabaseClient, from: string, to: string, path: st
   if (removeError) throw removeError;
 }
 
-async function setStatus(db: SupabaseClient, id: string, patch: Record<string, unknown>): Promise<void> {
-  const { error } = await db.from("vitrina_works").update(patch).eq("id", id);
+/** Updates only while the row is still in one of `expected`; false when nothing matched (lost a race). */
+async function transition(
+  db: SupabaseClient,
+  id: string,
+  expected: WorkStatus[],
+  patch: Record<string, unknown>,
+): Promise<boolean> {
+  const { data, error } = await db.from("vitrina_works").update(patch).eq("id", id).in("status", expected).select("id");
   if (error) throw error;
+  return (data ?? []).length > 0;
 }
 
 /** Pending or rejected → published. Goes to the top of the feed. */
@@ -302,15 +322,13 @@ export async function approveWork(db: SupabaseClient, id: string): Promise<boole
   if (!row || row.status === "published") return false;
   await moveObject(db, PENDING_BUCKET, PUBLIC_BUCKET, row.image_path);
   const now = new Date().toISOString();
-  await setStatus(db, id, { status: "published", published_at: now, reviewed_at: now });
-  return true;
+  return transition(db, id, ["pending", "rejected"], { status: "published", published_at: now, reviewed_at: now });
 }
 
 export async function rejectWork(db: SupabaseClient, id: string): Promise<boolean> {
   const row = await getRow(db, id);
   if (!row || row.status !== "pending") return false;
-  await setStatus(db, id, { status: "rejected", reviewed_at: new Date().toISOString() });
-  return true;
+  return transition(db, id, ["pending"], { status: "rejected", reviewed_at: new Date().toISOString() });
 }
 
 /** Published → rejected; the image goes back to the private bucket. */
@@ -318,17 +336,20 @@ export async function hideWork(db: SupabaseClient, id: string): Promise<boolean>
   const row = await getRow(db, id);
   if (!row || row.status !== "published") return false;
   await moveObject(db, PUBLIC_BUCKET, PENDING_BUCKET, row.image_path);
-  await setStatus(db, id, { status: "rejected", reviewed_at: new Date().toISOString() });
-  return true;
+  return transition(db, id, ["published"], { status: "rejected", reviewed_at: new Date().toISOString() });
 }
 
+/** Removes both images first and throws on any failure, so a row never outlives (or loses) a stranded public image. */
 export async function deleteWork(db: SupabaseClient, id: string): Promise<boolean> {
   const row = await getRow(db, id);
   if (!row) return false;
-  await db.storage.from(PENDING_BUCKET).remove([row.image_path]);
-  await db.storage.from(PUBLIC_BUCKET).remove([row.image_path]);
+  for (const bucket of [PENDING_BUCKET, PUBLIC_BUCKET]) {
+    const { error } = await db.storage.from(bucket).remove([row.image_path]);
+    if (error) throw error;
+  }
   const { error } = await db.from("vitrina_works").delete().eq("id", id);
   if (error) throw error;
-  await db.from("vitrina_uploads").delete().eq("path", row.image_path);
+  const { error: uploadError } = await db.from("vitrina_uploads").delete().eq("path", row.image_path);
+  if (uploadError) throw uploadError;
   return true;
 }

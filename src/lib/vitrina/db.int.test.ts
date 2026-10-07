@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { decodeCursor } from "./cursor";
@@ -128,5 +128,71 @@ describe.skipIf(!isLocal || !serviceKey)("vitrina db (local Supabase)", () => {
     expect(await deleteWork(db, id)).toBe(false);
     expect((await db.storage.from(PENDING_BUCKET).download(path)).error).not.toBeNull();
     expect(await isRecordedUpload(db, path)).toBe(false);
+  });
+
+  it("approve retries cleanly when the image was already moved", async () => {
+    const { id, path } = await submitted("mitad");
+    const { data: blob } = await db.storage.from(PENDING_BUCKET).download(path);
+    await db.storage.from(PUBLIC_BUCKET).upload(path, blob as Blob, { contentType: "image/png" });
+    await db.storage.from(PENDING_BUCKET).remove([path]);
+
+    expect(await approveWork(db, id)).toBe(true);
+    const work = await getPublishedWork(db, id, null);
+    expect(work?.id).toBe(id);
+    expect((await db.storage.from(PUBLIC_BUCKET).download(path)).error).toBeNull();
+  });
+
+  it("fails loudly when the image is in neither bucket", async () => {
+    const { id, path } = await submitted("perdida");
+    await db.storage.from(PENDING_BUCKET).remove([path]);
+    await expect(approveWork(db, id)).rejects.toBeDefined();
+    const { data } = await db.from("vitrina_works").select("status").eq("id", id).single();
+    expect(data?.status).toBe("pending");
+  });
+
+  it("a transition that loses the race returns false and leaves the row alone", async () => {
+    const { id, path } = await submitted("carrera");
+    expect(await approveWork(db, id)).toBe(true);
+    expect(await rejectWork(db, id)).toBe(false);
+    const { data } = await db.from("vitrina_works").select("status").eq("id", id).single();
+    expect(data?.status).toBe("published");
+    expect((await db.storage.from(PUBLIC_BUCKET).download(path)).error).toBeNull();
+
+    // Stale view: the row is published but the caller still thinks it is pending.
+    const realFrom = db.from.bind(db);
+    let first = true;
+    const stale = { storage: db.storage, from: (table: string) => {
+      const builder = realFrom(table);
+      if (table === "vitrina_works" && first) {
+        first = false;
+        const original = builder.select.bind(builder);
+        builder.select = ((...args: Parameters<typeof original>) => {
+          const q = original(...args);
+          q.maybeSingle = (async () => ({ data: { status: "pending", image_path: path }, error: null })) as never;
+          return q;
+        }) as never;
+      }
+      return builder;
+    } } as unknown as SupabaseClient;
+    expect(await rejectWork(stale, id)).toBe(false);
+    const { data: after } = await db.from("vitrina_works").select("status").eq("id", id).single();
+    expect(after?.status).toBe("published");
+  });
+
+  it("delete throws and keeps the row when an image cannot be removed", async () => {
+    const { id } = await submitted("atascada");
+    const failing = {
+      from: db.from.bind(db),
+      storage: {
+        from: (bucket: string) =>
+          bucket === PUBLIC_BUCKET
+            ? { remove: async () => ({ data: null, error: new Error("storage down") }) }
+            : db.storage.from(bucket),
+      },
+    } as unknown as SupabaseClient;
+    await expect(deleteWork(failing, id)).rejects.toThrow("storage down");
+    const { data } = await db.from("vitrina_works").select("id").eq("id", id).maybeSingle();
+    expect(data?.id).toBe(id);
+    expect(await deleteWork(db, id)).toBe(true);
   });
 });
