@@ -201,7 +201,7 @@ export default function VitrinaFeed({
           ) : (
             <>
               <h2 className="font-display text-[clamp(2.25rem,9vw,3.25rem)] font-bold uppercase leading-[0.95]">Llegaste al final</h2>
-              <p className="mt-4 max-w-sm text-[17px] leading-relaxed text-dd-cream/85">¿Y tú, qué estás cocinando?</p>
+              <p className="mt-4 max-w-sm text-[17px] leading-relaxed text-dd-cream/85">¿Qué estás cocinando?</p>
             </>
           )}
           {(works.length === 0 || (!cursor && loadState !== "error")) && (
