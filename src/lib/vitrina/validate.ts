@@ -80,8 +80,12 @@ export function normalizeLink(key: LinkKey, raw: string): string | null {
     return null;
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+  // Credentials in a link ("https://instagram.com@evil.com") are a deceptive-link trick.
+  if (url.username || url.password) return null;
   if (!url.hostname.includes(".") || withScheme.length > 300) return null;
-  return url.toString();
+  const normalized = url.toString();
+  // Cap the stored form too: percent-encoding can grow a short input past 300.
+  return normalized.length > 300 ? null : normalized;
 }
 
 export type WorkFields = {
@@ -122,8 +126,9 @@ export function parseWorkFields(
   const email = String(raw.email ?? "").trim();
   const role = oneLine(raw.role);
   const title = oneLine(raw.title);
-  // Keep the creator's line breaks in the description.
-  const description = String(raw.description ?? "").trim();
+  // Keep the creator's line breaks. Browsers send textarea newlines as CRLF;
+  // store plain "\n" so each break counts once, like the DB length check.
+  const description = String(raw.description ?? "").replace(/\r\n?/g, "\n").trim();
   const badgeText = String(raw.badge ?? "");
 
   if (!name) errors.name = "Escribe tu nombre.";

@@ -15,5 +15,6 @@ describe("feed cursor", () => {
     expect(decodeCursor(Buffer.from(`yesterday|${ID}`).toString("base64url"))).toBeNull();
     expect(decodeCursor(Buffer.from("2026-10-06T19:22:01Z|nope").toString("base64url"))).toBeNull();
     expect(decodeCursor(Buffer.from(`2026-10-06T19:22:01Z|${ID}|x`).toString("base64url"))).toBeNull();
+    expect(decodeCursor(Buffer.from(`2026-13-45T99:99:99Z|${ID}`).toString("base64url"))).toBeNull();
   });
 });

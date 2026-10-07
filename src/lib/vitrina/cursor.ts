@@ -14,6 +14,6 @@ export function encodeCursor(cursor: FeedCursor): string {
 export function decodeCursor(raw: string | null | undefined): FeedCursor | null {
   if (!raw || raw.length > 200) return null;
   const [ts, id, extra] = Buffer.from(raw, "base64url").toString("utf8").split("|");
-  if (extra !== undefined || !ts || !id || !TS_RE.test(ts) || !isUuid(id)) return null;
+  if (extra !== undefined || !ts || !id || !TS_RE.test(ts) || Number.isNaN(Date.parse(ts)) || !isUuid(id)) return null;
   return { ts, id };
 }

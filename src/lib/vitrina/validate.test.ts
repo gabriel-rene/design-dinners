@@ -94,6 +94,31 @@ describe("normalizeLink", () => {
   });
 });
 
+describe("normalizeLink hardening", () => {
+  it("rejects credentials in the url", () => {
+    expect(normalizeLink("website", "https://instagram.com@evil.com")).toBeNull();
+    expect(normalizeLink("website", "https://user:pw@ana.design")).toBeNull();
+  });
+  it("caps the normalized url, not just the input", () => {
+    const raw = `ana.design/${"é".repeat(120)}`;
+    expect(raw.length).toBeLessThan(300);
+    expect(normalizeLink("website", raw)).toBeNull();
+  });
+});
+
+describe("description line endings", () => {
+  it("normalizes CRLF before counting and storing", () => {
+    const description = `${"x".repeat(149)}\r\n${"y".repeat(149)}`;
+    expect(description.length).toBe(300);
+    const result = parseWorkFields({ ...good, description });
+    expect(result.ok && result.value.description).toBe(`${"x".repeat(149)}\n${"y".repeat(149)}`);
+  });
+  it("still rejects 301 characters after normalizing", () => {
+    const result = parseWorkFields({ ...good, description: `${"x".repeat(150)}\r\n${"y".repeat(150)}` });
+    expect(!result.ok && result.errors.description).toBe("Usa 300 letras o menos.");
+  });
+});
+
 describe("parseWorkInput", () => {
   it("needs a pending path from us and real dimensions", () => {
     const ok = parseWorkInput({ ...good, imagePath: `${UUID}.jpg`, imageWidth: "1080", imageHeight: "1350" });
