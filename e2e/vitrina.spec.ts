@@ -88,4 +88,27 @@ test.describe("La Vitrina", () => {
     await page.mouse.wheel(0, 844);
     await expect(page).toHaveURL(new RegExp(`/vitrina/${older}$`));
   });
+
+  test("hiding the text keeps every piece clean until shown again", async ({ page }) => {
+    const base = Date.now();
+    await createPublishedWork(`Limpia ${stamp}`, new Date(base - 1));
+    const newer = await createPublishedWork(`Clara ${stamp}`, new Date(base));
+
+    await page.goto(`/vitrina/${newer}`);
+    const first = page.getByRole("article", { name: `Clara ${stamp}, por E2E Prueba` });
+    const second = page.getByRole("article", { name: `Limpia ${stamp}, por E2E Prueba` });
+    await expect(first.getByRole("heading", { name: `Clara ${stamp}` })).toBeVisible();
+
+    await first.getByRole("button", { name: "Ocultar texto" }).click();
+    await expect(first.getByTestId("work-text")).toHaveCSS("opacity", "0");
+    // Links under the hidden text can't be reached.
+    await expect(first.getByTestId("work-text")).toHaveAttribute("inert", "");
+    // The choice holds for the next piece too.
+    await expect(second.getByRole("button", { name: "Mostrar texto" })).toBeAttached();
+
+    await page.locator("[data-keys-ready]").waitFor({ state: "attached" });
+    await page.keyboard.press("h");
+    await expect(first.getByTestId("work-text")).toHaveCSS("opacity", "1");
+    await expect(first.getByRole("button", { name: "Ocultar texto" })).toBeVisible();
+  });
 });

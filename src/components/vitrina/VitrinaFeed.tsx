@@ -34,6 +34,9 @@ export default function VitrinaFeed({
   const [cursor, setCursor] = useState(initialCursor);
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [active, setActive] = useState(0);
+  // Hides the text over every image at once, so swiping stays clean.
+  const [textHidden, setTextHidden] = useState(false);
+  const toggleText = useCallback(() => setTextHidden((v) => !v), []);
   const scroller = useRef<HTMLDivElement>(null);
   const moved = useRef(false);
   // A second observer callback can fire before React re-renders with "loading".
@@ -109,13 +112,15 @@ export default function VitrinaFeed({
       } else if (event.key === "ArrowUp" || event.key === "k") {
         event.preventDefault();
         go(-1);
+      } else if (event.key === "h") {
+        toggleText();
       }
     }
     window.addEventListener("keydown", onKey);
     // Marks the feed as keyboard-ready (after hydration); e2e waits on it.
     scroller.current?.setAttribute("data-keys-ready", "");
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, toggleText]);
 
   const pill = `pointer-events-auto inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-[13px] font-bold backdrop-blur transition-colors sm:px-3.5 sm:text-sm ${focusRing}`;
   const cta = `inline-flex h-12 items-center rounded-full border-2 border-dd-black bg-dd-red px-7 font-display text-base font-bold uppercase tracking-wide text-dd-cream dd-btn dd-btn--on-dark ${focusRing}`;
@@ -163,7 +168,14 @@ export default function VitrinaFeed({
         className="h-[100dvh] snap-y snap-mandatory overflow-y-scroll overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {works.map((work, index) => (
-          <WorkSlide key={work.id} work={work} index={index} eager={index === 0} />
+          <WorkSlide
+            key={work.id}
+            work={work}
+            index={index}
+            eager={index === 0}
+            textHidden={textHidden}
+            onToggleText={toggleText}
+          />
         ))}
         <section
           aria-label={works.length === 0 ? "Sin obras" : "Final de La Vitrina"}

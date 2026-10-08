@@ -29,7 +29,19 @@ function onControl(target: EventTarget) {
  * A Vitrina slide with papitas: the rail button toggles, a double-tap / double-click only gives.
  * Giving one either way sends fries flying; taking one back only pops the button.
  */
-export default function WorkSlide({ work, index, eager }: { work: PublicWork; index: number; eager: boolean }) {
+export default function WorkSlide({
+  work,
+  index,
+  eager,
+  textHidden,
+  onToggleText,
+}: {
+  work: PublicWork;
+  index: number;
+  eager: boolean;
+  textHidden: boolean;
+  onToggleText: () => void;
+}) {
   const [fries, setFries] = useState({ count: work.friesCount, given: work.given });
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [pop, setPop] = useState(0);
@@ -88,6 +100,8 @@ export default function WorkSlide({ work, index, eager }: { work: PublicWork; in
       work={work}
       index={index}
       eager={eager}
+      textHidden={textHidden}
+      onToggleText={onToggleText}
       frameProps={{ ref: frame, onPointerUp, onDoubleClick }}
       overlay={bursts.map((burst) => (
         <FriesBurst key={burst.id} burst={burst} onDone={removeBurst} />
