@@ -1,14 +1,14 @@
 # RSVPs in Google Sheets
 
 A Google Sheet that shows every RSVP (event, name, email, status).
-It updates itself every 5 minutes.
+It updates itself twice a day (every 12 hours).
 
 ## How it works
 
 - The site has a private feed: `GET /api/rsvps/export`.
 - The feed needs the header `Authorization: Bearer <RSVP_EXPORT_TOKEN>`.
 - Without `RSVP_EXPORT_TOKEN` on Vercel, the feed answers 404 (off).
-- A Google Apps Script in the sheet reads the feed every 5 minutes.
+- A Google Apps Script in the sheet reads the feed every 12 hours.
   It rewrites the **Reservas** tab. Cancelled and waitlist rows show their status.
 
 ## Setup (one time, about 3 minutes)

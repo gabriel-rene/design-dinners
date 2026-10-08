@@ -10,12 +10,12 @@
 var FEED_URL = 'https://designdinners.com/api/rsvps/export';
 var SHEET_NAME = 'Reservas';
 
-/** Runs once: makes the 5-minute timer. Safe to run again. */
+/** Runs once: makes the twice-a-day timer (every 12 hours). Safe to run again. */
 function setup() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'syncRsvps') ScriptApp.deleteTrigger(t);
   });
-  ScriptApp.newTrigger('syncRsvps').timeBased().everyMinutes(5).create();
+  ScriptApp.newTrigger('syncRsvps').timeBased().everyHours(12).create();
   syncRsvps();
 }
 
