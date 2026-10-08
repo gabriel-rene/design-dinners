@@ -7,6 +7,8 @@ import ShareButton from "@/components/event/ShareButton";
 import type { PublicWork } from "@/lib/vitrina/types";
 import { BADGE_LABEL, LINK_KEYS, LINK_LABEL } from "@/lib/vitrina/validate";
 
+import TextToggleButton from "./TextToggleButton";
+
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dd-yellow";
 /** Keeps cream type legible where the gradient is thin over a bright image. */
 const textShadow = "[text-shadow:0_1px_3px_rgb(0_0_0/0.55)]";
@@ -18,6 +20,8 @@ export default function VitrinaSlide({
   frameProps,
   rail,
   overlay,
+  textHidden = false,
+  onToggleText,
 }: {
   work: PublicWork;
   index: number;
@@ -28,6 +32,10 @@ export default function VitrinaSlide({
   rail?: ReactNode;
   /** Layer above the image (the fries burst). */
   overlay?: ReactNode;
+  /** The visitor hid the text to see the image clean (shared by the whole feed). */
+  textHidden?: boolean;
+  /** Shows the "Ocultar" rail button when given. */
+  onToggleText?: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const links = LINK_KEYS.filter((key) => work.links[key]);
@@ -41,7 +49,7 @@ export default function VitrinaSlide({
     >
       <div
         {...frameProps}
-        className="relative h-full w-full touch-manipulation select-none overflow-hidden bg-dd-black md:aspect-[9/16] md:w-auto md:max-w-full md:rounded-2xl md:shadow-[0_0_0_1px_rgb(248_227_202/0.12)]"
+        className="relative h-full w-full touch-manipulation select-none overflow-clip bg-dd-black md:aspect-[9/16] md:w-auto md:max-w-full md:rounded-2xl md:shadow-[0_0_0_1px_rgb(248_227_202/0.12)]"
       >
         <img
           src={work.imageUrl}
@@ -66,7 +74,13 @@ export default function VitrinaSlide({
         {/* Top scrim: the floating header pills sit over this on phones. */}
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent md:h-20" />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-32 md:px-6">
+        <div
+          inert={textHidden}
+          data-testid="work-text"
+          className={`pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-32 transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none md:px-6 ${
+            textHidden ? "translate-y-3 opacity-0 motion-reduce:translate-y-0" : ""
+          }`}
+        >
           <div className={`pointer-events-auto max-w-[calc(100%-4.5rem)] text-dd-cream ${textShadow}`}>
             {work.badge && (
               <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-dd-yellow px-2.5 py-1 font-display text-xs font-bold uppercase tracking-[0.06em] text-dd-black [text-shadow:none]">
@@ -124,6 +138,7 @@ export default function VitrinaSlide({
         <div className="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-3 flex flex-col items-center gap-4 md:right-4">
           {rail}
           <ShareButton url={`/vitrina/${work.id}`} title={`${work.title} — por ${work.creatorName}`} variant="rail" />
+          {onToggleText && <TextToggleButton hidden={textHidden} onToggle={onToggleText} />}
         </div>
       </div>
     </article>
