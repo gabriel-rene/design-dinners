@@ -83,7 +83,7 @@ export default function SpeakerSpotlight({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center text-[15px] font-bold text-dd-black underline decoration-2 underline-offset-4 transition-colors hover:text-white"
+              className="inline-flex min-h-11 items-center text-[15px] font-bold text-dd-black underline decoration-2 underline-offset-4 transition-colors hover:decoration-white"
             >
               {link.label} ↗
             </a>
@@ -124,7 +124,6 @@ export default function SpeakerSpotlight({
   if (band) {
     return (
       <section
-        id="speaker-destacado"
         aria-labelledby={titleId}
         className="overflow-hidden border-y-2 border-dd-black bg-dd-blue"
       >
