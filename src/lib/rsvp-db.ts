@@ -65,14 +65,26 @@ export async function countRecentByIp(sql: Sql, ipHash: string): Promise<number>
   return rows[0]?.n ?? 0;
 }
 
+export type RsvpStatusChange = { previous: RsvpStatus; name: string; email: string };
+
+/** Returns the status before the change plus the guest, or null when no RSVP
+ *  matched. The row lock makes `previous` exact even if two admins click at once. */
 export async function setRsvpStatus(
   sql: Sql,
   input: { eventId: string; rsvpId: string; status: RsvpStatus },
-): Promise<void> {
-  await sql`
-    update rsvps set status = ${input.status}, updated_at = now()
-    where id = ${input.rsvpId} and event_id = ${input.eventId}
-  `;
+): Promise<RsvpStatusChange | null> {
+  const rows = (await sql`
+    with prev as (
+      select id, status from rsvps
+      where id = ${input.rsvpId} and event_id = ${input.eventId}
+      for update
+    )
+    update rsvps r set status = ${input.status}, updated_at = now()
+    from prev
+    where r.id = prev.id
+    returning prev.status as previous, r.name, r.email
+  `) as RsvpStatusChange[];
+  return rows[0] ?? null;
 }
 
 /** Returns false when no event has that id. */

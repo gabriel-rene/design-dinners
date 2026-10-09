@@ -95,10 +95,12 @@ describe.skipIf(!url)("rsvp-db (needs DATABASE_URL)", () => {
     const otherId = await makeEvent({ capacity: 1 });
     await insertRsvp(sql, { eventId, name: "A", email: "s@x.co", ipHash: null });
     const [{ id }] = (await sql`select id from rsvps where event_id = ${eventId}`) as { id: string }[];
-    await setRsvpStatus(sql, { eventId: otherId, rsvpId: id, status: "cancelled" });
+    expect(await setRsvpStatus(sql, { eventId: otherId, rsvpId: id, status: "cancelled" })).toBeNull();
     let rows = (await sql`select status from rsvps where id = ${id}`) as { status: string }[];
     expect(rows[0].status).toBe("confirmed");
-    await setRsvpStatus(sql, { eventId, rsvpId: id, status: "cancelled" });
+    expect(await setRsvpStatus(sql, { eventId, rsvpId: id, status: "cancelled" })).toMatchObject({
+      previous: "confirmed",
+    });
     rows = (await sql`select status from rsvps where id = ${id}`) as { status: string }[];
     expect(rows[0].status).toBe("cancelled");
   });

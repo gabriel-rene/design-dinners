@@ -1,11 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { requireAdmin } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { isUuid, parseCapacity } from "@/lib/rsvp";
 import { setEventCapacity, setRsvpStatus } from "@/lib/rsvp-db";
+import { notifyRsvp } from "@/lib/rsvp-notify";
 import type { RsvpStatus } from "@/lib/types";
 
 const STATUSES = new Set<RsvpStatus>(["confirmed", "waitlist", "cancelled"]);
@@ -20,13 +22,19 @@ function refresh(eventId: string) {
 export async function changeRsvpStatus(eventId: string, rsvpId: string, status: RsvpStatus): Promise<void> {
   await requireAdmin();
   if (!isUuid(eventId) || !isUuid(rsvpId) || !STATUSES.has(status)) return;
+  let change;
   try {
-    await setRsvpStatus(getDb(), { eventId, rsvpId, status });
+    change = await setRsvpStatus(getDb(), { eventId, rsvpId, status });
   } catch (error) {
     console.error("changeRsvpStatus failed", error);
     return;
   }
   refresh(eventId);
+  // Only a waitlist → confirmed move tells the guest a seat opened.
+  if (change?.previous === "waitlist" && status === "confirmed") {
+    const { name, email } = change;
+    after(() => notifyRsvp({ kind: "promoted", eventId, name, email, position: null }));
+  }
 }
 
 export async function updateCapacity(
