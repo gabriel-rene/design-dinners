@@ -1,4 +1,5 @@
-// Daily reminder job (vercel.json cron, 10 AM Puerto Rico). Vercel calls it with
+// Daily reminder job (vercel.json cron: 10 AM Puerto Rico, plus a noon run that
+// only picks up guests a failed send left behind). Vercel calls it with
 // `Authorization: Bearer $CRON_SECRET`. No secret configured → 401 for everyone.
 import { getDb, hasDatabaseConfig } from "@/lib/db";
 import { runReminders } from "@/lib/reminders";
@@ -26,6 +27,7 @@ export async function GET(request: Request) {
     send: (kind, t) =>
       notifyRsvp({ kind, eventId: t.eventId, name: t.name, email: t.email, position: null, cancelToken: t.cancelToken }),
     pauseMs: 600,
+    retryDelayMs: 5_000,
   });
   // Counts only, never guest details.
   console.log("reminders", JSON.stringify(counts));

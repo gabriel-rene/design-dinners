@@ -25,9 +25,29 @@ describe("runReminders", () => {
     expect(released).toEqual([]);
   });
 
-  it("releases failed sends after the loop so the next run retries them", async () => {
-    const { d, released } = deps({ reminder: ["a", "b"], final: [] }, { a: "failed" });
-    expect(await runReminders(d)).toEqual({ reminder: { sent: 1, failed: 1 }, final: { sent: 0, failed: 0 } });
+  it("retries a failed send once in the same run", async () => {
+    // "a" fails the first time. Released, it is claimed again on the retry pass.
+    const queue = { reminder: ["a", "b"], final: [] as string[] };
+    let firstTry = true;
+    const { d, released } = deps(queue);
+    d.release = vi.fn(async (_kind, id) => {
+      released.push(id);
+      queue.reminder.push(id);
+    });
+    d.send = vi.fn(async (_kind, t) => (t.id === "a" && firstTry ? ((firstTry = false), "failed") : "sent"));
+    expect(await runReminders(d)).toEqual({ reminder: { sent: 2, failed: 0 }, final: { sent: 0, failed: 0 } });
+    expect(released).toEqual(["a"]);
+  });
+
+  it("releases every unsent guest when a claim throws", async () => {
+    const { d, released } = deps({ reminder: ["a"], final: [] }, { a: "failed" });
+    let calls = 0;
+    const claim = d.claim;
+    d.claim = vi.fn(async (kind) => {
+      if (++calls === 2) throw new Error("db down");
+      return claim(kind);
+    });
+    await expect(runReminders(d)).rejects.toThrow("db down");
     expect(released).toEqual(["a"]);
   });
 
