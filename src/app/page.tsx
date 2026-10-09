@@ -4,8 +4,10 @@ import PastEvents from "@/components/landing/PastEvents";
 import Speakers from "@/components/landing/Speakers";
 import About from "@/components/landing/About";
 import VitrinaTeaser from "@/components/landing/VitrinaTeaser";
+import SpeakerSpotlight from "@/components/SpeakerSpotlight";
 import { getEventsWithSpeakers, getSpeakers } from "@/lib/queries";
-import { splitEvents } from "@/lib/derive";
+import { splitEvents, upcomingSpotlights } from "@/lib/derive";
+import { formatDateParts, formatEventTime } from "@/lib/format";
 import { getServiceClient, hasServiceConfig } from "@/lib/supabase/service";
 import { listFeed } from "@/lib/vitrina/db";
 import type { PublicWork } from "@/lib/vitrina/types";
@@ -38,12 +40,28 @@ export default async function Home() {
 
   const now = new Date();
   const { upcoming, past } = splitEvents(events, now);
+  const spotlights = upcomingSpotlights(events, now);
   const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
 
   return (
     <main className="flex-1">
       <Hero whatsappUrl={whatsappUrl} />
       <NextEvent upcoming={upcoming} whatsappUrl={whatsappUrl} />
+      {spotlights.map(({ speaker, event }) => {
+        const parts = formatDateParts(event.event_date);
+        return (
+          <SpeakerSpotlight
+            key={speaker.id}
+            variant="band"
+            speaker={speaker}
+            event={{
+              id: event.id,
+              title: event.title,
+              whenLabel: `${parts.weekday.charAt(0).toUpperCase()}${parts.weekday.slice(1)} ${parts.day} ${parts.month} · ${formatEventTime(event.event_date).replace(/\s/g, "\u00a0")}`,
+            }}
+          />
+        );
+      })}
       <PastEvents past={past} />
       <VitrinaTeaser works={vitrina} />
       <Speakers speakers={speakers} events={events} now={now} />

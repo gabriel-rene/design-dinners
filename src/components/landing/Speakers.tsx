@@ -5,6 +5,7 @@ import type { EventWithSpeakers, SpeakerRow } from "@/lib/types";
 /**
  * Papita Yellow block, arch-shaped portraits (a menu-board niche for each
  * voice). Shows only speakers of upcoming events, in one row on desktop.
+ * Spotlight speakers are left out: they get their own band (SpeakerSpotlight).
  * Hidden entirely when there are none. Black text only — yellow is a
  * full-strength surface, and lighter inks fail contrast on it.
  */
@@ -18,7 +19,8 @@ export default function Speakers({
   now: Date;
 }) {
   const upcoming = speakers.filter(
-    (speaker) => speakerStatus(speaker.id, events, now) === "upcoming",
+    (speaker) =>
+      !speaker.spotlight_label && speakerStatus(speaker.id, events, now) === "upcoming",
   );
   if (upcoming.length === 0) return null;
 

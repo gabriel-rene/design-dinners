@@ -2,7 +2,7 @@
 // Every function that depends on "now" takes it as an optional injected parameter
 // so behavior is fully deterministic in tests.
 
-import type { EventWithSpeakers } from "./types";
+import type { EventWithSpeakers, SpeakerRow } from "./types";
 
 export function isUpcoming(event: { event_date: string }, now: Date = new Date()): boolean {
   return new Date(event.event_date).getTime() >= now.getTime();
@@ -45,4 +45,23 @@ export function speakerStatus(
   const hasPastEvent = speakerEvents.some((event) => !isUpcoming(event, now));
 
   return hasPastEvent ? "past" : "upcoming";
+}
+
+/**
+ * Spotlight speakers (spotlight_label set) of upcoming events, each paired
+ * with their soonest upcoming event. One entry per speaker, soonest first.
+ */
+export function upcomingSpotlights(
+  events: EventWithSpeakers[],
+  now: Date = new Date(),
+): { speaker: SpeakerRow; event: EventWithSpeakers }[] {
+  const picks = new Map<string, { speaker: SpeakerRow; event: EventWithSpeakers }>();
+  for (const event of splitEvents(events, now).upcoming) {
+    for (const speaker of event.speakers) {
+      if (speaker.spotlight_label && !picks.has(speaker.id)) {
+        picks.set(speaker.id, { speaker, event });
+      }
+    }
+  }
+  return [...picks.values()];
 }

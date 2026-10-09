@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isUpcoming, speakerStatus, splitEvents } from "./derive";
+import { isUpcoming, speakerStatus, splitEvents, upcomingSpotlights } from "./derive";
 import type { EventWithSpeakers, SpeakerRow } from "./types";
 
 const NOW = new Date("2026-07-14T12:00:00Z");
@@ -32,6 +32,7 @@ function makeSpeaker(overrides: Partial<SpeakerRow> & { id: string }): SpeakerRo
     bio: overrides.bio ?? null,
     photo_url: overrides.photo_url ?? null,
     social_links: overrides.social_links ?? [],
+    spotlight_label: overrides.spotlight_label ?? null,
     created_at: overrides.created_at ?? "2026-01-01T00:00:00Z",
   };
 }
@@ -89,5 +90,30 @@ describe("speakerStatus", () => {
     ];
 
     expect(speakerStatus("sp-missing", events, NOW)).toBe("upcoming");
+  });
+});
+
+describe("upcomingSpotlights", () => {
+  it("pairs each spotlight speaker with their soonest upcoming event", () => {
+    const star = makeSpeaker({ id: "sp-star", spotlight_label: "Speaker sorpresa" });
+    const regular = makeSpeaker({ id: "sp-regular" });
+    const events = [
+      makeEvent({ id: "later", event_date: "2026-09-01T00:00:00Z", speakers: [star] }),
+      makeEvent({ id: "sooner", event_date: "2026-08-01T00:00:00Z", speakers: [star, regular] }),
+      makeEvent({ id: "past", event_date: "2026-06-01T00:00:00Z", speakers: [star] }),
+    ];
+
+    const picks = upcomingSpotlights(events, NOW);
+
+    expect(picks).toHaveLength(1);
+    expect(picks[0].speaker.id).toBe("sp-star");
+    expect(picks[0].event.id).toBe("sooner");
+  });
+
+  it("returns nothing when no upcoming speaker has a spotlight label", () => {
+    const events = [
+      makeEvent({ id: "e1", event_date: "2026-08-01T00:00:00Z", speakers: [makeSpeaker({ id: "sp-1" })] }),
+    ];
+    expect(upcomingSpotlights(events, NOW)).toEqual([]);
   });
 });

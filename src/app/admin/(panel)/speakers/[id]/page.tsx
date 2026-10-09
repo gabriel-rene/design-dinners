@@ -48,6 +48,7 @@ export default async function EditarSpeakerPage({
             bio: speaker.bio,
             photo_url: speaker.photo_url,
             social_links: speaker.social_links,
+            spotlight_label: speaker.spotlight_label,
           }}
         />
       </div>
