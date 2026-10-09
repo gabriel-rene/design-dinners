@@ -180,7 +180,7 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
           </h2>
           <p className="mt-2.5 text-[15px] leading-normal text-white">
             {isFull
-              ? "Únete a la lista de espera. Si alguien cancela, te escribimos."
+              ? "Pero aún tienes oportunidad de sentarte. Apúntate en la lista de espera."
               : "Solo tu nombre y tu correo. Toma diez segundos."}
           </p>
 
