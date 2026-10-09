@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { after } from "next/server";
 
 import { getDb, hasDatabaseConfig } from "@/lib/db";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/lib/rsvp";
 import { clientIpFrom, hashIp, warnIfRateLimitDisabled } from "@/lib/ip-hash";
 import { countRecentByIp, insertRsvp, isEventOpenForRsvp } from "@/lib/rsvp-db";
+import { notifyRsvp } from "@/lib/rsvp-notify";
 
 export type RsvpState =
   | { status: "idle" }
@@ -65,6 +67,17 @@ export async function submitRsvp(
     revalidatePath(`/eventos/${eventId}`);
     revalidatePath("/admin/eventos");
     revalidatePath(`/admin/eventos/${eventId}/reservas`);
+
+    // Sent after the response, so the guest never waits on email.
+    after(() =>
+      notifyRsvp({
+        kind: result.status,
+        eventId,
+        name: parsed.name,
+        email: parsed.email,
+        position: result.position,
+      }),
+    );
 
     return result.status === "confirmed"
       ? { status: "confirmed", name: parsed.name, position: result.position }
