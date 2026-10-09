@@ -14,6 +14,7 @@ type ParsedSpeaker = {
   role_title: string | null;
   bio: string | null;
   social_links: SocialLink[];
+  spotlight_label: string | null;
 };
 
 function parseSocialLinks(
@@ -50,6 +51,10 @@ function parseSpeaker(
 
   const roleTitle = String(formData.get("role_title") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
+  const spotlightLabel = String(formData.get("spotlight_label") ?? "").trim();
+  if (spotlightLabel.length > 40) {
+    return { error: "La etiqueta para destacar tiene un máximo de 40 caracteres." };
+  }
 
   return {
     value: {
@@ -57,6 +62,7 @@ function parseSpeaker(
       role_title: roleTitle || null,
       bio: bio || null,
       social_links: socialLinks.value,
+      spotlight_label: spotlightLabel || null,
     },
   };
 }
@@ -88,13 +94,14 @@ export async function createSpeaker(
   const sql = getDb();
   try {
     await sql`
-      insert into speakers (name, role_title, bio, photo_url, social_links)
+      insert into speakers (name, role_title, bio, photo_url, social_links, spotlight_label)
       values (
         ${parsed.value.name},
         ${parsed.value.role_title},
         ${parsed.value.bio},
         ${image.url},
-        ${JSON.stringify(parsed.value.social_links)}::jsonb
+        ${JSON.stringify(parsed.value.social_links)}::jsonb,
+        ${parsed.value.spotlight_label}
       )
     `;
   } catch {
@@ -137,7 +144,8 @@ export async function updateSpeaker(
         role_title = ${parsed.value.role_title},
         bio = ${parsed.value.bio},
         photo_url = ${image.url},
-        social_links = ${JSON.stringify(parsed.value.social_links)}::jsonb
+        social_links = ${JSON.stringify(parsed.value.social_links)}::jsonb,
+        spotlight_label = ${parsed.value.spotlight_label}
       where id = ${id}
     `;
   } catch {

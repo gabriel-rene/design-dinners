@@ -8,6 +8,7 @@ import { cache } from "react";
 import BrandImage from "@/components/BrandImage";
 import RsvpPanel from "@/components/event/RsvpPanel";
 import ShareButton from "@/components/event/ShareButton";
+import SpeakerSpotlight from "@/components/SpeakerSpotlight";
 import { EVENT_TYPE_LABEL, formatDateParts, formatEventDate, formatEventTime } from "@/lib/format";
 import { getPublicEvent } from "@/lib/queries";
 import { rsvpMode } from "@/lib/rsvp";
@@ -117,6 +118,9 @@ export default async function EventPage({ params }: Props) {
   const dateLabel = cap(formatEventDate(event.event_date));
   // "7:00 p. m." must never wrap between "p." and "m.".
   const timeLabel = formatEventTime(event.event_date).replace(/\s/g, "\u00a0");
+
+  const spotlights = event.speakers.filter((speaker) => speaker.spotlight_label);
+  const tableSpeakers = event.speakers.filter((speaker) => !speaker.spotlight_label);
 
   let tableLine: string | null = null;
   if (event.capacity !== null) tableLine = `Mesa para ${event.capacity}`;
@@ -307,8 +311,17 @@ export default async function EventPage({ params }: Props) {
             )}
           </aside>
 
+          {/* Spotlight speakers: right under the RSVP, before the details. */}
+          {spotlights.length > 0 && (
+            <div className="mt-10 flex flex-col gap-8 px-5 md:mt-12 md:px-0">
+              {spotlights.map((speaker) => (
+                <SpeakerSpotlight key={speaker.id} variant="panel" speaker={speaker} />
+              ))}
+            </div>
+          )}
+
           {/* About + speakers */}
-          {(event.description || event.speakers.length > 0) && (
+          {(event.description || tableSpeakers.length > 0) && (
             <div className="mt-11 flex flex-col gap-9 px-5 md:mt-10 md:border-t-2 md:border-dd-black md:px-0 md:pt-8">
               {event.description && (
                 <section aria-labelledby="about-title">
@@ -318,13 +331,13 @@ export default async function EventPage({ params }: Props) {
                   <p className="mt-3 max-w-[65ch] whitespace-pre-line leading-[1.65] md:text-[17px]">{event.description}</p>
                 </section>
               )}
-              {event.speakers.length > 0 && (
+              {tableSpeakers.length > 0 && (
                 <section aria-labelledby="speakers-title">
                   <h2 id="speakers-title" className={SECTION_TITLE}>
                     En la mesa
                   </h2>
                   <ul className="mt-4 flex flex-col gap-4">
-                    {event.speakers.map((speaker) => (
+                    {tableSpeakers.map((speaker) => (
                       <Speaker key={speaker.id} speaker={speaker} />
                     ))}
                   </ul>

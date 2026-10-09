@@ -22,6 +22,7 @@ export type SpeakerFormDefaults = {
   bio?: string | null;
   photo_url?: string | null;
   social_links?: SocialLink[];
+  spotlight_label?: string | null;
 };
 
 export default function SpeakerForm({
@@ -92,6 +93,25 @@ export default function SpeakerForm({
       />
 
       <SocialLinksField defaultValue={defaults.social_links} />
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="spotlight_label" className={labelClass}>
+          Destacar como
+        </label>
+        <input
+          id="spotlight_label"
+          name="spotlight_label"
+          type="text"
+          maxLength={40}
+          aria-describedby="spotlight_label-hint"
+          defaultValue={defaults.spotlight_label ?? ""}
+          className={inputClass}
+          placeholder="Speaker sorpresa"
+        />
+        <p id="spotlight_label-hint" className="text-sm text-dd-black/70">
+          Opcional. Si lo llenas, sale en grande en la portada y en la página del evento. Déjalo vacío para un speaker normal.
+        </p>
+      </div>
 
       <div className="flex items-center gap-3 pt-2">
         <button type="submit" disabled={isPending} className={primaryBtn}>

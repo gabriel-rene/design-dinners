@@ -13,6 +13,7 @@ export const DEMO_SPEAKERS: SpeakerRow[] = [
     bio: "Quince años diseñando marcas para restaurantes y colectivos culturales.",
     photo_url: null,
     social_links: [{ label: "Instagram", url: "#" }],
+    spotlight_label: null,
     created_at: new Date(buildTime - 60 * DAY).toISOString(),
   },
   {
@@ -22,6 +23,7 @@ export const DEMO_SPEAKERS: SpeakerRow[] = [
     bio: "Escribe sobre sistemas de diseño y tipografía editorial en español.",
     photo_url: null,
     social_links: [],
+    spotlight_label: null,
     created_at: new Date(buildTime - 90 * DAY).toISOString(),
   },
 ];

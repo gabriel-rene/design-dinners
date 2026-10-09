@@ -26,6 +26,8 @@ export interface SpeakerRow {
   bio: string | null;
   photo_url: string | null;
   social_links: SocialLink[];
+  /** Set = headliner treatment (e.g. "Speaker sorpresa"). Null = regular. */
+  spotlight_label: string | null;
   created_at: string;
 }
 
