@@ -35,6 +35,8 @@ export async function sendEmail(
   try {
     const response = await fetchImpl(RESEND_URL, {
       method: "POST",
+      // A hung request must not eat the cron's whole time budget.
+      signal: AbortSignal.timeout(10_000),
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: EMAIL_FROM,
