@@ -2,11 +2,15 @@
 // guest never waits on Resend. Never throws.
 import "server-only";
 
-import { sendEmail } from "./email";
+import { sendEmail, type SendResult } from "./email";
 import { getPublicEvent } from "./queries";
 import { buildRsvpEmail, type RsvpEmailKind } from "./rsvp-email";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export function cancelUrlFor(token: string): string {
+  return `${SITE}/reservas/cancelar/${token}`;
+}
 
 export async function notifyRsvp(input: {
   kind: RsvpEmailKind;
@@ -14,10 +18,11 @@ export async function notifyRsvp(input: {
   name: string;
   email: string;
   position: number | null;
-}): Promise<void> {
+  cancelToken: string | null;
+}): Promise<SendResult | "no-event"> {
   try {
     const event = await getPublicEvent(input.eventId);
-    if (!event) return;
+    if (!event) return "no-event";
     const email = buildRsvpEmail({
       kind: input.kind,
       guestName: input.name,
@@ -26,8 +31,9 @@ export async function notifyRsvp(input: {
       event,
       eventUrl: `${SITE}/eventos/${event.id}`,
       whatsappGroupUrl: process.env.NEXT_PUBLIC_WHATSAPP_URL || null,
+      cancelUrl: input.cancelToken ? cancelUrlFor(input.cancelToken) : null,
     });
-    await sendEmail({
+    return await sendEmail({
       to: input.email,
       subject: email.subject,
       html: email.html,
@@ -37,5 +43,6 @@ export async function notifyRsvp(input: {
   } catch (error) {
     // Log the error object only, never the guest's name or email.
     console.error("notifyRsvp failed", error);
+    return "failed";
   }
 }
