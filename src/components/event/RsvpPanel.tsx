@@ -176,11 +176,11 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
           }`}
         >
           <h2 id="rsvp-title" className="font-display text-[32px] font-bold uppercase leading-none text-dd-cream md:text-4xl">
-            {isFull ? "La mesa está llena pero aún tienes oportunidad de sentarte" : "Reserva tu puesto"}
+            {isFull ? "La mesa está llena" : "Reserva tu puesto"}
           </h2>
           <p className="mt-2.5 text-[15px] leading-normal text-white">
             {isFull
-              ? "Únete a la lista de espera. Si alguien cancela, te escribimos."
+              ? "Pero aún tienes oportunidad de sentarte. Apúntate en la lista de espera."
               : "Solo tu nombre y tu correo. Toma diez segundos."}
           </p>
 
