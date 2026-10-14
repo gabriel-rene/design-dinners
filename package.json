@@ -12,6 +12,7 @@
     "test:unit": "vitest",
     "test:db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/rsvp-db.int.test.ts",
     "test:vitrina-db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/vitrina",
+    "test:otros-eventos-db": "node --env-file=.env.local ./node_modules/vitest/vitest.mjs run src/lib/otros-eventos",
     "test:e2e": "playwright test",
     "test:e2e:rsvp": "node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/rsvp.spec.ts",
     "test:e2e:vitrina": "PORT=3100 NEXT_PUBLIC_SITE_URL=http://localhost:3100 node --env-file=.env.local ./node_modules/@playwright/test/cli.js test e2e/vitrina.spec.ts"
