@@ -32,8 +32,8 @@ export async function changeRsvpStatus(eventId: string, rsvpId: string, status: 
   refresh(eventId);
   // Only a waitlist → confirmed move tells the guest a seat opened.
   if (change?.previous === "waitlist" && status === "confirmed") {
-    const { name, email } = change;
-    after(() => notifyRsvp({ kind: "promoted", eventId, name, email, position: null }));
+    const { name, email, cancelToken } = change;
+    after(() => notifyRsvp({ kind: "promoted", eventId, name, email, position: null, cancelToken }));
   }
 }
 

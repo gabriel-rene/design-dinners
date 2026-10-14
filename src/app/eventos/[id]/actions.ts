@@ -76,6 +76,7 @@ export async function submitRsvp(
         name: parsed.name,
         email: parsed.email,
         position: result.position,
+        cancelToken: result.cancelToken,
       }),
     );
 

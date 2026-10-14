@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRsvpEmail, type RsvpEmailInput } from "./rsvp-email";
+import { buildRsvpEmail, mapsUrl, type RsvpEmailInput } from "./rsvp-email";
 
 const event = {
   id: "3f2b8c1e-0d4a-4b6f-9c2e-1a2b3c4d5e6f",
@@ -19,6 +19,7 @@ function input(overrides: Partial<RsvpEmailInput> = {}): RsvpEmailInput {
     event,
     eventUrl: `https://designdinners.com/eventos/${event.id}`,
     whatsappGroupUrl: "https://chat.whatsapp.com/abc",
+    cancelUrl: "https://designdinners.com/reservas/cancelar/tok",
     now: new Date("2026-10-09T12:00:00Z"),
     ...overrides,
   };
@@ -82,5 +83,55 @@ describe("buildRsvpEmail", () => {
   it("puts no line breaks in the subject", () => {
     const email = buildRsvpEmail(input({ event: { ...event, title: "Línea uno\nLínea dos" } }));
     expect(email.subject).toBe("Tienes puesto: Línea uno Línea dos");
+  });
+
+  it("every kind shows the mascot from the site origin", () => {
+    for (const kind of ["confirmed", "waitlist", "promoted", "reminder", "final"] as const) {
+      expect(buildRsvpEmail(input({ kind })).html).toContain('src="https://designdinners.com/brand/mascot-email.png"');
+    }
+  });
+
+  it("seat holders get the cancel button; the waitlist gets 'salir'", () => {
+    const confirmed = buildRsvpEmail(input());
+    expect(confirmed.html).toContain("No puedo ir: liberar mi puesto");
+    expect(confirmed.html).toContain('href="https://designdinners.com/reservas/cancelar/tok"');
+    expect(confirmed.text).toContain("https://designdinners.com/reservas/cancelar/tok");
+    expect(confirmed.html).not.toContain("Contesta este correo");
+    expect(buildRsvpEmail(input({ kind: "waitlist", position: 2 })).html).toContain("Salir de la lista de espera");
+  });
+
+  it("without a cancel URL it falls back to the reply line", () => {
+    const email = buildRsvpEmail(input({ cancelUrl: null }));
+    expect(email.html).not.toContain("liberar mi puesto");
+    expect(email.html).toContain("Contesta este correo");
+  });
+
+  it("reminder: tomorrow subject, maps button, no calendar file", () => {
+    const email = buildRsvpEmail(input({ kind: "reminder", position: null }));
+    expect(email.subject).toBe("Mañana: Del Diseño al Impacto");
+    expect(email.html).toContain("¡Mañana es la cena!");
+    expect(email.html).toContain("Cómo llegar");
+    expect(email.html).toContain("https://www.google.com/maps/search/?api=1&amp;query=Morena%20Coffee%2C%20Santurce");
+    expect(email.text).toContain("Cómo llegar: https://www.google.com/maps/search/?api=1&query=Morena%20Coffee%2C%20Santurce");
+    expect(email.ics).toBeUndefined();
+  });
+
+  it("final: today subject with the time", () => {
+    const email = buildRsvpEmail(input({ kind: "final", position: null }));
+    expect(email.subject).toBe("Hoy: Del Diseño al Impacto · 7:00\u00a0p.\u00a0m.");
+    expect(email.html).toContain("¡Nos vemos pronto!");
+    expect(email.ics).toBeUndefined();
+  });
+
+  it("reminders without a location link to the event instead of maps", () => {
+    const email = buildRsvpEmail(input({ kind: "reminder", event: { ...event, location: null } }));
+    expect(email.html).not.toContain("Cómo llegar");
+    expect(email.html).toContain("Ver el evento");
+  });
+
+  it("mapsUrl encodes the place", () => {
+    expect(mapsUrl("Morena Coffee, Santurce")).toBe(
+      "https://www.google.com/maps/search/?api=1&query=Morena%20Coffee%2C%20Santurce",
+    );
   });
 });
