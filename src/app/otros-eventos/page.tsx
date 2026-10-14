@@ -30,7 +30,7 @@ function SendButton() {
   return (
     <Link
       href="/otros-eventos/enviar"
-      className="inline-block rounded-full border-2 border-dd-black bg-dd-red px-7 py-3 font-display text-lg font-bold uppercase tracking-wide text-dd-cream dd-btn focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-yellow"
+      className="inline-block rounded-full border-2 border-dd-black bg-dd-red px-7 py-3 font-display text-lg font-bold uppercase tracking-wide text-dd-cream dd-btn focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black"
     >
       Enviar un evento
     </Link>

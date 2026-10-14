@@ -32,7 +32,7 @@ export default function CommunityEventCard({
       href={event.link}
       target="_blank"
       rel="noopener noreferrer nofollow ugc"
-      className="dd-btn group flex h-full flex-col overflow-hidden rounded-2xl border-2 border-dd-black bg-dd-cream text-dd-black focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-yellow"
+      className="dd-btn group flex h-full flex-col overflow-hidden rounded-2xl border-2 border-dd-black bg-dd-cream text-dd-black focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black"
     >
       <div className="relative border-b-2 border-dd-black bg-dd-black">
         <img

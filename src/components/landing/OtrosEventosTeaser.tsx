@@ -25,9 +25,9 @@ export default function OtrosEventosTeaser({ events }: { events: PublicCommunity
           </div>
           <Link
             href="/otros-eventos"
-            className="shrink-0 text-[15px] font-bold underline decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-yellow"
+            className="shrink-0 text-[15px] font-bold underline decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-black"
           >
-            Ver todos los eventos →
+            Ver todos los eventos <span aria-hidden="true">→</span>
           </Link>
         </div>
 

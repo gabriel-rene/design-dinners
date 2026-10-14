@@ -47,6 +47,12 @@ export default function SubmitEventForm() {
   // Reuse the upload when only text fields change between attempts.
   const uploaded = useRef<Uploaded | null>(null);
 
+  // Set after mount: the page is prerendered, so a build-time `min` would go stale.
+  const dateRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (dateRef.current) dateRef.current.min = prToday();
+  }, []);
+
   useEffect(() => () => {
     if (preview) URL.revokeObjectURL(preview);
   }, [preview]);
@@ -58,9 +64,15 @@ export default function SubmitEventForm() {
     setErrors((prev) => ({ ...prev, image: next ? (checkImageFile(next) ?? undefined) : undefined }));
   }
 
-  async function ensureUploaded(current: File): Promise<Uploaded | { message: string }> {
+  async function ensureUploaded(current: File): Promise<Uploaded | { message: string; field?: "image" }> {
     if (uploaded.current?.file === current) return uploaded.current;
-    const { width, height } = await imageSize(current);
+    let size: { width: number; height: number };
+    try {
+      size = await imageSize(current);
+    } catch {
+      return { message: "No pudimos leer esa imagen. Prueba con otro archivo.", field: "image" as const };
+    }
+    const { width, height } = size;
     const ticket = await startEventUpload(current.type, current.size);
     if (!ticket.ok) return { message: ticket.message };
     const { error } = await createClient()
@@ -86,7 +98,8 @@ export default function SubmitEventForm() {
       try {
         const upload = await ensureUploaded(file);
         if ("message" in upload) {
-          setMessage(upload.message);
+          if (upload.field === "image") setErrors((prev) => ({ ...prev, image: upload.message }));
+          else setMessage(upload.message);
           return;
         }
         // The file already went straight to Storage: never send it through Vercel.
@@ -178,7 +191,7 @@ export default function SubmitEventForm() {
           <div className="space-y-1.5">
             <label htmlFor="date" className={`${labelClass} inline`}>Fecha</label>{" "}
             <Star />
-            <input id="date" name="date" type="date" required aria-required="true" min={prToday()} className={inputClass}
+            <input id="date" name="date" type="date" required aria-required="true" ref={dateRef} className={inputClass}
               aria-invalid={Boolean(errors.date)} aria-describedby={describedBy("date", true)} />
             <ErrorText id="date-error" text={errors.date} />
           </div>

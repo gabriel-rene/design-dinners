@@ -11,7 +11,7 @@ import {
 } from "@/lib/storage/images";
 
 import type { AdminCommunityEvent, CommunityEventStatus, PublicCommunityEvent } from "./types";
-import type { EventInput, Price } from "./validate";
+import { prToday, type EventInput, type Price } from "./validate";
 
 export const EVENT_STORE: ImageStore = {
   pendingBucket: "otros-eventos-pending",
@@ -96,7 +96,7 @@ export async function insertCommunityEvent(db: SupabaseClient, input: EventInput
 
 const ADMIN_ORDER: Record<CommunityEventStatus, { column: string; ascending: boolean }> = {
   pending: { column: "created_at", ascending: true },
-  published: { column: "starts_at", ascending: true },
+  published: { column: "starts_at", ascending: false },
   rejected: { column: "reviewed_at", ascending: false },
 };
 
@@ -154,7 +154,7 @@ async function transition(db: SupabaseClient, id: string, expected: CommunityEve
 export async function approveCommunityEvent(
   db: SupabaseClient,
   id: string,
-): Promise<{ email: string; title: string; startsAt: string } | null> {
+): Promise<{ notify: { email: string; title: string; startsAt: string } | null } | null> {
   const row = await getRow(db, id);
   if (!row || row.status === "published") return null;
   const size = await publishObject(db, EVENT_STORE, row.image_path);
@@ -163,7 +163,10 @@ export async function approveCommunityEvent(
     status: "published", published_at: now, reviewed_at: now,
     ...(size ? { image_width: size.width, image_height: size.height } : {}),
   });
-  return changed ? { email: row.submitter_email, title: row.title, startsAt: row.starts_at } : null;
+  if (!changed) return null;
+  // A past event still gets published, but its submitter is not emailed about it.
+  const upcoming = prToday(new Date(row.starts_at)) >= prToday();
+  return { notify: upcoming ? { email: row.submitter_email, title: row.title, startsAt: row.starts_at } : null };
 }
 
 export async function rejectCommunityEvent(db: SupabaseClient, id: string): Promise<boolean> {

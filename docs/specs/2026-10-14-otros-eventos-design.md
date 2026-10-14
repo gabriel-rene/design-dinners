@@ -139,7 +139,7 @@ Posters are usually 4:5 or 3:4. Cards show the image in a fixed 4:5 box with `ob
 ## 6. Admin `/admin/otros-eventos`
 
 - New item "Otros eventos" in `AdminNav`, with a count of pending events (like "Vitrina").
-- **Tabs:** Pendientes (oldest sent first), Publicados (soonest first, past ones included and marked "Pasó"), Rechazados.
+- **Tabs:** Pendientes (oldest sent first), Publicados (newest first, past ones included and marked "Pasó"), Rechazados.
 - **Card:** the poster (signed URL when not public), all fields, the link (clickable), the sender's email as a `mailto:` link, and the dates.
 - **Actions:**
   - Pending → **Aprobar** or **Rechazar**.
@@ -193,5 +193,6 @@ Posters are usually 4:5 or 3:4. Cards show the image in a fixed 4:5 box with `ob
 
 1. Apply the migration locally, build and test.
 2. Open a PR from `feat/otros-eventos`.
-3. After merge: apply the migration to cloud Supabase with `supabase db push --db-url` (the Vercel `SB_POSTGRES_URL_NON_POOLING` URL), the same way as the Vitrina migrations.
-4. Send one test event on production, approve it, check the email arrives, then delete it.
+3. Before merging: apply the migration to cloud Supabase with `supabase db push --db-url` (the Vercel `SB_POSTGRES_URL_NON_POOLING` URL), the same way as the Vitrina migrations. It is additive and the current production code never touches it, so this is safe ahead of the deploy.
+4. Merge the PR.
+5. Send one test event on production, approve it, check the email arrives, then delete it.

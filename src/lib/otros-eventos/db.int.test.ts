@@ -60,12 +60,20 @@ describe.skipIf(!isLocal || !serviceKey)("otros eventos db (local Supabase)", ()
   it("approve publishes once, moves the image, returns email data", async () => {
     const { id, path } = await submitted();
     const first = await approveCommunityEvent(db, id);
-    expect(first).toMatchObject({ email: "ana@ejemplo.com", title: `${stamp} evento` });
+    expect(first?.notify).toMatchObject({ email: "ana@ejemplo.com", title: `${stamp} evento` });
     expect(await approveCommunityEvent(db, id)).toBeNull(); // second click: nothing, no second email
     const upcoming = await listUpcomingEvents(db);
     const shown = upcoming.find((e) => e.id === id);
     expect(shown?.imageUrl).toContain(`/otros-eventos/${path}`);
     expect(JSON.stringify(shown)).not.toContain("ana@ejemplo.com");
+  });
+
+  it("approving a past pending event publishes it but yields no email data", async () => {
+    const { id } = await submitted(-3);
+    const result = await approveCommunityEvent(db, id);
+    expect(result).toEqual({ notify: null });
+    const published = await listCommunityEventsByStatus(db, "published");
+    expect(published.map((e) => e.id)).toContain(id);
   });
 
   it("lists upcoming soonest first", async () => {

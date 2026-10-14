@@ -6,7 +6,7 @@ import { logSafe } from "@/lib/vitrina/log";
 
 import { buildApprovalEmail } from "./email";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
 export async function notifyEventApproved(input: { email: string; title: string; startsAt: string }): Promise<void> {
   try {

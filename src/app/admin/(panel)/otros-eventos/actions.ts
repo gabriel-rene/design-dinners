@@ -54,8 +54,8 @@ export async function approveEventAction(id: string, _state: FormState, _formDat
     return { error: "No pudimos guardar el cambio. Intenta de nuevo." };
   }
   if (!approved) return { error: "Ese evento ya cambió. Recarga la página." };
-  const mail = approved;
-  after(() => notifyEventApproved(mail));
+  const mail = approved.notify;
+  if (mail) after(() => notifyEventApproved(mail));
   revalidateAll();
   return {};
 }
