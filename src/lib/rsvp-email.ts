@@ -38,7 +38,7 @@ export function mapsUrl(location: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 }
 
-function esc(value: string): string {
+export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -122,14 +122,14 @@ function seatLabel(input: RsvpEmailInput): string | null {
 function button(href: string, label: string, bg: string, ink: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;">
 <tr><td align="center" bgcolor="${bg}" style="background:${bg};border:2px solid ${C.black};border-radius:999px;">
-<a href="${esc(href)}" style="display:block;padding:14px 20px;font-family:${BODY};font-size:15px;font-weight:700;line-height:20px;color:${ink};text-decoration:none;">${esc(label)}</a>
+<a href="${escapeHtml(href)}" style="display:block;padding:14px 20px;font-family:${BODY};font-size:15px;font-weight:700;line-height:20px;color:${ink};text-decoration:none;">${escapeHtml(label)}</a>
 </td></tr></table>`;
 }
 
 function detailCell(label: string, value: string): string {
   return `<td valign="top" width="50%" style="padding:0 8px 14px 0;">
-<p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${C.brown};">${esc(label)}</p>
-<p style="margin:2px 0 0;font-family:${BODY};font-size:15px;font-weight:600;line-height:21px;color:${C.black};">${esc(value)}</p>
+<p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${C.brown};">${escapeHtml(label)}</p>
+<p style="margin:2px 0 0;font-family:${BODY};font-size:15px;font-weight:600;line-height:21px;color:${C.black};">${escapeHtml(value)}</p>
 </td>`;
 }
 
@@ -203,17 +203,17 @@ export function buildRsvpEmail(input: RsvpEmailInput): RsvpEmail {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
-<title>${esc(copy.subject)}</title>
+<title>${escapeHtml(copy.subject)}</title>
 </head>
 <body style="margin:0;padding:0;background:${C.cream};">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(copy.preheader)}</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(copy.preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.cream}" style="background:${C.cream};">
 <tr><td align="center" style="padding:24px 16px 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
 <tr><td style="padding:0 4px 10px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td valign="bottom" style="font-family:${DISPLAY};font-size:18px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;color:${C.black};">Design Dinners</td>
-<td align="right" valign="bottom" width="96"><img src="${esc(mascotSrc)}" width="96" alt="Design Dinners" style="display:block;width:96px;height:auto;border:0;outline:none;"></td>
+<td align="right" valign="bottom" width="96"><img src="${escapeHtml(mascotSrc)}" width="96" alt="Design Dinners" style="display:block;width:96px;height:auto;border:0;outline:none;"></td>
 </tr></table>
 </td></tr>
 <tr><td style="border:2px solid ${C.black};border-radius:16px;background:${C.cream};box-shadow:4px 6px 0 0 ${C.black};">
@@ -221,15 +221,15 @@ export function buildRsvpEmail(input: RsvpEmailInput): RsvpEmail {
 <tr><td bgcolor="${copy.headerBg}" style="background:${copy.headerBg};border-bottom:2px solid ${C.black};border-radius:14px 14px 0 0;padding:16px 20px 18px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td valign="bottom">
-<p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${copy.headerInk};">${esc(copy.kicker)}</p>
-<h1 style="margin:10px 0 0;font-family:${DISPLAY};font-size:34px;font-weight:800;line-height:34px;text-transform:uppercase;color:${copy.headerInk};">${esc(copy.title)}</h1>
+<p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${copy.headerInk};">${escapeHtml(copy.kicker)}</p>
+<h1 style="margin:10px 0 0;font-family:${DISPLAY};font-size:34px;font-weight:800;line-height:34px;text-transform:uppercase;color:${copy.headerInk};">${escapeHtml(copy.title)}</h1>
 </td>${bigPosition}
 </tr></table>
 </td></tr>
 <tr><td style="padding:18px 20px 4px;">
 <p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${C.brown};">A nombre de</p>
-<p style="margin:4px 0 14px;font-family:${DISPLAY};font-size:26px;font-weight:700;line-height:28px;color:${C.black};word-break:break-word;">${esc(input.guestName)}</p>
-<p style="margin:0 0 16px;font-family:${BODY};font-size:15px;line-height:23px;color:${C.black};">${esc(copy.lead)}</p>
+<p style="margin:4px 0 14px;font-family:${DISPLAY};font-size:26px;font-weight:700;line-height:28px;color:${C.black};word-break:break-word;">${escapeHtml(input.guestName)}</p>
+<p style="margin:0 0 16px;font-family:${BODY};font-size:15px;line-height:23px;color:${C.black};">${escapeHtml(copy.lead)}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${detailRows.join("")}</table>
 </td></tr>
 <tr><td style="padding:2px 20px;"><div style="border-top:2px dashed #a6a6a6;height:0;line-height:0;font-size:0;">&nbsp;</div></td></tr>
