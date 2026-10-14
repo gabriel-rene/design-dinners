@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import AdminNav from "@/components/admin/AdminNav";
 import { requireAdmin } from "@/lib/auth";
 import { getServiceClient, hasServiceConfig } from "@/lib/supabase/service";
+import { countPendingEvents } from "@/lib/otros-eventos/db";
 import { countPending } from "@/lib/vitrina/db";
 
 export const metadata: Metadata = {
@@ -25,9 +26,13 @@ export default async function PanelLayout({
     ? await countPending(getServiceClient()).catch(() => 0)
     : 0;
 
+  const eventsPending = hasServiceConfig
+    ? await countPendingEvents(getServiceClient()).catch(() => 0)
+    : 0;
+
   return (
     <div className="flex min-h-screen flex-col bg-dd-cream">
-      <AdminNav email={user.email ?? ""} vitrinaPending={vitrinaPending} />
+      <AdminNav email={user.email ?? ""} vitrinaPending={vitrinaPending} eventsPending={eventsPending} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 md:px-8 md:py-12">
         {children}
       </main>
