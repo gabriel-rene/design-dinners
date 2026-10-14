@@ -6,15 +6,26 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import {
+  createUploadTicket as sharedCreateUploadTicket,
+  encodePublicImage,
+  isRecordedUpload as sharedIsRecordedUpload,
+  pendingObjectInfo as sharedPendingObjectInfo,
+  publicImageUrl as sharedPublicImageUrl,
+  publishObject,
+  PUBLIC_MAX_EDGE,
+  removeImage,
+  signedPendingUrls,
+  unpublishObject,
+  type ImageStore,
+} from "@/lib/storage/images";
+
 import { encodeCursor, type FeedCursor } from "./cursor";
 import type { AdminWork, FeedPage, PublicWork, WorkStatus } from "./types";
 import {
   FEED_PAGE_SIZE,
   LINK_KEYS,
-  MAX_IMAGE_BYTES,
-  mimeForPath,
   type Badge,
-  type ImageMime,
   type WorkInput,
   type WorkLinks,
 } from "./validate";
@@ -24,11 +35,10 @@ export const PUBLIC_BUCKET = "vitrina";
 
 const HOUR_MS = 36e5;
 const DAY_MS = 24 * HOUR_MS;
-const SIGNED_URL_SECONDS = 3600;
-/** Long edge of a published image, in px. */
-export const PUBLIC_MAX_EDGE = 2560;
-/** Short CDN cache on public images, so a hidden or deleted one stops being served quickly. */
-const PUBLIC_CACHE_SECONDS = "60";
+
+const STORE: ImageStore = { pendingBucket: PENDING_BUCKET, publicBucket: PUBLIC_BUCKET, uploadsTable: "vitrina_uploads" };
+
+export { encodePublicImage, PUBLIC_MAX_EDGE };
 
 type LinkColumns = Record<`link_${(typeof LINK_KEYS)[number]}`, string | null>;
 
@@ -58,9 +68,7 @@ const PUBLIC_COLUMNS =
   "id,title,description,creator_name,creator_role,badge,link_website,link_instagram,link_behance,link_linkedin,link_dribbble,image_path,image_width,image_height,fries_count,published_at";
 const ADMIN_COLUMNS = `${PUBLIC_COLUMNS},status,creator_email,created_at,reviewed_at`;
 
-export function publicImageUrl(path: string): string {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${PUBLIC_BUCKET}/${path}`;
-}
+export const publicImageUrl = (path: string) => sharedPublicImageUrl(STORE, path);
 
 function linksOf(row: LinkColumns): WorkLinks {
   const links: WorkLinks = {};
@@ -156,34 +164,12 @@ export const countRecentFries = (db: SupabaseClient, ipHash: string) =>
 
 // ── Submissions ───────────────────────────────────────────────────────────
 
-export async function createUploadTicket(
-  db: SupabaseClient,
-  path: string,
-  ipHash: string | null,
-): Promise<{ token: string }> {
-  const { error: rowError } = await db.from("vitrina_uploads").insert({ path, ip_hash: ipHash });
-  if (rowError) throw rowError;
-  const { data, error } = await db.storage.from(PENDING_BUCKET).createSignedUploadUrl(path);
-  if (error || !data) throw error ?? new Error("createSignedUploadUrl returned no data");
-  return { token: data.token };
-}
+export const createUploadTicket = (db: SupabaseClient, path: string, ipHash: string | null) =>
+  sharedCreateUploadTicket(db, STORE, path, ipHash);
 
-export async function isRecordedUpload(db: SupabaseClient, path: string): Promise<boolean> {
-  const { data, error } = await db.from("vitrina_uploads").select("path").eq("path", path).maybeSingle();
-  if (error) throw error;
-  return Boolean(data);
-}
+export const isRecordedUpload = (db: SupabaseClient, path: string) => sharedIsRecordedUpload(db, STORE, path);
 
-export async function pendingObjectInfo(
-  db: SupabaseClient,
-  path: string,
-): Promise<{ size: number; mimetype: string } | null> {
-  const { data, error } = await db.storage.from(PENDING_BUCKET).list("", { search: path, limit: 10 });
-  if (error) throw error;
-  const item = data?.find((object) => object.name === path);
-  if (!item) return null;
-  return { size: Number(item.metadata?.size ?? 0), mimetype: String(item.metadata?.mimetype ?? "") };
-}
+export const pendingObjectInfo = (db: SupabaseClient, path: string) => sharedPendingObjectInfo(db, STORE, path);
 
 export async function insertWork(db: SupabaseClient, work: WorkInput, ipHash: string | null): Promise<string> {
   const { data, error } = await db
@@ -247,15 +233,11 @@ export async function listWorksByStatus(db: SupabaseClient, status: WorkStatus):
   if (error) throw error;
   const rows = (data ?? []) as unknown as AdminRow[];
 
-  const signed = new Map<string, string>();
-  const privatePaths = rows.filter((row) => row.status !== "published").map((row) => row.image_path);
-  if (privatePaths.length > 0) {
-    const { data: urls, error: urlError } = await db.storage
-      .from(PENDING_BUCKET)
-      .createSignedUrls(privatePaths, SIGNED_URL_SECONDS);
-    if (urlError) throw urlError;
-    for (const item of urls ?? []) if (item.path && item.signedUrl) signed.set(item.path, item.signedUrl);
-  }
+  const signed = await signedPendingUrls(
+    db,
+    STORE,
+    rows.filter((row) => row.status !== "published").map((row) => row.image_path),
+  );
 
   return rows.map((row) => ({
     id: row.id,
@@ -292,94 +274,6 @@ async function getRow(db: SupabaseClient, id: string) {
   return data as { status: WorkStatus; image_path: string } | null;
 }
 
-async function objectExists(db: SupabaseClient, bucket: string, path: string): Promise<boolean> {
-  const { data, error } = await db.storage.from(bucket).list("", { search: path, limit: 10 });
-  if (error) throw error;
-  return Boolean(data?.some((object) => object.name === path));
-}
-
-/**
- * Download + upload + remove: works on every Storage version, and files are ≤ 4.5 MB.
- * Idempotent: if the source is already gone but the destination has the object
- * (a previous attempt died mid-move), the move counts as done.
- */
-async function moveObject(db: SupabaseClient, from: string, to: string, path: string): Promise<void> {
-  const { data: blob, error } = await db.storage.from(from).download(path);
-  if (error || !blob) {
-    if (await objectExists(db, to, path)) return;
-    throw error ?? new Error(`download ${from}/${path} failed`);
-  }
-  const { error: uploadError } = await db.storage
-    .from(to)
-    .upload(path, blob, { contentType: mimeForPath(path) ?? undefined, upsert: true });
-  if (uploadError) throw uploadError;
-  const { error: removeError } = await db.storage.from(from).remove([path]);
-  if (removeError) throw removeError;
-}
-
-type ImageSize = { width: number; height: number };
-
-/**
- * Re-encodes an image for the public bucket: applies the EXIF orientation,
- * fits the long edge in PUBLIC_MAX_EDGE, keeps the ICC profile and drops all
- * other metadata (EXIF, GPS, XMP, IPTC). Same format as the path extension.
- */
-export async function encodePublicImage(
-  input: Buffer,
-  mime: ImageMime,
-): Promise<{ body: Buffer; width: number; height: number }> {
-  // Lazy: only the admin approve path needs libvips; the public feed must not load it.
-  const { default: sharp } = await import("sharp");
-  // Normal quality first; one lower step if the result would not fit the bucket (PNG is lossless).
-  for (const quality of mime === "image/png" ? [100] : [85, 70]) {
-    const image = sharp(input)
-      .rotate()
-      .resize({ width: PUBLIC_MAX_EDGE, height: PUBLIC_MAX_EDGE, fit: "inside", withoutEnlargement: true })
-      .keepIccProfile();
-    const encoded =
-      mime === "image/jpeg"
-        ? image.jpeg({ quality, mozjpeg: true })
-        : mime === "image/webp"
-          ? image.webp({ quality })
-          : image.png({ compressionLevel: 9 });
-    const { data, info } = await encoded.toBuffer({ resolveWithObject: true });
-    if (data.length <= MAX_IMAGE_BYTES) return { body: data, width: info.width, height: info.height };
-  }
-  throw new Error("re-encoded image is larger than the bucket limit");
-}
-
-/**
- * Pending → public, re-encoded (see encodePublicImage). Returns the published
- * size. Idempotent like moveObject: if the source is already gone but the public
- * object exists (a previous attempt died mid-move), the move counts as done and
- * the size is read from the public object.
- */
-async function publishObject(db: SupabaseClient, path: string): Promise<ImageSize | null> {
-  const mime = mimeForPath(path);
-  if (!mime) throw new Error(`unsupported image path ${path}`);
-  const { data: blob, error } = await db.storage.from(PENDING_BUCKET).download(path);
-  if (error || !blob) {
-    if (!(await objectExists(db, PUBLIC_BUCKET, path))) throw error ?? new Error(`download ${PENDING_BUCKET}/${path} failed`);
-    const { data: existing } = await db.storage.from(PUBLIC_BUCKET).download(path);
-    if (!existing) return null;
-    try {
-      const { default: sharp } = await import("sharp");
-      const meta = await sharp(Buffer.from(await existing.arrayBuffer())).metadata();
-      return { width: meta.autoOrient.width, height: meta.autoOrient.height };
-    } catch {
-      return null;
-    }
-  }
-  const { body, width, height } = await encodePublicImage(Buffer.from(await blob.arrayBuffer()), mime);
-  const { error: uploadError } = await db.storage
-    .from(PUBLIC_BUCKET)
-    .upload(path, body, { contentType: mime, upsert: true, cacheControl: PUBLIC_CACHE_SECONDS });
-  if (uploadError) throw uploadError;
-  const { error: removeError } = await db.storage.from(PENDING_BUCKET).remove([path]);
-  if (removeError) throw removeError;
-  return { width, height };
-}
-
 /** Updates only while the row is still in one of `expected`; false when nothing matched (lost a race). */
 async function transition(
   db: SupabaseClient,
@@ -396,7 +290,7 @@ async function transition(
 export async function approveWork(db: SupabaseClient, id: string): Promise<boolean> {
   const row = await getRow(db, id);
   if (!row || row.status === "published") return false;
-  const size = await publishObject(db, row.image_path);
+  const size = await publishObject(db, STORE, row.image_path);
   const now = new Date().toISOString();
   return transition(db, id, ["pending", "rejected"], {
     status: "published",
@@ -416,7 +310,7 @@ export async function rejectWork(db: SupabaseClient, id: string): Promise<boolea
 export async function hideWork(db: SupabaseClient, id: string): Promise<boolean> {
   const row = await getRow(db, id);
   if (!row || row.status !== "published") return false;
-  await moveObject(db, PUBLIC_BUCKET, PENDING_BUCKET, row.image_path);
+  await unpublishObject(db, STORE, row.image_path);
   return transition(db, id, ["published"], { status: "rejected", reviewed_at: new Date().toISOString() });
 }
 
@@ -424,13 +318,8 @@ export async function hideWork(db: SupabaseClient, id: string): Promise<boolean>
 export async function deleteWork(db: SupabaseClient, id: string): Promise<boolean> {
   const row = await getRow(db, id);
   if (!row) return false;
-  for (const bucket of [PENDING_BUCKET, PUBLIC_BUCKET]) {
-    const { error } = await db.storage.from(bucket).remove([row.image_path]);
-    if (error) throw error;
-  }
+  await removeImage(db, STORE, row.image_path);
   const { error } = await db.from("vitrina_works").delete().eq("id", id);
   if (error) throw error;
-  const { error: uploadError } = await db.from("vitrina_uploads").delete().eq("path", row.image_path);
-  if (uploadError) throw uploadError;
   return true;
 }
