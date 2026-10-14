@@ -42,13 +42,28 @@ describe.skipIf(!isLocal || !serviceKey || !anonKey)("otros eventos schema (loca
   });
 
   it("gives anon nothing", async () => {
+    await makeEvent({ status: "published", published_at: new Date().toISOString() });
+    await service.from("community_event_uploads").upsert({ path: `${stamp}-upload.png`, ip_hash: "h" });
+    // 42501 = permission denied. An empty result is not enough: with RLS on and
+    // no policies, anon would get [] even if a grant leaked.
     for (const table of ["community_events", "community_event_uploads", "community_events_public"]) {
       const { data, error } = await anon.from(table).select("*").limit(1);
-      expect(error ?? data?.length === 0).toBeTruthy();
-      expect(data ?? []).toHaveLength(0);
+      expect(error?.code, table).toBe("42501");
+      expect(data, table).toBeNull();
     }
-    const { data } = await anon.storage.from("otros-eventos-pending").list();
-    expect(data ?? []).toHaveLength(0);
+    const path = `${randomUUID()}.png`;
+    const bytes = Buffer.from("x");
+    const up = await service.storage.from("otros-eventos-pending").upload(path, bytes, { contentType: "image/png" });
+    expect(up.error).toBeNull();
+    try {
+      const { data } = await anon.storage.from("otros-eventos-pending").list();
+      expect(data ?? []).toHaveLength(0);
+      const { error } = await anon.storage.from("otros-eventos-pending").download(path);
+      expect(error).not.toBeNull();
+    } finally {
+      await service.storage.from("otros-eventos-pending").remove([path]);
+      await service.from("community_event_uploads").delete().eq("path", `${stamp}-upload.png`);
+    }
   });
 
   it("public view hides pending, rejected and past events", async () => {
@@ -81,6 +96,16 @@ describe.skipIf(!isLocal || !serviceKey || !anonKey)("otros eventos schema (loca
     expect((data ?? []).map((r) => r.id).sort()).toEqual([late, early].sort());
   });
 
+  it("drops an event the Puerto Rico day after it started", async () => {
+    const prToday = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Puerto_Rico" }).format(new Date());
+    const yesterday = new Date(new Date(`${prToday}T12:00:00-04:00`).getTime() - 864e5);
+    const prYesterday = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Puerto_Rico" }).format(yesterday);
+    const lastNight = new Date(`${prYesterday}T23:59:00-04:00`).toISOString();
+    const id = await makeEvent({ status: "published", published_at: new Date().toISOString(), starts_at: lastNight });
+    const { data } = await service.from("community_events_public").select("id").eq("id", id);
+    expect(data ?? []).toHaveLength(0);
+  });
+
   it("never exposes submitter_email or ip_hash", async () => {
     await makeEvent({ status: "published", published_at: new Date().toISOString() });
     const { error } = await service.from("community_events_public").select("submitter_email").limit(1);
@@ -90,7 +115,8 @@ describe.skipIf(!isLocal || !serviceKey || !anonKey)("otros eventos schema (loca
   });
 
   it("rejects non-web links and published rows without published_at", async () => {
-    await expect(makeEvent({ link: "javascript:alert(1)" })).rejects.toBeTruthy();
-    await expect(makeEvent({ status: "published" })).rejects.toBeTruthy();
+    await expect(makeEvent({ link: "javascript:alert(1)" })).rejects.toMatchObject({ code: "23514" });
+    await expect(makeEvent({ link: "ftp://x.com" })).rejects.toMatchObject({ code: "23514" });
+    await expect(makeEvent({ status: "published" })).rejects.toMatchObject({ code: "23514" });
   });
 });
