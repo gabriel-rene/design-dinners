@@ -3,6 +3,7 @@ import NextEvent from "@/components/landing/NextEvent";
 import PastEvents from "@/components/landing/PastEvents";
 import About from "@/components/landing/About";
 import VitrinaTeaser from "@/components/landing/VitrinaTeaser";
+import OtrosEventosTeaser from "@/components/landing/OtrosEventosTeaser";
 import SpeakerSpotlight from "@/components/SpeakerSpotlight";
 import { getEventsWithSpeakers } from "@/lib/queries";
 import { splitEvents, upcomingSpotlights } from "@/lib/derive";
@@ -10,6 +11,9 @@ import { formatDateParts, formatEventTime } from "@/lib/format";
 import { getServiceClient, hasServiceConfig } from "@/lib/supabase/service";
 import { listFeed } from "@/lib/vitrina/db";
 import type { PublicWork } from "@/lib/vitrina/types";
+import { listUpcomingEvents } from "@/lib/otros-eventos/db";
+import { loadEventsPreview } from "@/lib/otros-eventos/preview";
+import type { PublicCommunityEvent } from "@/lib/otros-eventos/types";
 
 /** Latest Vitrina pieces for the storefront. The landing never fails over it. */
 async function getVitrinaPreview(): Promise<PublicWork[]> {
@@ -23,17 +27,25 @@ async function getVitrinaPreview(): Promise<PublicWork[]> {
   }
 }
 
-// Daily time floor bounds the staleness of the time-derived upcoming/past
+/** Next community events for the teaser; empty when Supabase is not configured. */
+async function getOtrosEventosPreview(): Promise<PublicCommunityEvent[]> {
+  if (!hasServiceConfig) return [];
+  return loadEventsPreview(() => listUpcomingEvents(getServiceClient(), 3));
+}
+
+// Hourly time floor bounds the staleness of the time-derived upcoming/past
 // split below (`now` is captured at prerender time, so without a ceiling a
 // past event could linger in "Próximo evento" indefinitely between admin
-// writes). The admin (Task 8) still refreshes the page on-demand via
+// writes) and lets a past community event leave the Otros eventos teaser
+// within an hour. The admin (Task 8) still refreshes the page on-demand via
 // revalidatePath('/') after every mutation, which layers on top of this.
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 export default async function Home() {
-  const [events, vitrina] = await Promise.all([
+  const [events, vitrina, otrosEventos] = await Promise.all([
     getEventsWithSpeakers(),
     getVitrinaPreview(),
+    getOtrosEventosPreview(),
   ]);
 
   const now = new Date();
@@ -62,6 +74,7 @@ export default async function Home() {
       })}
       <PastEvents past={past} />
       <VitrinaTeaser works={vitrina} />
+      <OtrosEventosTeaser events={otrosEventos} />
       {/* "Próximos Speakers" hidden for now (owner, 2026-10-16). */}
       <About whatsappUrl={whatsappUrl} />
     </main>
