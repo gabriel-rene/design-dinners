@@ -26,6 +26,10 @@ export type EventFormDefaults = {
   registration_url?: string | null;
   capacity?: number | null;
   cover_image_url?: string | null;
+  host_name?: string | null;
+  theme_bg?: string | null;
+  theme_ink?: string | null;
+  theme_accent?: string | null;
   speaker_ids?: string[];
 };
 
@@ -171,6 +175,46 @@ export default function EventForm({
           Déjalo vacío si no hay límite. Cuando se llene, las nuevas reservas van a la lista de espera.
         </p>
       </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="host_name" className={labelClass}>Host</label>
+        <input
+          id="host_name"
+          name="host_name"
+          type="text"
+          maxLength={80}
+          defaultValue={defaults.host_name ?? ""}
+          className={inputClass}
+          placeholder="Waldemar Pérez"
+          aria-describedby="host_name-hint"
+        />
+        <p id="host_name-hint" className={hintClass}>
+          Sale en Eventos pasados como «Hosted by …». Vacío = muestra los speakers.
+        </p>
+      </div>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className={labelClass}>Colores del mes</legend>
+        <label className="inline-flex items-center gap-2 text-[15px]">
+          <input type="checkbox" name="use_theme" defaultChecked={Boolean(defaults.theme_bg)} />
+          Usar los colores del póster en «Próximo evento»
+        </label>
+        <div className="flex flex-wrap gap-4">
+          {(
+            [
+              ["theme_bg", "Fondo", defaults.theme_bg ?? "#d21432"],
+              ["theme_ink", "Texto", defaults.theme_ink ?? "#f8e3ca"],
+              ["theme_accent", "Acento (botón)", defaults.theme_accent ?? "#faa61a"],
+            ] as const
+          ).map(([name, label, value]) => (
+            <label key={name} className="inline-flex items-center gap-2 text-sm">
+              <input type="color" name={name} defaultValue={value} className="h-9 w-12 cursor-pointer rounded border border-dd-black/25 bg-white" />
+              {label}
+            </label>
+          ))}
+        </div>
+        <p className={hintClass}>Sin marcar = el bloque rojo de siempre.</p>
+      </fieldset>
 
       <ImageField
         name="cover_image"

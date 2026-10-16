@@ -19,8 +19,15 @@ type ParsedEvent = {
   event_type: string;
   registration_url: string | null;
   capacity: number | null;
+  host_name: string | null;
+  theme_bg: string | null;
+  theme_ink: string | null;
+  theme_accent: string | null;
   speaker_ids: string[];
 };
+
+const HEX = /^#[0-9a-f]{6}$/i;
+const THEME_FIELDS = ["theme_bg", "theme_ink", "theme_accent"] as const;
 
 function parseEvent(formData: FormData): { error: string } | { value: ParsedEvent } {
   const title = String(formData.get("title") ?? "").trim();
@@ -44,6 +51,16 @@ function parseEvent(formData: FormData): { error: string } | { value: ParsedEven
 
   const description = String(formData.get("description") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
+  const hostName = String(formData.get("host_name") ?? "").trim();
+  if (hostName.length > 80) return { error: "El nombre del host es muy largo." };
+
+  // All three colors or none: a half-set theme would mix with brand red.
+  const useTheme = formData.get("use_theme") === "on";
+  const theme = THEME_FIELDS.map((f) => String(formData.get(f) ?? "").trim());
+  if (useTheme && theme.some((c) => !HEX.test(c))) {
+    return { error: "Los colores del mes deben ser #rrggbb." };
+  }
+  const [themeBg, themeInk, themeAccent] = useTheme ? theme : [null, null, null];
 
   return {
     value: {
@@ -54,6 +71,10 @@ function parseEvent(formData: FormData): { error: string } | { value: ParsedEven
       event_type: eventType,
       registration_url: registrationUrl || null,
       capacity: capacity.value,
+      host_name: hostName || null,
+      theme_bg: themeBg,
+      theme_ink: themeInk,
+      theme_accent: themeAccent,
       speaker_ids: formData
         .getAll("speaker_ids")
         .map(String)
@@ -96,11 +117,13 @@ export async function createEvent(
       txn`
         insert into events (
           id, title, description, event_date, location, event_type,
-          registration_url, capacity, cover_image_url
+          registration_url, capacity, cover_image_url,
+          host_name, theme_bg, theme_ink, theme_accent
         ) values (
           ${id}, ${event.title}, ${event.description}, ${event.event_date},
           ${event.location}, ${event.event_type}, ${event.registration_url},
-          ${event.capacity}, ${image.url}
+          ${event.capacity}, ${image.url},
+          ${event.host_name}, ${event.theme_bg}, ${event.theme_ink}, ${event.theme_accent}
         )
       `,
       ...speaker_ids.map(
@@ -157,7 +180,11 @@ export async function updateEvent(
           event_type = ${event.event_type},
           registration_url = ${event.registration_url},
           capacity = ${event.capacity},
-          cover_image_url = ${image.url}
+          cover_image_url = ${image.url},
+          host_name = ${event.host_name},
+          theme_bg = ${event.theme_bg},
+          theme_ink = ${event.theme_ink},
+          theme_accent = ${event.theme_accent}
         where id = ${id}
       `,
       txn`delete from event_speakers where event_id = ${id}`,

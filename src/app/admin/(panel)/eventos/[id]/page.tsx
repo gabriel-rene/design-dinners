@@ -67,6 +67,10 @@ export default async function EditarEventoPage({
             event_type: event.event_type,
             registration_url: event.registration_url,
             capacity: event.capacity,
+            host_name: event.host_name,
+            theme_bg: event.theme_bg,
+            theme_ink: event.theme_ink,
+            theme_accent: event.theme_accent,
             cover_image_url: event.cover_image_url,
             speaker_ids: event.speaker_ids,
           }}

@@ -16,6 +16,12 @@ export interface EventRow {
   registration_url: string | null;
   capacity: number | null;
   cover_image_url: string | null;
+  /** Shown on past-event cards as "Hosted by …". */
+  host_name: string | null;
+  /** That month's poster colors (#rrggbb) for the "Próximo evento" block. Null = brand red. */
+  theme_bg: string | null;
+  theme_ink: string | null;
+  theme_accent: string | null;
   created_at: string;
 }
 
