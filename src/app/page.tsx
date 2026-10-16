@@ -1,12 +1,11 @@
 import Hero from "@/components/landing/Hero";
 import NextEvent from "@/components/landing/NextEvent";
 import PastEvents from "@/components/landing/PastEvents";
-import Speakers from "@/components/landing/Speakers";
 import About from "@/components/landing/About";
 import VitrinaTeaser from "@/components/landing/VitrinaTeaser";
 import OtrosEventosTeaser from "@/components/landing/OtrosEventosTeaser";
 import SpeakerSpotlight from "@/components/SpeakerSpotlight";
-import { getEventsWithSpeakers, getSpeakers } from "@/lib/queries";
+import { getEventsWithSpeakers } from "@/lib/queries";
 import { splitEvents, upcomingSpotlights } from "@/lib/derive";
 import { formatDateParts, formatEventTime } from "@/lib/format";
 import { getServiceClient, hasServiceConfig } from "@/lib/supabase/service";
@@ -43,9 +42,8 @@ async function getOtrosEventosPreview(): Promise<PublicCommunityEvent[]> {
 export const revalidate = 3600;
 
 export default async function Home() {
-  const [events, speakers, vitrina, otrosEventos] = await Promise.all([
+  const [events, vitrina, otrosEventos] = await Promise.all([
     getEventsWithSpeakers(),
-    getSpeakers(),
     getVitrinaPreview(),
     getOtrosEventosPreview(),
   ]);
@@ -77,7 +75,7 @@ export default async function Home() {
       <PastEvents past={past} />
       <VitrinaTeaser works={vitrina} />
       <OtrosEventosTeaser events={otrosEventos} />
-      <Speakers speakers={speakers} events={events} now={now} />
+      {/* "Próximos Speakers" hidden for now (owner, 2026-10-16). */}
       <About whatsappUrl={whatsappUrl} />
     </main>
   );

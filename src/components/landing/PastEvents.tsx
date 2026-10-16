@@ -25,7 +25,7 @@ export default function PastEvents({ past }: { past: EventWithSpeakers[] }) {
         </p>
 
         {past.length > 0 ? (
-          <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(270px,1fr))] md:mt-12">
+          <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))] lg:grid-cols-4 md:mt-12">
             {past.map((event, i) => (
               <EventCard
                 key={event.id}

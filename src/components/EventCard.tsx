@@ -44,10 +44,17 @@ export default function EventCard({
           <h3 className="font-display text-2xl font-bold uppercase leading-[1.05]">
             {event.title}
           </h3>
-          {variant === "past" && speakerNames && (
+          {variant === "past" && event.host_name ? (
             <p className="text-[15px] leading-snug">
-              Con <span className="font-semibold">{speakerNames}</span>
+              Hosted by <span className="font-semibold">{event.host_name}</span>
             </p>
+          ) : (
+            variant === "past" &&
+            speakerNames && (
+              <p className="text-[15px] leading-snug">
+                Con <span className="font-semibold">{speakerNames}</span>
+              </p>
+            )
           )}
           {variant === "upcoming" && event.location && (
             <p className="text-[15px] leading-snug">{event.location}</p>
