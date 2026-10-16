@@ -10,16 +10,23 @@ const sections = [
   { href: "/admin/eventos", label: "Eventos" },
   { href: "/admin/speakers", label: "Speakers" },
   { href: "/admin/vitrina", label: "Vitrina" },
+  { href: "/admin/otros-eventos", label: "Otros eventos" },
 ];
 
 export default function AdminNav({
   email,
   vitrinaPending = 0,
+  eventsPending = 0,
 }: {
   email: string;
   vitrinaPending?: number;
+  eventsPending?: number;
 }) {
   const pathname = usePathname();
+  const pendingBy: Record<string, number> = {
+    "/admin/vitrina": vitrinaPending,
+    "/admin/otros-eventos": eventsPending,
+  };
 
   return (
     <header className="sticky top-0 z-30 border-b-2 border-dd-black bg-dd-cream/95 backdrop-blur">
@@ -54,9 +61,9 @@ export default function AdminNav({
                 }`}
               >
                 {section.label}
-                {section.href === "/admin/vitrina" && vitrinaPending > 0 && (
+                {(pendingBy[section.href] ?? 0) > 0 && (
                   <span className="ml-1.5 rounded-full bg-dd-yellow px-1.5 py-0.5 text-xs font-bold text-dd-black">
-                    {vitrinaPending}
+                    {pendingBy[section.href]}
                     <span className="sr-only"> pendientes</span>
                   </span>
                 )}

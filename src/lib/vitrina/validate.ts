@@ -2,6 +2,17 @@
 // client submit form and the server actions both import this file, so the
 // browser checks and the server checks can never drift apart.
 import { EMAIL_RE, isUuid } from "@/lib/rsvp";
+import { isImageDimension, isPendingPath } from "@/lib/storage/image-rules";
+
+export {
+  IMAGE_EXT,
+  MAX_IMAGE_BYTES,
+  checkImageFile,
+  isImageMime,
+  isPendingPath,
+  mimeForPath,
+  type ImageMime,
+} from "@/lib/storage/image-rules";
 
 export type Badge = "open_to_work" | "open_to_projects";
 export const BADGES: Badge[] = ["open_to_work", "open_to_projects"];
@@ -22,42 +33,12 @@ export const LINK_LABEL: Record<LinkKey, string> = {
 };
 
 export const LIMITS = { name: 120, email: 254, role: 60, title: 80, description: 300 } as const;
-/** 4.5 MB. Must equal `file_size_limit` of both buckets in the Vitrina migration. */
-export const MAX_IMAGE_BYTES = 4_718_592;
-export const IMAGE_EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
-export type ImageMime = keyof typeof IMAGE_EXT;
 
 export const SUBMISSIONS_PER_DAY = 3;
 export const UPLOADS_PER_DAY = 6;
 export const FRIES_PER_HOUR = 60;
 export const FEED_PAGE_SIZE = 8;
 export const FAN_COOKIE = "dd_fan";
-
-export function isImageMime(value: string): value is ImageMime {
-  return Object.hasOwn(IMAGE_EXT, value);
-}
-
-export function mimeForPath(path: string): ImageMime | null {
-  const ext = path.split(".").pop();
-  const hit = (Object.entries(IMAGE_EXT) as [ImageMime, string][]).find(([, e]) => e === ext);
-  return hit ? hit[0] : null;
-}
-
-/** Spanish error message, or null when the file is fine. */
-export function checkImageFile(file: { type: string; size: number }): string | null {
-  if (!isImageMime(file.type)) return "La imagen debe ser JPG, PNG o WebP.";
-  if (file.size <= 0) return "Elige una imagen.";
-  if (file.size > MAX_IMAGE_BYTES) return "La imagen no puede pesar más de 4.5 MB.";
-  return null;
-}
-
-const PENDING_PATH_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
-
-/** Only object names we generate (`{uuid}.{ext}` at the bucket root). */
-export function isPendingPath(value: string): boolean {
-  return PENDING_PATH_RE.test(value);
-}
 
 export function parseFanId(value: string | null | undefined): string | null {
   return value && isUuid(value) ? value.toLowerCase() : null;
@@ -177,8 +158,6 @@ export function parseWorkFields(
 
 export type WorkInput = WorkFields & { imagePath: string; imageWidth: number; imageHeight: number };
 
-const isDimension = (n: number) => Number.isInteger(n) && n > 0 && n <= 20_000;
-
 /** Server-side: the fields plus the already-uploaded image. */
 export function parseWorkInput(
   raw: RawWork,
@@ -188,7 +167,7 @@ export function parseWorkInput(
   const imagePath = String(raw.imagePath ?? "");
   const imageWidth = Number(raw.imageWidth);
   const imageHeight = Number(raw.imageHeight);
-  if (!isPendingPath(imagePath) || !isDimension(imageWidth) || !isDimension(imageHeight)) {
+  if (!isPendingPath(imagePath) || !isImageDimension(imageWidth) || !isImageDimension(imageHeight)) {
     errors.image = "Vuelve a subir la imagen.";
   }
   if (!fields.ok || errors.image) return { ok: false, errors };

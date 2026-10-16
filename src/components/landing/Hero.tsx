@@ -37,18 +37,24 @@ function MarqueeRun() {
 export default function Hero({ whatsappUrl }: { whatsappUrl: string }) {
   return (
     <section id="hero" aria-label="Design Dinners" className="flex flex-col">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 pt-6 md:px-8">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 pt-6 md:px-8">
         <img
           src="/brand/primary-black.svg"
           alt="Design Dinners"
-          className="h-7 w-auto sm:h-8 md:h-9"
+          className="h-7 w-auto shrink-0 sm:h-8 md:h-9"
         />
-        <nav aria-label="Enlaces" className="flex items-center gap-3 sm:gap-5 md:gap-7">
+        <nav aria-label="Enlaces" className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 sm:gap-x-5 md:gap-x-7">
           <Link
             href="/vitrina"
             className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
           >
             Vitrina
+          </Link>
+          <Link
+            href="/otros-eventos"
+            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
+          >
+            Eventos
           </Link>
           <a
             href={INSTAGRAM_URL}
