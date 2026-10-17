@@ -5,7 +5,7 @@ import { EVENT_TYPE_LABEL, formatDateParts, formatEventTime } from "@/lib/format
 import type { PublicCommunityEvent } from "@/lib/otros-eventos/types";
 import { PRICE_LABEL } from "@/lib/otros-eventos/validate";
 import type { EventWithSpeakers } from "@/lib/types";
-import { eventPath } from "@/lib/slug";
+import { communityEventPath, eventPath } from "@/lib/slug";
 
 function emptyText(filter: AgendaFilter): string {
   if (filter === "design-dinners") {
@@ -29,9 +29,8 @@ function DateBlock({ iso, small = "" }: { iso: string; small?: string }) {
 
 const ROW_GRID =
   "grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-3 sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:gap-x-6";
-/** Community rows keep the arrow on the right at every width (it is small). */
 const COMMUNITY_GRID =
-  "grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-x-4 sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:gap-x-6";
+  "grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:gap-x-6";
 
 /**
  * Design Dinners row: a Ketchup Red band. The title links to the event page and
@@ -80,18 +79,16 @@ function DinnerRow({ event }: { event: EventWithSpeakers }) {
 }
 
 /**
- * Community row: plain cream with a black rule on top, a "Comunidad" tag and an
- * outbound arrow. The whole row is one link to the organizer's page. It never
- * borrows the red band or the "Reservar" button.
+ * Community row: plain cream with a black rule on top and a "Comunidad" tag.
+ * The whole row is one link to the event's page on this site. It never borrows
+ * the red band or the "Reservar" button.
  */
 function CommunityRow({ event, afterCommunity }: { event: PublicCommunityEvent; afterCommunity: boolean }) {
   const d = formatDateParts(event.startsAt);
   return (
     <li className={`border-b-2 border-dd-black ${afterCommunity ? "" : "border-t-2"}`}>
-      <a
-        href={event.link}
-        target="_blank"
-        rel="noopener noreferrer nofollow ugc"
+      <Link
+        href={communityEventPath(event)}
         className={`${COMMUNITY_GRID} group px-3 py-4 transition-colors hover:bg-dd-yellow/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black sm:px-5`}
       >
         <span aria-hidden>
@@ -118,18 +115,8 @@ function CommunityRow({ event, afterCommunity }: { event: PublicCommunityEvent; 
             )}
             {event.price && <span className="font-bold text-dd-brown">{PRICE_LABEL[event.price]}</span>}
           </span>
-          <span className="sr-only"> (abre en otra pestaña)</span>
         </span>
-        <span
-          aria-hidden
-          className="flex size-9 items-center justify-center rounded-full border-2 border-dd-black bg-dd-cream transition-colors group-hover:bg-dd-yellow sm:size-10"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
+      </Link>
     </li>
   );
 }

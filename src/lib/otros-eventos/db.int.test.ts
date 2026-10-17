@@ -64,6 +64,7 @@ describe.skipIf(!isLocal || !serviceKey)("otros eventos db (local Supabase)", ()
     const { id, path } = await submitted();
     const first = await approveCommunityEvent(db, id);
     expect(first?.notify).toMatchObject({ email: "ana@ejemplo.com", title: `${stamp} evento` });
+    expect(first?.notify?.slug).toMatch(new RegExp(`^${slugify(`${stamp} evento`)}(-\\d+)?$`));
     expect(await approveCommunityEvent(db, id)).toBeNull(); // second click: nothing, no second email
     const upcoming = await listUpcomingEvents(db);
     const shown = upcoming.find((e) => e.id === id);

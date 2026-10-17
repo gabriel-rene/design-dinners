@@ -23,6 +23,7 @@ function revalidateAll() {
   revalidatePath("/admin/otros-eventos");
   revalidatePath("/admin", "layout");
   revalidatePath("/eventos");
+  revalidatePath("/eventos/comunidad/[slug]", "page");
   revalidatePath("/"); // the landing shows upcoming community events
 }
 

@@ -173,11 +173,14 @@ export async function countPendingEvents(db: SupabaseClient): Promise<number> {
 async function getRow(db: SupabaseClient, id: string) {
   const { data, error } = await db
     .from("community_events")
-    .select("status,image_path,submitter_email,title,starts_at")
+    .select("status,slug,image_path,submitter_email,title,starts_at")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return data as { status: CommunityEventStatus; image_path: string; submitter_email: string; title: string; starts_at: string } | null;
+  return data as {
+    status: CommunityEventStatus; slug: string | null; image_path: string;
+    submitter_email: string; title: string; starts_at: string;
+  } | null;
 }
 
 /** Updates only while the row is still in one of `expected`; false when it lost a race. */
@@ -190,7 +193,7 @@ async function transition(db: SupabaseClient, id: string, expected: CommunityEve
 export async function approveCommunityEvent(
   db: SupabaseClient,
   id: string,
-): Promise<{ notify: { email: string; title: string; startsAt: string } | null } | null> {
+): Promise<{ notify: { email: string; title: string; startsAt: string; slug: string | null } | null } | null> {
   const row = await getRow(db, id);
   if (!row || row.status === "published") return null;
   const size = await publishObject(db, EVENT_STORE, row.image_path);
@@ -202,7 +205,9 @@ export async function approveCommunityEvent(
   if (!changed) return null;
   // A past event still gets published, but its submitter is not emailed about it.
   const upcoming = prToday(new Date(row.starts_at)) >= prToday();
-  return { notify: upcoming ? { email: row.submitter_email, title: row.title, startsAt: row.starts_at } : null };
+  return {
+    notify: upcoming ? { email: row.submitter_email, title: row.title, startsAt: row.starts_at, slug: row.slug } : null,
+  };
 }
 
 export async function rejectCommunityEvent(db: SupabaseClient, id: string): Promise<boolean> {
