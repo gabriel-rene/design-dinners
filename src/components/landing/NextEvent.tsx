@@ -62,9 +62,11 @@ function SeatsLine({ capacity, confirmed }: { capacity: number; confirmed: numbe
 export default function NextEvent({
   upcoming,
   whatsappUrl,
+  showRest = true,
 }: {
   upcoming: EventWithSpeakers[];
   whatsappUrl: string;
+  showRest?: boolean;
 }) {
   const featured = upcoming[0];
   const rest = upcoming.slice(1);
@@ -156,7 +158,7 @@ export default function NextEvent({
               </div>
             </div>
 
-            {rest.length > 0 && (
+            {showRest && rest.length > 0 && (
               <div className="mt-16 md:mt-20">
                 <h3 className="font-display text-2xl font-bold uppercase tracking-wide text-[var(--ev-ink)]">
                   También en el horno
