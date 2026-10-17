@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import About from "@/components/landing/About";
 import SubmitEventForm from "@/components/otros-eventos/SubmitEventForm";
 
 export const metadata: Metadata = {
@@ -9,9 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function EnviarEventoPage() {
+  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
   return (
-    <main className="min-h-screen bg-dd-cream text-dd-black">
-      <div className="mx-auto w-full max-w-2xl px-5 py-8 md:py-14">
+    <main className="flex-1 bg-dd-cream text-dd-black">
+      <div className="mx-auto w-full max-w-2xl px-5 pb-16 pt-8 md:pb-24 md:pt-14">
         <Link href="/eventos" className="text-sm font-bold uppercase tracking-wide underline decoration-dd-red decoration-2 underline-offset-4">
           ← Eventos
         </Link>
@@ -29,6 +31,8 @@ export default function EnviarEventoPage() {
           <a href="mailto:hola@gaborene.com?subject=Quitar%20evento%20de%20la%20agenda" className="underline">hola@gaborene.com</a>.
         </p>
       </div>
+
+      <About whatsappUrl={whatsappUrl} />
     </main>
   );
 }
