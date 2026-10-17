@@ -31,6 +31,8 @@ export const DEMO_SPEAKERS: SpeakerRow[] = [
 export const DEMO_EVENTS: EventWithSpeakers[] = [
   {
     id: "demo-event-upcoming",
+    slug: "cena-de-bienvenida",
+    old_slugs: [],
     title: "Cena de Bienvenida",
     description:
       "Una mesa larga, buena comida y conversación honesta sobre el oficio del diseño.",
@@ -51,6 +53,8 @@ export const DEMO_EVENTS: EventWithSpeakers[] = [
   },
   {
     id: "demo-event-past",
+    slug: "taller-de-tipografia-editorial",
+    old_slugs: [],
     title: "Taller de Tipografía Editorial",
     description: "Un taller práctico sobre jerarquía y ritmo tipográfico.",
     event_date: new Date(buildTime - 45 * DAY).toISOString(),

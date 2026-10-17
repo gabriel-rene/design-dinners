@@ -8,6 +8,7 @@ import { isValidHttpUrl, uploadImageIfPresent } from "@/lib/admin-helpers";
 import { requireAdmin } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { parseCapacity } from "@/lib/rsvp";
+import { slugify, uniqueSlug } from "@/lib/slug";
 
 const EVENT_TYPES = new Set(["cena", "taller", "otro"]);
 
@@ -88,7 +89,17 @@ function refreshEventPages() {
   revalidatePath("/admin");
   revalidatePath("/admin/eventos");
   // Dynamic-segment form: refreshes every public event page at once.
-  revalidatePath("/eventos/[id]", "page");
+  revalidatePath("/eventos/[slug]", "page");
+}
+
+/** Slugs and old slugs of every event except `exceptId` (an event may reuse its own). */
+async function takenSlugs(exceptId: string | null): Promise<string[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    select slug, old_slugs from events
+    where ${exceptId}::uuid is null or id <> ${exceptId}::uuid
+  `) as { slug: string | null; old_slugs: string[] | null }[];
+  return rows.flatMap((r) => [...(r.slug ? [r.slug] : []), ...(r.old_slugs ?? [])]);
 }
 
 export async function createEvent(
@@ -99,6 +110,17 @@ export async function createEvent(
   const parsed = parseEvent(formData);
   if ("error" in parsed) return parsed;
 
+  const id = crypto.randomUUID();
+  const sql = getDb();
+  const { speaker_ids, ...event } = parsed.value;
+
+  let slug: string;
+  try {
+    slug = uniqueSlug(slugify(event.title), await takenSlugs(null));
+  } catch {
+    return { error: "No pudimos guardar el evento. Intenta de nuevo." };
+  }
+
   const image = await uploadImageIfPresent(
     supabase,
     formData,
@@ -108,19 +130,15 @@ export async function createEvent(
   );
   if ("error" in image) return image;
 
-  const id = crypto.randomUUID();
-  const sql = getDb();
-  const { speaker_ids, ...event } = parsed.value;
-
   try {
     await sql.transaction((txn) => [
       txn`
         insert into events (
-          id, title, description, event_date, location, event_type,
+          id, slug, title, description, event_date, location, event_type,
           registration_url, capacity, cover_image_url,
           host_name, theme_bg, theme_ink, theme_accent
         ) values (
-          ${id}, ${event.title}, ${event.description}, ${event.event_date},
+          ${id}, ${slug}, ${event.title}, ${event.description}, ${event.event_date},
           ${event.location}, ${event.event_type}, ${event.registration_url},
           ${event.capacity}, ${image.url},
           ${event.host_name}, ${event.theme_bg}, ${event.theme_ink}, ${event.theme_accent}
@@ -152,11 +170,12 @@ export async function updateEvent(
 
   const sql = getDb();
   const currentRows = await sql`
-    select cover_image_url from events where id = ${id} limit 1
+    select cover_image_url, title, slug from events where id = ${id} limit 1
   `;
-  const currentUrl =
-    (currentRows[0] as { cover_image_url: string | null } | undefined)
-      ?.cover_image_url ?? null;
+  const current = currentRows[0] as
+    | { cover_image_url: string | null; title: string; slug: string | null }
+    | undefined;
+  const currentUrl = current?.cover_image_url ?? null;
 
   const image = await uploadImageIfPresent(
     supabase,
@@ -169,10 +188,31 @@ export async function updateEvent(
 
   const { speaker_ids, ...event } = parsed.value;
 
+  // Keep the slug while the title is unchanged; otherwise derive a new unique
+  // one and remember the previous slug so old links redirect.
+  let slug: string;
+  try {
+    slug =
+      current?.slug && current.title === event.title
+        ? current.slug
+        : uniqueSlug(slugify(event.title), await takenSlugs(id));
+  } catch {
+    return { error: "No pudimos guardar los cambios. Intenta de nuevo." };
+  }
+
   try {
     await sql.transaction((txn) => [
       txn`
         update events set
+          old_slugs = array_remove(
+            case
+              when slug is not null and slug <> ${slug}::text and not (slug = any(old_slugs))
+                then array_append(old_slugs, slug)
+              else old_slugs
+            end,
+            ${slug}::text
+          ),
+          slug = ${slug},
           title = ${event.title},
           description = ${event.description},
           event_date = ${event.event_date},

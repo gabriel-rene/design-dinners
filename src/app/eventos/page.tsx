@@ -5,6 +5,7 @@ import NextEvent from "@/components/landing/NextEvent";
 import PastEvents from "@/components/landing/PastEvents";
 import AgendaFilters from "@/components/eventos/AgendaFilters";
 import AgendaList from "@/components/eventos/AgendaList";
+import About from "@/components/landing/About";
 import ShareEventBox from "@/components/eventos/ShareEventBox";
 import { buildAgenda, parseAgendaFilter } from "@/lib/agenda";
 import { splitEvents } from "@/lib/derive";
@@ -87,6 +88,8 @@ export default async function EventosPage({
       </section>
 
       <PastEvents past={past} />
+
+      <About whatsappUrl={whatsappUrl} />
     </main>
   );
 }

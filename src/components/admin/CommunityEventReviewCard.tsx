@@ -8,6 +8,7 @@ import {
 import { formatEventDate, formatEventTime } from "@/lib/format";
 import type { AdminCommunityEvent } from "@/lib/otros-eventos/types";
 import { PRICE_LABEL, prToday } from "@/lib/otros-eventos/validate";
+import { communityEventPath } from "@/lib/slug";
 
 import ActionButton from "./ActionButton";
 import DeleteButton from "./DeleteButton";
@@ -60,7 +61,14 @@ export default function CommunityEventReviewCard({ event }: { event: AdminCommun
             </>
           )}
           {event.status === "published" && (
-            <ActionButton action={hideEventAction.bind(null, event.id)} label="Ocultar" pendingLabel="Ocultando…" className={secondaryBtnSm} />
+            <>
+              {event.slug && (
+                <a href={communityEventPath({ slug: event.slug })} target="_blank" rel="noopener noreferrer" className={secondaryBtnSm}>
+                  Ver página
+                </a>
+              )}
+              <ActionButton action={hideEventAction.bind(null, event.id)} label="Ocultar" pendingLabel="Ocultando…" className={secondaryBtnSm} />
+            </>
           )}
           {event.status === "rejected" && (
             <ActionButton action={approveEventAction.bind(null, event.id)} label="Publicar" pendingLabel="Publicando…" className={primaryBtnSm} />

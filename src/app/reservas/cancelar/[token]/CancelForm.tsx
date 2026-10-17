@@ -12,7 +12,7 @@ const MESSAGES: Record<Exclude<CancelState["status"], "idle" | "done">, string> 
   error: "No pudimos liberar tu puesto. Intenta de nuevo.",
 };
 
-export default function CancelForm({ token, eventId, waitlist }: { token: string; eventId: string; waitlist: boolean }) {
+export default function CancelForm({ token, eventHref, waitlist }: { token: string; eventHref: string; waitlist: boolean }) {
   const [state, formAction, isPending] = useActionState<CancelState, FormData>(
     cancelReservation.bind(null, token),
     { status: "idle" },
@@ -27,7 +27,7 @@ export default function CancelForm({ token, eventId, waitlist }: { token: string
         <p className="mt-2 leading-relaxed">
           {waitlist ? "Gracias por avisar." : "Gracias por avisar. Alguien más podrá sentarse a la mesa."}
         </p>
-        <Link href={`/eventos/${eventId}`} className="mt-4 inline-block font-bold text-dd-brown underline underline-offset-[3px]">
+        <Link href={eventHref} className="mt-4 inline-block font-bold text-dd-brown underline underline-offset-[3px]">
           Ver el evento
         </Link>
       </div>
@@ -44,7 +44,7 @@ export default function CancelForm({ token, eventId, waitlist }: { token: string
         {isPending ? "Liberando…" : waitlist ? "Sí, salir de la lista de espera" : "Sí, liberar mi puesto"}
       </button>
       <Link
-        href={`/eventos/${eventId}`}
+        href={eventHref}
         className="flex min-h-[50px] items-center justify-center rounded-full border-2 border-dd-black px-5 py-2 text-center text-[15px] font-bold leading-snug dd-btn"
       >
         {waitlist ? "No, me quedo en la lista" : "No, me quedo con mi puesto"}

@@ -5,6 +5,8 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { slugify, uniqueSlug } from "@/lib/slug";
+
 import {
   createUploadTicket, isRecordedUpload, pendingObjectInfo, publicImageUrl, publishObject,
   removeImage, signedPendingUrls, unpublishObject, type ImageStore,
@@ -20,11 +22,11 @@ export const EVENT_STORE: ImageStore = {
 };
 
 const DAY_MS = 864e5;
-const PUBLIC_COLUMNS = "id,title,starts_at,venue,link,description,organizer,price,image_path,image_width,image_height";
+const PUBLIC_COLUMNS = "id,slug,title,starts_at,venue,link,description,organizer,price,image_path,image_width,image_height";
 const ADMIN_COLUMNS = `${PUBLIC_COLUMNS},status,submitter_email,created_at,reviewed_at,published_at`;
 
 type PublicRow = {
-  id: string; title: string; starts_at: string; venue: string; link: string;
+  id: string; slug: string; title: string; starts_at: string; venue: string; link: string;
   description: string | null; organizer: string | null; price: Price | null;
   image_path: string; image_width: number; image_height: number;
 };
@@ -37,7 +39,7 @@ export const eventImageUrl = (path: string) => publicImageUrl(EVENT_STORE, path)
 
 function base(row: PublicRow) {
   return {
-    id: row.id, title: row.title, startsAt: row.starts_at, venue: row.venue, link: row.link,
+    id: row.id, slug: row.slug, title: row.title, startsAt: row.starts_at, venue: row.venue, link: row.link,
     description: row.description, organizer: row.organizer, price: row.price,
     imageWidth: row.image_width, imageHeight: row.image_height,
   };
@@ -54,6 +56,27 @@ export async function listUpcomingEvents(db: SupabaseClient, limit = 60): Promis
     .limit(limit);
   if (error) throw error;
   return ((data ?? []) as unknown as PublicRow[]).map((row) => ({ ...base(row), imageUrl: eventImageUrl(row.image_path) }));
+}
+
+/** Any published event by slug (also after its day), public columns only. */
+export async function getPublishedCommunityEventBySlug(
+  db: SupabaseClient,
+  slug: string,
+): Promise<(PublicCommunityEvent & { isPast: boolean }) | null> {
+  const { data, error } = await db
+    .from("community_events")
+    .select(PUBLIC_COLUMNS)
+    .eq("status", "published")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const row = data as unknown as PublicRow;
+  return {
+    ...base(row),
+    imageUrl: eventImageUrl(row.image_path),
+    isPast: prToday(new Date(row.starts_at)) < prToday(),
+  };
 }
 
 // ── Rate limits + submissions ─────────────────────────────────────────────
@@ -77,19 +100,32 @@ export const createEventUploadTicket = (db: SupabaseClient, path: string, ipHash
 export const isRecordedEventUpload = (db: SupabaseClient, path: string) => isRecordedUpload(db, EVENT_STORE, path);
 export const pendingEventObjectInfo = (db: SupabaseClient, path: string) => pendingObjectInfo(db, EVENT_STORE, path);
 
-export async function insertCommunityEvent(db: SupabaseClient, input: EventInput, ipHash: string | null): Promise<string> {
-  const { data, error } = await db
-    .from("community_events")
-    .insert({
-      title: input.title, starts_at: input.startsAt, venue: input.venue, link: input.link,
-      description: input.description, organizer: input.organizer, price: input.price,
-      submitter_email: input.email, image_path: input.imagePath,
-      image_width: input.imageWidth, image_height: input.imageHeight, ip_hash: ipHash,
-    })
-    .select("id")
-    .single();
+/** Unique among all rows (any status). A concurrent twin loses on the unique index and the caller retries. */
+async function nextEventSlug(db: SupabaseClient, title: string): Promise<string> {
+  const base = slugify(title);
+  const { data, error } = await db.from("community_events").select("slug").like("slug", `${base}%`);
   if (error) throw error;
-  return data.id as string;
+  return uniqueSlug(base, (data ?? []).map((r) => r.slug as string));
+}
+
+export async function insertCommunityEvent(db: SupabaseClient, input: EventInput, ipHash: string | null): Promise<string> {
+  for (let attempt = 1; ; attempt++) {
+    const slug = await nextEventSlug(db, input.title);
+    const { data, error } = await db
+      .from("community_events")
+      .insert({
+        slug, title: input.title, starts_at: input.startsAt, venue: input.venue, link: input.link,
+        description: input.description, organizer: input.organizer, price: input.price,
+        submitter_email: input.email, image_path: input.imagePath,
+        image_width: input.imageWidth, image_height: input.imageHeight, ip_hash: ipHash,
+      })
+      .select("id")
+      .single();
+    if (!error) return data.id as string;
+    // A concurrent same-title insert took our slug: recompute and retry. Other 23505s (image_path) still throw.
+    const slugRace = error.code === "23505" && /slug/.test(`${error.message} ${error.details ?? ""}`);
+    if (!slugRace || attempt >= 3) throw error;
+  }
 }
 
 // ── Admin (call only after requireAdmin()) ────────────────────────────────
@@ -137,11 +173,14 @@ export async function countPendingEvents(db: SupabaseClient): Promise<number> {
 async function getRow(db: SupabaseClient, id: string) {
   const { data, error } = await db
     .from("community_events")
-    .select("status,image_path,submitter_email,title,starts_at")
+    .select("status,slug,image_path,submitter_email,title,starts_at")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return data as { status: CommunityEventStatus; image_path: string; submitter_email: string; title: string; starts_at: string } | null;
+  return data as {
+    status: CommunityEventStatus; slug: string | null; image_path: string;
+    submitter_email: string; title: string; starts_at: string;
+  } | null;
 }
 
 /** Updates only while the row is still in one of `expected`; false when it lost a race. */
@@ -154,7 +193,7 @@ async function transition(db: SupabaseClient, id: string, expected: CommunityEve
 export async function approveCommunityEvent(
   db: SupabaseClient,
   id: string,
-): Promise<{ notify: { email: string; title: string; startsAt: string } | null } | null> {
+): Promise<{ notify: { email: string; title: string; startsAt: string; slug: string | null } | null } | null> {
   const row = await getRow(db, id);
   if (!row || row.status === "published") return null;
   const size = await publishObject(db, EVENT_STORE, row.image_path);
@@ -166,7 +205,9 @@ export async function approveCommunityEvent(
   if (!changed) return null;
   // A past event still gets published, but its submitter is not emailed about it.
   const upcoming = prToday(new Date(row.starts_at)) >= prToday();
-  return { notify: upcoming ? { email: row.submitter_email, title: row.title, startsAt: row.starts_at } : null };
+  return {
+    notify: upcoming ? { email: row.submitter_email, title: row.title, startsAt: row.starts_at, slug: row.slug } : null,
+  };
 }
 
 export async function rejectCommunityEvent(db: SupabaseClient, id: string): Promise<boolean> {

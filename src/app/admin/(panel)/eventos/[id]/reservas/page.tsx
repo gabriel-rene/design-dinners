@@ -14,6 +14,7 @@ import { requireAdmin } from "@/lib/auth";
 import { EVENT_TYPE_LABEL, formatArchiveDate, formatEventTime } from "@/lib/format";
 import { getEventById, getEventRsvps } from "@/lib/queries";
 import { PLATE_VISUAL_MAX } from "@/lib/rsvp";
+import { eventPath } from "@/lib/slug";
 import type { RsvpRow } from "@/lib/types";
 import { changeRsvpStatus, updateCapacity } from "./actions";
 import CapacityForm from "./CapacityForm";
@@ -156,7 +157,7 @@ export default async function ReservasPage({ params }: { params: Promise<{ id: s
           </div>
           <div className="flex flex-wrap gap-2">
             <a
-              href={`/eventos/${event.id}`}
+              href={eventPath(event)}
               target="_blank"
               rel="noopener noreferrer"
               className={`${secondaryBtn} gap-2`}

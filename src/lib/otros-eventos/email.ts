@@ -79,7 +79,7 @@ export function buildApprovalEmail(input: ApprovalEmailInput) {
 <tr><td style="padding:16px 20px 20px;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;">
 <tr><td align="center" bgcolor="${C.black}" style="background:${C.black};border:2px solid ${C.black};border-radius:999px;">
-<a href="${escapeHtml(input.pageUrl)}" style="display:block;padding:14px 20px;font-family:${BODY};font-size:15px;font-weight:700;line-height:20px;color:${C.cream};text-decoration:none;">${escapeHtml("Ver la agenda")}</a>
+<a href="${escapeHtml(input.pageUrl)}" style="display:block;padding:14px 20px;font-family:${BODY};font-size:15px;font-weight:700;line-height:20px;color:${C.cream};text-decoration:none;">${escapeHtml("Ver tu evento")}</a>
 </td></tr></table>
 </td></tr>
 </table>

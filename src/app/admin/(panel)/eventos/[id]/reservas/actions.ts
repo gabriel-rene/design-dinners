@@ -15,7 +15,7 @@ const STATUSES = new Set<RsvpStatus>(["confirmed", "waitlist", "cancelled"]);
 function refresh(eventId: string) {
   revalidatePath(`/admin/eventos/${eventId}/reservas`);
   revalidatePath("/admin/eventos");
-  revalidatePath(`/eventos/${eventId}`);
+  revalidatePath("/eventos/[slug]", "page");
   revalidatePath("/");
 }
 

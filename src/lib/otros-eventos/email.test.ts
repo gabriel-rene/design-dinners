@@ -5,7 +5,7 @@ import { buildApprovalEmail } from "./email";
 const input = {
   title: `Charla <script>alert("x")</script> & más`,
   startsAt: "2026-10-20T23:00:00.000Z",
-  pageUrl: "https://designdinners.com/eventos?tipo=comunidad",
+  pageUrl: "https://designdinners.com/eventos/comunidad/charla-y-mas",
   now: new Date("2026-10-14T16:00:00Z"),
 };
 
@@ -23,10 +23,10 @@ describe("buildApprovalEmail", () => {
     const { html, text } = buildApprovalEmail(input);
     expect(text).toContain("martes, 20 de octubre");
     expect(text).toMatch(/7:00\sp\.\sm\./);
-    expect(text).toContain("https://designdinners.com/eventos?tipo=comunidad");
+    expect(text).toContain("https://designdinners.com/eventos/comunidad/charla-y-mas");
     expect(text).toContain("Ya aparece en la agenda de Design Dinners.");
     expect(html).toContain("https://designdinners.com/brand/mascot-email.png");
-    expect(html).toContain('href="https://designdinners.com/eventos?tipo=comunidad"');
-    expect(html).toContain("Ver la agenda");
+    expect(html).toContain('href="https://designdinners.com/eventos/comunidad/charla-y-mas"');
+    expect(html).toContain("Ver tu evento");
   });
 });

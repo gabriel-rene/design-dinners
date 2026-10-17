@@ -5,6 +5,7 @@ import "server-only";
 import { sendEmail, type SendResult } from "./email";
 import { getPublicEvent } from "./queries";
 import { buildRsvpEmail, type RsvpEmailKind } from "./rsvp-email";
+import { eventPath } from "./slug";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -29,7 +30,7 @@ export async function notifyRsvp(input: {
       position: input.position,
       capacity: event.capacity,
       event,
-      eventUrl: `${SITE}/eventos/${event.id}`,
+      eventUrl: `${SITE}${eventPath(event)}`,
       whatsappGroupUrl: process.env.NEXT_PUBLIC_WHATSAPP_URL || null,
       cancelUrl: input.cancelToken ? cancelUrlFor(input.cancelToken) : null,
     });
