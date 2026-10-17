@@ -4,6 +4,7 @@ export type CommunityEventStatus = "pending" | "published" | "rejected";
 
 export type PublicCommunityEvent = {
   id: string;
+  slug: string;
   title: string;
   startsAt: string;
   venue: string;
