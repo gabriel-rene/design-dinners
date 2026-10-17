@@ -10,7 +10,7 @@ const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").repla
 
 export async function notifyEventApproved(input: { email: string; title: string; startsAt: string }): Promise<void> {
   try {
-    const message = buildApprovalEmail({ title: input.title, startsAt: input.startsAt, pageUrl: `${SITE}/otros-eventos` });
+    const message = buildApprovalEmail({ title: input.title, startsAt: input.startsAt, pageUrl: `${SITE}/eventos?tipo=comunidad` });
     const result = await sendEmail({ to: input.email, ...message });
     if (result === "failed") console.error("otros-eventos approval email failed");
   } catch (error) {
