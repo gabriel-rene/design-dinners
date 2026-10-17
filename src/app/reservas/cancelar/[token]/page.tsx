@@ -10,6 +10,7 @@ import { getDb, hasDatabaseConfig } from "@/lib/db";
 import { formatEventDate, formatEventTime } from "@/lib/format";
 import { isUuid } from "@/lib/rsvp";
 import { getRsvpByCancelToken } from "@/lib/rsvp-db";
+import { eventPath } from "@/lib/slug";
 
 import CancelForm from "./CancelForm";
 
@@ -99,7 +100,7 @@ export default async function CancelPage({ params }: Props) {
           Si liberas tu puesto, se lo damos a la próxima persona en la lista de espera.
         </p>
       )}
-      <CancelForm token={token} eventId={rsvp.eventId} waitlist={waitlist} />
+      <CancelForm token={token} eventHref={eventPath({ id: rsvp.eventId, slug: rsvp.eventSlug })} waitlist={waitlist} />
     </Shell>
   );
 }

@@ -1,5 +1,6 @@
 import BrandImage, { type BrandTone } from "./BrandImage";
 import type { EventWithSpeakers } from "@/lib/types";
+import { eventPath } from "@/lib/slug";
 import {
   EVENT_TYPE_LABEL,
   formatArchiveDate,
@@ -72,7 +73,7 @@ export default function EventCard({
                 </a>
               ) : (
                 <a
-                  href={`/eventos/${event.id}`}
+                  href={eventPath(event)}
                   className="text-[15px] font-bold text-dd-red underline decoration-2 underline-offset-4 hover:text-dd-brown"
                 >
                   Reservar puesto →

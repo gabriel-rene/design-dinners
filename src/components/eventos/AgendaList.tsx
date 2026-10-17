@@ -5,6 +5,7 @@ import { EVENT_TYPE_LABEL, formatDateParts, formatEventTime } from "@/lib/format
 import type { PublicCommunityEvent } from "@/lib/otros-eventos/types";
 import { PRICE_LABEL } from "@/lib/otros-eventos/validate";
 import type { EventWithSpeakers } from "@/lib/types";
+import { eventPath } from "@/lib/slug";
 
 function emptyText(filter: AgendaFilter): string {
   if (filter === "design-dinners") {
@@ -40,7 +41,7 @@ const COMMUNITY_GRID =
  * drops under the text.
  */
 function DinnerRow({ event }: { event: EventWithSpeakers }) {
-  const href = `/eventos/${event.id}`;
+  const href = eventPath(event);
   const meta = [EVENT_TYPE_LABEL[event.event_type], event.location, formatEventTime(event.event_date)]
     .filter(Boolean)
     .join(" · ");

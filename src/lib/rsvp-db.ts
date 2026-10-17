@@ -100,6 +100,7 @@ export type CancelLookup = {
   name: string;
   status: RsvpStatus;
   eventId: string;
+  eventSlug: string | null;
   eventTitle: string;
   eventDate: string;
   location: string | null;
@@ -111,7 +112,7 @@ export type CancelOutcome =
 
 export async function getRsvpByCancelToken(sql: Sql, token: string): Promise<CancelLookup | null> {
   const rows = (await sql`
-    select r.name, r.status, e.id as "eventId", e.title as "eventTitle",
+    select r.name, r.status, e.id as "eventId", e.slug as "eventSlug", e.title as "eventTitle",
            e.event_date as "eventDate", e.location
     from rsvps r join events e on e.id = r.event_id
     where r.cancel_token = ${token}

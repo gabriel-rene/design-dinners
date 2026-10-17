@@ -19,7 +19,7 @@ export async function cancelReservation(token: string, _prev: CancelState): Prom
 
     const { eventId, promoted } = result;
     revalidatePath("/");
-    revalidatePath(`/eventos/${eventId}`);
+    revalidatePath("/eventos/[slug]", "page");
     revalidatePath("/admin/eventos");
     revalidatePath(`/admin/eventos/${eventId}/reservas`);
     if (promoted) {

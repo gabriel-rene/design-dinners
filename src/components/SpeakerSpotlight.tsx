@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import type { SpeakerRow } from "@/lib/types";
+import { eventPath } from "@/lib/slug";
 
 /**
  * Headliner treatment for a speaker with a `spotlight_label`. Blue drench on
@@ -22,7 +23,7 @@ export default function SpeakerSpotlight({
   speaker: SpeakerRow;
   variant: "band" | "panel";
   /** Band only: the event this speaker headlines, for the reserve CTA. */
-  event?: { id: string; title: string; whenLabel: string };
+  event?: { id: string; slug: string | null; title: string; whenLabel: string };
 }) {
   const band = variant === "band";
   const titleId = `spotlight-${speaker.id}`;
@@ -71,7 +72,7 @@ export default function SpeakerSpotlight({
         <div className={`flex flex-wrap items-center gap-x-6 gap-y-4 ${band ? "mt-9" : "mt-5"}`}>
           {band && event && (
             <Link
-              href={`/eventos/${event.id}`}
+              href={eventPath(event)}
               className="dd-btn inline-flex h-14 items-center rounded-full border-2 border-dd-black bg-dd-yellow px-7 font-display text-lg font-bold uppercase tracking-[0.03em] text-dd-black"
             >
               Reserva tu silla

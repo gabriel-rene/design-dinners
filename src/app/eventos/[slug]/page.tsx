@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 
 import BrandImage from "@/components/BrandImage";
@@ -10,8 +10,9 @@ import RsvpPanel from "@/components/event/RsvpPanel";
 import ShareButton from "@/components/event/ShareButton";
 import SpeakerSpotlight from "@/components/SpeakerSpotlight";
 import { EVENT_TYPE_LABEL, formatDateParts, formatEventDate, formatEventTime } from "@/lib/format";
-import { getPublicEvent } from "@/lib/queries";
+import { findPublicEvent } from "@/lib/queries";
 import { rsvpMode } from "@/lib/rsvp";
+import { eventPath } from "@/lib/slug";
 import { INSTAGRAM_URL } from "@/lib/social";
 import type { SpeakerRow } from "@/lib/types";
 
@@ -19,26 +20,29 @@ export const revalidate = 300;
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 // Neon queries are not fetch(), so Next does not memoize them: dedupe the
 // metadata + page lookups for one request by hand.
-const loadEvent = cache(getPublicEvent);
+const loadEvent = cache(findPublicEvent);
 
 const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const event = await loadEvent(id);
-  if (!event) return { title: "Evento no encontrado — Design Dinners" };
+  const { slug } = await params;
+  const lookup = await loadEvent(slug);
+  if (!lookup) return { title: "Evento no encontrado — Design Dinners" };
+  const { event } = lookup;
+  const canonicalUrl = `${SITE}${eventPath(event)}`;
   const description = event.description ?? `${formatEventDate(event.event_date)} · ${formatEventTime(event.event_date)}`;
   return {
     title: `${event.title} — Design Dinners`,
     description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: event.title,
       description,
-      url: `${SITE}/eventos/${event.id}`,
+      url: canonicalUrl,
       images: event.cover_image_url ? [event.cover_image_url] : undefined,
     },
   };
@@ -106,13 +110,15 @@ const SECTION_TITLE = "font-display text-[26px] font-bold uppercase md:text-2xl"
 const PILL = "inline-block rounded-full border-2 border-dd-black px-3 py-1 text-[13px] font-bold uppercase tracking-[0.04em]";
 
 export default async function EventPage({ params }: Props) {
-  const { id } = await params;
-  const event = await loadEvent(id);
-  if (!event) notFound();
+  const { slug } = await params;
+  const lookup = await loadEvent(slug);
+  if (!lookup) notFound();
+  if (!lookup.canonical) permanentRedirect(eventPath(lookup.event));
+  const { event } = lookup;
 
   const mode = rsvpMode(event);
   const isPast = mode === "closed";
-  const url = `${SITE}/eventos/${event.id}`;
+  const url = `${SITE}${eventPath(event)}`;
   const whatsappGroup = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
   const parts = formatDateParts(event.event_date);
   const dateLabel = cap(formatEventDate(event.event_date));
@@ -250,7 +256,7 @@ export default async function EventPage({ params }: Props) {
                   mode,
                   whenLabel: `${cap(parts.weekday)} ${parts.day} ${parts.month} · ${timeLabel}`,
                   location: event.location,
-                  calendarHref: `/eventos/${event.id}/calendario.ics`,
+                  calendarHref: `${eventPath(event)}/calendario.ics`,
                   whatsappInviteHref: `https://wa.me/?text=${encodeURIComponent(
                     `Vente conmigo a ${event.title} de Design Dinners: ${url}`,
                   )}`,

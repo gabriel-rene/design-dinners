@@ -64,7 +64,7 @@ export async function submitRsvp(
     }
 
     revalidatePath("/");
-    revalidatePath(`/eventos/${eventId}`);
+    revalidatePath("/eventos/[slug]", "page");
     revalidatePath("/admin/eventos");
     revalidatePath(`/admin/eventos/${eventId}/reservas`);
 

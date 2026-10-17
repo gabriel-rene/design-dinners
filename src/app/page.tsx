@@ -66,6 +66,7 @@ export default async function Home() {
             speaker={speaker}
             event={{
               id: event.id,
+              slug: event.slug,
               title: event.title,
               whenLabel: `${parts.weekday.charAt(0).toUpperCase()}${parts.weekday.slice(1)} ${parts.day} ${parts.month} · ${formatEventTime(event.event_date).replace(/\s/g, "\u00a0")}`,
             }}

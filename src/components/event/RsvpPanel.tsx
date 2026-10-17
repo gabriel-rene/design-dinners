@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 
 import SeatTable from "./SeatTable";
 import RsvpTicket, { TICKET_HEADING_ID } from "./RsvpTicket";
-import { submitRsvp, type RsvpState } from "@/app/eventos/[id]/actions";
+import { submitRsvp, type RsvpState } from "@/app/eventos/[slug]/actions";
 import type { RsvpMode } from "@/lib/rsvp";
 
 export type PanelEvent = {

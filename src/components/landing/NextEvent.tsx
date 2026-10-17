@@ -9,6 +9,7 @@ import {
   formatEventTime,
 } from "@/lib/format";
 import { seatsLeft } from "@/lib/rsvp";
+import { eventPath } from "@/lib/slug";
 import type { CSSProperties } from "react";
 
 /**
@@ -142,7 +143,7 @@ export default function NextEvent({
                   </a>
                 ) : (
                   <a
-                    href={`/eventos/${featured.id}`}
+                    href={eventPath(featured)}
                     className="mt-2 inline-flex items-center gap-2.5 rounded-full border-2 border-dd-black bg-[var(--ev-accent)] px-8 py-3.5 font-display text-lg font-bold uppercase tracking-wide text-dd-black dd-btn"
                   >
                     Reservar mi puesto
