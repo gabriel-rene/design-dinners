@@ -58,7 +58,7 @@ function DinnerRow({ event }: { event: EventWithSpeakers }) {
         <h3 className="font-display text-xl font-bold uppercase leading-[1.05] break-words sm:text-2xl">
           <Link
             href={href}
-            className="after:absolute after:inset-0 after:rounded-[10px] after:content-[''] hover:underline hover:decoration-2 hover:underline-offset-4 focus-visible:outline-none focus-visible:after:outline-3 focus-visible:after:outline-offset-2 focus-visible:after:outline-dd-cream"
+            className="after:absolute after:inset-0 after:rounded-[10px] after:content-[''] hover:underline hover:decoration-2 hover:underline-offset-4 focus-visible:outline-none focus-visible:after:outline-3 focus-visible:after:outline-offset-[-6px] focus-visible:after:outline-dd-cream"
           >
             {event.title}
           </Link>
@@ -85,10 +85,10 @@ function DinnerRow({ event }: { event: EventWithSpeakers }) {
  * outbound arrow. The whole row is one link to the organizer's page. It never
  * borrows the red band or the "Reservar" button.
  */
-function CommunityRow({ event }: { event: PublicCommunityEvent }) {
+function CommunityRow({ event, afterCommunity }: { event: PublicCommunityEvent; afterCommunity: boolean }) {
   const d = formatDateParts(event.startsAt);
   return (
-    <li className="border-t-2 border-dd-black last:border-b-2">
+    <li className={`border-b-2 border-dd-black ${afterCommunity ? "" : "border-t-2"}`}>
       <a
         href={event.link}
         target="_blank"
@@ -154,11 +154,11 @@ export default function AgendaList({
 
   return (
     <ul className="flex flex-col">
-      {rows.map((row) =>
+      {rows.map((row, i) =>
         row.kind === "dd" ? (
           <DinnerRow key={`dd-${row.event.id}`} event={row.event} />
         ) : (
-          <CommunityRow key={`com-${row.event.id}`} event={row.event} />
+          <CommunityRow key={`com-${row.event.id}`} event={row.event} afterCommunity={rows[i - 1]?.kind === "comunidad"} />
         ),
       )}
     </ul>

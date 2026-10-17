@@ -30,7 +30,7 @@ export type SubmitEventState =
   | { status: "error"; message?: string; errors?: EventFieldErrors }
   | { status: "received" };
 
-const UNAVAILABLE = "Otros eventos no está disponible ahora mismo. Intenta más tarde.";
+const UNAVAILABLE = "Compartir eventos no está disponible ahora mismo. Intenta más tarde.";
 
 /** Step 1 of 2: hand the browser a one-time signed URL for the private bucket. */
 export async function startEventUpload(mime: string, size: number): Promise<StartUploadResult> {

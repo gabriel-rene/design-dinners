@@ -33,7 +33,7 @@ export default function SiteHeader({
       {current ? (
         <Link
           href="/"
-          className="shrink-0 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-black"
+          className="block shrink-0 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-black"
         >
           {logo}
         </Link>

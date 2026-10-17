@@ -80,6 +80,17 @@ describe("buildAgenda", () => {
     expect(ids(rows)).toEqual(["c"]);
   });
 
+  it("breaks same-instant community ties by id", () => {
+    const rows = buildAgenda({
+      ddEvents: [],
+      communityEvents: [com("b", "2026-10-10T00:00:00Z"), com("a", "2026-10-10T00:00:00Z")],
+      featuredId: null,
+      filter: "todos",
+      now,
+    });
+    expect(ids(rows)).toEqual(["a", "b"]);
+  });
+
   it("handles empty inputs and null featuredId", () => {
     expect(
       buildAgenda({ ddEvents: [], communityEvents: [], featuredId: null, filter: "todos", now }),

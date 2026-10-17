@@ -36,7 +36,7 @@ async function getOtrosEventosPreview(): Promise<PublicCommunityEvent[]> {
 // Hourly time floor bounds the staleness of the time-derived upcoming/past
 // split below (`now` is captured at prerender time, so without a ceiling a
 // past event could linger in "Próximo evento" indefinitely between admin
-// writes) and lets a past community event leave the Otros eventos teaser
+// writes) and lets a past community event leave the community teaser
 // within an hour. The admin (Task 8) still refreshes the page on-demand via
 // revalidatePath('/') after every mutation, which layers on top of this.
 export const revalidate = 3600;

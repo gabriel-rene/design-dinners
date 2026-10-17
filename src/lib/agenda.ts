@@ -45,7 +45,8 @@ export function buildAgenda(input: {
   return rows.sort((a, b) => {
     const diff = new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime();
     if (diff !== 0) return diff;
-    return a.kind === b.kind ? 0 : a.kind === "dd" ? -1 : 1;
+    if (a.kind !== b.kind) return a.kind === "dd" ? -1 : 1;
+    return String(a.event.id).localeCompare(String(b.event.id));
   });
 }
 
