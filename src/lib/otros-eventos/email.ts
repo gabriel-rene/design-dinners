@@ -28,7 +28,7 @@ export function buildApprovalEmail(input: ApprovalEmailInput) {
   const mascotSrc = `${new URL(input.pageUrl).origin}/brand/mascot-email.png`;
   const subject = "¡Tu evento está en Design Dinners!";
   const headline = "¡Tu evento está publicado!";
-  const live = "Ya aparece en Otros eventos.";
+  const live = "Ya aparece en la agenda de Design Dinners.";
 
   const text = [
     headline,
@@ -65,7 +65,7 @@ export function buildApprovalEmail(input: ApprovalEmailInput) {
 <tr><td style="border:2px solid ${C.black};border-radius:16px;background:${C.cream};box-shadow:4px 6px 0 0 ${C.black};">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td bgcolor="${C.red}" style="background:${C.red};border-bottom:2px solid ${C.black};border-radius:14px 14px 0 0;padding:16px 20px 18px;">
-<p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${C.cream};">Otros eventos</p>
+<p style="margin:0;font-family:${BODY};font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${C.cream};">Agenda</p>
 <h1 style="margin:10px 0 0;font-family:${DISPLAY};font-size:34px;font-weight:800;line-height:34px;text-transform:uppercase;color:${C.cream};">${escapeHtml(headline)}</h1>
 </td></tr>
 <tr><td style="padding:18px 20px 4px;">
@@ -79,7 +79,7 @@ export function buildApprovalEmail(input: ApprovalEmailInput) {
 <tr><td style="padding:16px 20px 20px;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;">
 <tr><td align="center" bgcolor="${C.black}" style="background:${C.black};border:2px solid ${C.black};border-radius:999px;">
-<a href="${escapeHtml(input.pageUrl)}" style="display:block;padding:14px 20px;font-family:${BODY};font-size:15px;font-weight:700;line-height:20px;color:${C.cream};text-decoration:none;">${escapeHtml("Ver Otros eventos")}</a>
+<a href="${escapeHtml(input.pageUrl)}" style="display:block;padding:14px 20px;font-family:${BODY};font-size:15px;font-weight:700;line-height:20px;color:${C.cream};text-decoration:none;">${escapeHtml("Ver la agenda")}</a>
 </td></tr></table>
 </td></tr>
 </table>

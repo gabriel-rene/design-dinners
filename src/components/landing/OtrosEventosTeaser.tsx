@@ -19,15 +19,15 @@ export default function OtrosEventosTeaser({ events }: { events: PublicCommunity
               id="otros-eventos-titulo"
               className="dd-reveal-title font-display text-[clamp(2.5rem,7vw,4.5rem)] font-bold uppercase leading-none text-dd-red"
             >
-              Otros eventos
+              En la comunidad
             </h2>
-            <p className="mt-3 text-lg italic text-dd-brown">Lo que se está cocinando en la comunidad.</p>
+            <p className="mt-3 text-lg italic text-dd-brown">Eventos de diseño organizados por la comunidad.</p>
           </div>
           <Link
-            href="/otros-eventos"
+            href="/eventos?tipo=comunidad"
             className="shrink-0 text-[15px] font-bold underline decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-black"
           >
-            Ver todos los eventos <span aria-hidden="true">→</span>
+            Ver la agenda <span aria-hidden="true">→</span>
           </Link>
         </div>
 

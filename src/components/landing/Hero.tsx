@@ -1,8 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- local SVG brand assets need no optimization */
 
-import Link from "next/link";
-
-import { INSTAGRAM_URL } from "@/lib/social";
+import SiteHeader from "@/components/SiteHeader";
 
 const HEADLINE = "El diseño se sienta a cenar";
 
@@ -37,41 +35,7 @@ function MarqueeRun() {
 export default function Hero({ whatsappUrl }: { whatsappUrl: string }) {
   return (
     <section id="hero" aria-label="Design Dinners" className="flex flex-col">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 pt-6 md:px-8">
-        <img
-          src="/brand/primary-black.svg"
-          alt="Design Dinners"
-          className="h-7 w-auto shrink-0 sm:h-8 md:h-9"
-        />
-        <nav aria-label="Enlaces" className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 sm:gap-x-5 md:gap-x-7">
-          <Link
-            href="/vitrina"
-            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
-          >
-            Vitrina
-          </Link>
-          <Link
-            href="/otros-eventos"
-            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
-          >
-            Eventos
-          </Link>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
-          >
-            Instagram
-          </a>
-          <a
-            href={whatsappUrl}
-            className="text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red"
-          >
-            WhatsApp
-          </a>
-        </nav>
-      </header>
+      <SiteHeader whatsappUrl={whatsappUrl} />
 
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center px-5 pb-16 pt-10 text-center md:pb-24 md:pt-14">
         <img

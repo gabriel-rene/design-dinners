@@ -22,7 +22,7 @@ type Transition = (db: SupabaseClient, id: string) => Promise<boolean>;
 function revalidateAll() {
   revalidatePath("/admin/otros-eventos");
   revalidatePath("/admin", "layout");
-  revalidatePath("/otros-eventos");
+  revalidatePath("/eventos");
   revalidatePath("/"); // the landing shows upcoming community events
 }
 

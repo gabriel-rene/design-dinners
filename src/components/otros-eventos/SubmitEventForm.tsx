@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 
-import { startEventUpload, submitCommunityEvent } from "@/app/otros-eventos/enviar/actions";
+import { startEventUpload, submitCommunityEvent } from "@/app/eventos/enviar/actions";
 import { hintClass, inputClass, labelClass, primaryBtn, textareaClass } from "@/components/admin/formStyles";
 import {
   LIMITS,
@@ -130,8 +130,8 @@ export default function SubmitEventForm() {
         <p className="mt-3 text-[15px] text-dd-black/80">
           Revisamos cada evento antes de publicarlo. Te escribimos cuando esté en la página.
         </p>
-        <Link href="/otros-eventos" className={`${primaryBtn} mt-6`}>
-          Ver Otros eventos
+        <Link href="/eventos?tipo=comunidad" className={`${primaryBtn} mt-6`}>
+          Ver la agenda
         </Link>
       </section>
     );
