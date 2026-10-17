@@ -146,11 +146,54 @@ describe.skipIf(!isLocal || !serviceKey)("otros eventos db (local Supabase)", ()
     expect((await listUpcomingEvents(db)).map((e) => e.id)).not.toContain(id);
   });
 
-  it("a reserved word as title gets a suffixed slug", async () => {
-    const title = "Comunidad";
+  it("slug is stored lowercase and unreserved", async () => {
+    const title = `${stamp} comunidad`;
     const { id } = await submitted(2, title);
     const { data } = await db.from("community_events").select("slug").eq("id", id).single();
-    expect(data?.slug).toBe("comunidad-2");
-    await deleteCommunityEvent(db, id);
+    expect(data?.slug).toBe(slugify(title));
+    expect(["enviar", "comunidad"]).not.toContain(data?.slug);
+  });
+
+  it("retries with a fresh slug when a concurrent insert takes it", async () => {
+    const title = `${stamp} carrera`;
+    const base = slugify(title);
+    let raced = false;
+    // Wrapper: right after the helper reads existing slugs, a rival row takes the slug it is about to pick.
+    const racing = new Proxy(db, {
+      get(target, prop, recv) {
+        if (prop !== "from") return Reflect.get(target, prop, recv);
+        return (table: string) => {
+          const builder = target.from(table);
+          if (table !== "community_events" || raced) return builder;
+          return {
+            select: (...a: Parameters<typeof builder.select>) => {
+              const q = builder.select(...a);
+              return {
+                like: async (...x: Parameters<typeof q.like>) => {
+                  const res = await q.like(...x);
+                  raced = true;
+                  const { error } = await target.from("community_events").insert({
+                    slug: base, title: `${stamp} rival`, starts_at: new Date(Date.now() + 864e5).toISOString(),
+                    venue: "x", link: "https://x.com/", submitter_email: "r@ejemplo.com",
+                    image_path: `${randomUUID()}.png`, image_width: 1, image_height: 1,
+                  });
+                  expect(error).toBeNull();
+                  return res;
+                },
+              };
+            },
+          };
+        };
+      },
+    });
+    const path = `${randomUUID()}.png`;
+    await createEventUploadTicket(db, path, ipHash);
+    const id = await insertCommunityEvent(racing, {
+      title, startsAt: new Date(Date.now() + 864e5).toISOString(), venue: "x", link: "https://x.com/",
+      description: null, organizer: null, price: null, email: "a@ejemplo.com", imagePath: path, imageWidth: 1, imageHeight: 1,
+    }, ipHash);
+    expect(raced).toBe(true);
+    const { data } = await db.from("community_events").select("slug").eq("id", id).single();
+    expect(data?.slug).toBe(`${base}-2`);
   });
 });

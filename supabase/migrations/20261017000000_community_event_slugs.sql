@@ -3,38 +3,38 @@ create extension if not exists unaccent with schema extensions;
 
 alter table public.community_events add column if not exists slug text;
 
-with base as (
-  select id, created_at,
-    coalesce(nullif(
-      case
-        when length(b) > 80 then
-          case
-            when substr(b, 81, 1) = '-' then trim(both '-' from left(b, 80))
-            when position('-' in left(b, 80)) > 0 then regexp_replace(left(b, 80), '-[^-]*$', '')
-            else left(b, 80)
-          end
-        else b
-      end, ''), 'evento') as base
-  from (
-    select id, created_at,
-      trim(both '-' from regexp_replace(lower(extensions.unaccent(title)), '[^a-z0-9]+', '-', 'g')) as b
-    from public.community_events
-    where slug is null
-  ) s
-),
-ranked as (
-  select id, base,
-    row_number() over (partition by base order by created_at, id)
-      + case when base in ('enviar', 'comunidad') then 1 else 0 end as n
-  from base
-)
-update public.community_events e
-set slug = case when r.n = 1 then r.base else r.base || '-' || r.n end
-from ranked r
-where e.id = r.id;
+-- Mirrors uniqueSlug(): base, base-2, base-3… until free; reserved words count as taken.
+-- Only rows without a slug are touched, so re-running is safe.
+do $$
+declare
+  r record;
+  b text;
+  c text;
+  n int;
+begin
+  for r in select id, title from public.community_events where slug is null order by created_at, id loop
+    b := trim(both '-' from regexp_replace(lower(extensions.unaccent(r.title)), '[^a-z0-9]+', '-', 'g'));
+    if length(b) > 80 then
+      if substr(b, 81, 1) = '-' then b := trim(both '-' from left(b, 80));
+      elsif position('-' in left(b, 80)) > 0 then b := regexp_replace(left(b, 80), '-[^-]*$', '');
+      else b := left(b, 80);
+      end if;
+    end if;
+    if b = '' then b := 'evento'; end if;
+    c := b;
+    n := 1;
+    while c in ('enviar', 'comunidad') or exists (select 1 from public.community_events where slug = c) loop
+      n := n + 1;
+      c := b || '-' || n;
+    end loop;
+    update public.community_events set slug = c where id = r.id;
+  end loop;
+end $$;
 
 create unique index if not exists community_events_slug_uidx on public.community_events (slug);
-alter table public.community_events alter column slug set not null;
+-- Stays nullable on purpose: the app deployed before this change inserts without a slug.
+-- Re-run the backfill block after the new app is deployed.
+alter table public.community_events alter column slug drop not null;
 
 create or replace view public.community_events_public
 with (security_invoker = true) as

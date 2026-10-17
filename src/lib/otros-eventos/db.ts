@@ -109,19 +109,23 @@ async function nextEventSlug(db: SupabaseClient, title: string): Promise<string>
 }
 
 export async function insertCommunityEvent(db: SupabaseClient, input: EventInput, ipHash: string | null): Promise<string> {
-  const slug = await nextEventSlug(db, input.title);
-  const { data, error } = await db
-    .from("community_events")
-    .insert({
-      slug, title: input.title, starts_at: input.startsAt, venue: input.venue, link: input.link,
-      description: input.description, organizer: input.organizer, price: input.price,
-      submitter_email: input.email, image_path: input.imagePath,
-      image_width: input.imageWidth, image_height: input.imageHeight, ip_hash: ipHash,
-    })
-    .select("id")
-    .single();
-  if (error) throw error;
-  return data.id as string;
+  for (let attempt = 1; ; attempt++) {
+    const slug = await nextEventSlug(db, input.title);
+    const { data, error } = await db
+      .from("community_events")
+      .insert({
+        slug, title: input.title, starts_at: input.startsAt, venue: input.venue, link: input.link,
+        description: input.description, organizer: input.organizer, price: input.price,
+        submitter_email: input.email, image_path: input.imagePath,
+        image_width: input.imageWidth, image_height: input.imageHeight, ip_hash: ipHash,
+      })
+      .select("id")
+      .single();
+    if (!error) return data.id as string;
+    // A concurrent same-title insert took our slug: recompute and retry. Other 23505s (image_path) still throw.
+    const slugRace = error.code === "23505" && /slug/.test(`${error.message} ${error.details ?? ""}`);
+    if (!slugRace || attempt >= 3) throw error;
+  }
 }
 
 // ── Admin (call only after requireAdmin()) ────────────────────────────────

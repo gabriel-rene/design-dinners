@@ -21,7 +21,6 @@ describe.skipIf(!isLocal || !serviceKey || !anonKey)("otros eventos schema (loca
     const { data, error } = await service
       .from("community_events")
       .insert({
-        slug: `${stamp}-${randomUUID()}`.toLowerCase(),
         title: `${stamp} evento`,
         venue: "Morena Coffee",
         link: "https://example.com",
