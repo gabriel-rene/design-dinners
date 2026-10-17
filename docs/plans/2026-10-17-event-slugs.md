@@ -105,3 +105,5 @@ Use the `impeccable` skill for the page visuals (Design Dinners style, like `/ev
 ### Task 6 (controller)
 
 Ask the owner before applying `db/006` to Neon (production) and the Supabase migration to cloud. Then browser check (Review Focus 1–5, the community page at 375 px), final review, PR.
+
+**Owner addition (2026-10-17):** the landing footer (`About`) also appears at the end of `/eventos`, `/eventos/enviar`, `/eventos/[slug]` and `/eventos/comunidad/[slug]` (Task 5).
