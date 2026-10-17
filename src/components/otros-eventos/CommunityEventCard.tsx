@@ -30,11 +30,11 @@ export default function CommunityEventCard({
 }) {
   const date = formatDateParts(event.startsAt);
 
-  return (
-    <Link
-      href={communityEventPath(event)}
-      className="dd-btn group flex h-full flex-col overflow-hidden rounded-2xl border-2 border-dd-black bg-dd-cream text-dd-black focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black"
-    >
+  const className =
+    "dd-btn group flex h-full flex-col overflow-hidden rounded-2xl border-2 border-dd-black bg-dd-cream text-dd-black focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black";
+
+  const body = (
+    <>
       <div className="relative border-b-2 border-dd-black bg-dd-black">
         <img
           src={event.imageUrl}
@@ -91,6 +91,20 @@ export default function CommunityEventCard({
           </span>
         )}
       </div>
+    </>
+  );
+
+  if (event.slug === null) {
+    return (
+      <a href={event.link} target="_blank" rel="noopener noreferrer nofollow ugc" className={className}>
+        {body}
+        <span className="sr-only"> (abre en otra pestaña)</span>
+      </a>
+    );
+  }
+  return (
+    <Link href={communityEventPath({ slug: event.slug })} className={className}>
+      {body}
     </Link>
   );
 }

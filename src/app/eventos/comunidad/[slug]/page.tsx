@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const event = await loadEvent(slug);
   if (!event) return { title: "Evento no encontrado — Design Dinners" };
-  const canonicalUrl = `${SITE}${communityEventPath(event)}`;
+  const canonicalUrl = `${SITE}${communityEventPath({ slug })}`;
   const description =
     event.description ?? `${cap(formatEventDate(event.startsAt))} · ${formatEventTime(event.startsAt)} · ${event.venue}`;
   return {
@@ -84,7 +84,7 @@ export default async function CommunityEventPage({ params }: Props) {
   const parts = formatDateParts(event.startsAt);
   const dateLabel = cap(formatEventDate(event.startsAt));
   // "7:00 p. m." must never wrap between "p." and "m.".
-  const timeLabel = formatEventTime(event.startsAt).replace(/\s/g, " ");
+  const timeLabel = formatEventTime(event.startsAt).replace(/\s/g, "\u00a0");
   // Posters close to 4:5 fill the frame; anything else is shown whole, never cropped.
   const ratio = event.imageWidth / event.imageHeight;
   const fit = ratio > 0.72 && ratio < 0.88 ? "object-cover" : "object-contain";
@@ -223,7 +223,7 @@ export default async function CommunityEventPage({ params }: Props) {
                 </a>
               )}
               <div className="flex justify-center sm:justify-start">
-                <ShareButton url={communityEventPath(event)} title={`${event.title} — Eventos — Design Dinners`} />
+                <ShareButton url={communityEventPath({ slug })} title={`${event.title} — Eventos — Design Dinners`} />
               </div>
             </div>
           </aside>

@@ -1,4 +1,4 @@
-import { permanentRedirect } from "next/navigation";
+import { permanentRedirect, redirect } from "next/navigation";
 
 import { buildIcs } from "@/lib/ics";
 import { findPublicEvent } from "@/lib/queries";
@@ -10,7 +10,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const { slug } = await params;
   const lookup = await findPublicEvent(slug);
   if (!lookup) return new Response("No encontrado", { status: 404 });
-  if (!lookup.canonical) permanentRedirect(`${eventPath(lookup.event)}/calendario.ics`);
+  if (!lookup.canonical) {
+    const to = `${eventPath(lookup.event)}/calendario.ics`;
+    if (lookup.matchedBy === "old_slug") redirect(to);
+    permanentRedirect(to);
+  }
 
   const { event } = lookup;
   const body = buildIcs(event, `${SITE}${eventPath(event)}`);

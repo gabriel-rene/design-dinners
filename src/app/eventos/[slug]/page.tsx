@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { cache } from "react";
 
 import BrandImage from "@/components/BrandImage";
@@ -114,7 +114,11 @@ export default async function EventPage({ params }: Props) {
   const { slug } = await params;
   const lookup = await loadEvent(slug);
   if (!lookup) notFound();
-  if (!lookup.canonical) permanentRedirect(eventPath(lookup.event));
+  if (!lookup.canonical) {
+    const to = eventPath(lookup.event);
+    if (lookup.matchedBy === "old_slug") redirect(to);
+    permanentRedirect(to);
+  }
   const { event } = lookup;
 
   const mode = rsvpMode(event);

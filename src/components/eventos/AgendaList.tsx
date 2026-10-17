@@ -78,6 +78,23 @@ function DinnerRow({ event }: { event: EventWithSpeakers }) {
   );
 }
 
+/** Internal page when the event has a slug; otherwise the organizer's link in a new tab. */
+function RowLink({ event, className, children }: { event: PublicCommunityEvent; className: string; children: React.ReactNode }) {
+  if (event.slug === null) {
+    return (
+      <a href={event.link} target="_blank" rel="noopener noreferrer nofollow ugc" className={className}>
+        {children}
+        <span className="sr-only"> (abre en otra pestaña)</span>
+      </a>
+    );
+  }
+  return (
+    <Link href={communityEventPath({ slug: event.slug })} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 /**
  * Community row: plain cream with a black rule on top and a "Comunidad" tag.
  * The whole row is one link to the event's page on this site. It never borrows
@@ -87,9 +104,7 @@ function CommunityRow({ event, afterCommunity }: { event: PublicCommunityEvent; 
   const d = formatDateParts(event.startsAt);
   return (
     <li className={`border-b-2 border-dd-black ${afterCommunity ? "" : "border-t-2"}`}>
-      <Link
-        href={communityEventPath(event)}
-        className={`${COMMUNITY_GRID} group px-3 py-4 transition-colors hover:bg-dd-yellow/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black sm:px-5`}
+      <RowLink event={event} className={`${COMMUNITY_GRID} group px-3 py-4 transition-colors hover:bg-dd-yellow/25 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-dd-black sm:px-5`}
       >
         <span aria-hidden>
           <DateBlock iso={event.startsAt} />
@@ -116,7 +131,7 @@ function CommunityRow({ event, afterCommunity }: { event: PublicCommunityEvent; 
             {event.price && <span className="font-bold text-dd-brown">{PRICE_LABEL[event.price]}</span>}
           </span>
         </span>
-      </Link>
+      </RowLink>
     </li>
   );
 }

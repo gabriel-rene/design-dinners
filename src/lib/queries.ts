@@ -66,7 +66,11 @@ export async function getPublicEvent(id: string): Promise<EventWithSpeakers | nu
   return row ? { ...row, speakers: row.speakers ?? [] } : null;
 }
 
-export type EventLookup = { event: EventWithSpeakers; canonical: boolean } | null;
+export type EventLookup = {
+  event: EventWithSpeakers;
+  canonical: boolean;
+  matchedBy: "slug" | "id" | "old_slug";
+} | null;
 
 /**
  * By current slug (canonical) or by uuid / old slug (canonical=false → the
@@ -75,12 +79,17 @@ export type EventLookup = { event: EventWithSpeakers; canonical: boolean } | nul
 export async function findPublicEvent(slugOrId: string): Promise<EventLookup> {
   if (!hasDatabaseConfig) {
     const bySlug = DEMO_EVENTS.find((e) => e.slug === slugOrId);
-    if (bySlug) return { event: bySlug, canonical: true };
+    if (bySlug) return { event: bySlug, canonical: true, matchedBy: "slug" };
     const other = DEMO_EVENTS.find(
       (e) => e.id === slugOrId || e.old_slugs.includes(slugOrId),
     );
     if (!other) return null;
-    return { event: other, canonical: other.slug === null && other.id === slugOrId };
+    const byId = other.id === slugOrId;
+    return {
+      event: other,
+      canonical: other.slug === null && byId,
+      matchedBy: byId ? "id" : "old_slug",
+    };
   }
 
   const sql = getDb();
@@ -108,6 +117,7 @@ export async function findPublicEvent(slugOrId: string): Promise<EventLookup> {
   return {
     event: { ...row, speakers: row.speakers ?? [] },
     canonical: row.slug === slugOrId || (row.slug === null && row.id === slugOrId),
+    matchedBy: row.slug === slugOrId ? "slug" : row.id === slugOrId ? "id" : "old_slug",
   };
 }
 

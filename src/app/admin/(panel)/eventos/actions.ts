@@ -110,15 +110,6 @@ export async function createEvent(
   const parsed = parseEvent(formData);
   if ("error" in parsed) return parsed;
 
-  const image = await uploadImageIfPresent(
-    supabase,
-    formData,
-    "cover_image",
-    "events",
-    null,
-  );
-  if ("error" in image) return image;
-
   const id = crypto.randomUUID();
   const sql = getDb();
   const { speaker_ids, ...event } = parsed.value;
@@ -129,6 +120,15 @@ export async function createEvent(
   } catch {
     return { error: "No pudimos guardar el evento. Intenta de nuevo." };
   }
+
+  const image = await uploadImageIfPresent(
+    supabase,
+    formData,
+    "cover_image",
+    "events",
+    null,
+  );
+  if ("error" in image) return image;
 
   try {
     await sql.transaction((txn) => [

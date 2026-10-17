@@ -7,7 +7,7 @@ const MAX_LEN = 80;
 export function slugify(title: string): string {
   let s = title
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
