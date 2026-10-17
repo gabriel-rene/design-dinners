@@ -66,6 +66,50 @@ export async function getPublicEvent(id: string): Promise<EventWithSpeakers | nu
   return row ? { ...row, speakers: row.speakers ?? [] } : null;
 }
 
+export type EventLookup = { event: EventWithSpeakers; canonical: boolean } | null;
+
+/**
+ * By current slug (canonical) or by uuid / old slug (canonical=false → the
+ * caller redirects to eventPath(event)). Unknown → null.
+ */
+export async function findPublicEvent(slugOrId: string): Promise<EventLookup> {
+  if (!hasDatabaseConfig) {
+    const bySlug = DEMO_EVENTS.find((e) => e.slug === slugOrId);
+    if (bySlug) return { event: bySlug, canonical: true };
+    const other = DEMO_EVENTS.find(
+      (e) => e.id === slugOrId || e.old_slugs.includes(slugOrId),
+    );
+    return other ? { event: other, canonical: false } : null;
+  }
+
+  const sql = getDb();
+  const rows = await sql`
+    select
+      e.*,
+      (select count(*)::int from rsvps r where r.event_id = e.id and r.status = 'confirmed') as confirmed_count,
+      (select count(*)::int from rsvps r where r.event_id = e.id and r.status = 'waitlist') as waitlist_count,
+      coalesce(
+        jsonb_agg(to_jsonb(s.*) order by s.name) filter (where s.id is not null),
+        '[]'::jsonb
+      ) as speakers
+    from events e
+    left join event_speakers es on es.event_id = e.id
+    left join speakers s on s.id = es.speaker_id
+    where e.slug = ${slugOrId}
+      or ${slugOrId} = any(e.old_slugs)
+      or (${isUuid(slugOrId)} and e.id::text = ${slugOrId})
+    group by e.id
+    order by (e.slug = ${slugOrId}) desc
+    limit 1
+  `;
+  const row = rows[0] as JoinedEventRow | undefined;
+  if (!row) return null;
+  return {
+    event: { ...row, speakers: row.speakers ?? [] },
+    canonical: row.slug === slugOrId,
+  };
+}
+
 export async function getEventRsvps(eventId: string): Promise<RsvpRow[]> {
   if (!hasDatabaseConfig || !isUuid(eventId)) return [];
   const sql = getDb();

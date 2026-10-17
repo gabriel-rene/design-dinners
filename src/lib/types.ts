@@ -22,6 +22,10 @@ export interface EventRow {
   theme_bg: string | null;
   theme_ink: string | null;
   theme_accent: string | null;
+  /** URL slug (/eventos/<slug>). Null only for rows created before the slug migration ran. */
+  slug: string | null;
+  /** Previous slugs; they redirect to the current one. */
+  old_slugs: string[];
   created_at: string;
 }
 

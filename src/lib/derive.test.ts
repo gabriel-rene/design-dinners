@@ -21,6 +21,8 @@ function makeEvent(
     theme_bg: overrides.theme_bg ?? null,
     theme_ink: overrides.theme_ink ?? null,
     theme_accent: overrides.theme_accent ?? null,
+    slug: overrides.slug ?? null,
+    old_slugs: overrides.old_slugs ?? [],
     created_at: overrides.created_at ?? "2026-01-01T00:00:00Z",
     confirmed_count: overrides.confirmed_count ?? 0,
     waitlist_count: overrides.waitlist_count ?? 0,
