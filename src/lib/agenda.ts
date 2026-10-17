@@ -22,17 +22,16 @@ export type AgendaRow =
 export function buildAgenda(input: {
   ddEvents: EventWithSpeakers[];
   communityEvents: PublicCommunityEvent[];
-  featuredId: string | null;
   filter: AgendaFilter;
   now?: Date;
 }): AgendaRow[] {
-  const { ddEvents, communityEvents, featuredId, filter } = input;
+  const { ddEvents, communityEvents, filter } = input;
   const now = input.now ?? new Date();
   const rows: AgendaRow[] = [];
 
   if (filter !== "comunidad") {
     for (const event of ddEvents) {
-      if (event.id === featuredId || !isUpcoming(event, now)) continue;
+      if (!isUpcoming(event, now)) continue;
       rows.push({ kind: "dd", startsAt: event.event_date, event });
     }
   }

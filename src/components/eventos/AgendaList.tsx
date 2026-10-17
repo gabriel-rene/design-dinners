@@ -6,11 +6,9 @@ import type { PublicCommunityEvent } from "@/lib/otros-eventos/types";
 import { PRICE_LABEL } from "@/lib/otros-eventos/validate";
 import type { EventWithSpeakers } from "@/lib/types";
 
-function emptyText(filter: AgendaFilter, hasFeatured: boolean): string {
+function emptyText(filter: AgendaFilter): string {
   if (filter === "design-dinners") {
-    return hasFeatured
-      ? "La próxima cena está arriba. Pronto anunciamos más."
-      : "Pronto anunciamos la próxima cena.";
+    return "Pronto anunciamos la próxima cena.";
   }
   if (filter === "comunidad") return "No hay eventos de la comunidad por ahora.";
   return "No hay más eventos en la agenda por ahora.";
@@ -138,16 +136,14 @@ function CommunityRow({ event, afterCommunity }: { event: PublicCommunityEvent; 
 export default function AgendaList({
   rows,
   filter,
-  hasFeatured,
 }: {
   rows: AgendaRow[];
   filter: AgendaFilter;
-  hasFeatured: boolean;
 }) {
   if (rows.length === 0) {
     return (
       <p className="border-y-2 border-dd-black px-3 py-8 text-lg leading-relaxed sm:px-5">
-        {emptyText(filter, hasFeatured)}
+        {emptyText(filter)}
       </p>
     );
   }

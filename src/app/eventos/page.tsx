@@ -46,7 +46,6 @@ export default async function EventosPage({
   const rows = buildAgenda({
     ddEvents: events,
     communityEvents,
-    featuredId: featured?.id ?? null,
     filter,
     now,
   });
@@ -78,7 +77,7 @@ export default async function EventosPage({
           <div className="mt-8 max-w-4xl md:mt-10">
             <AgendaFilters active={filter} />
             <div className="mt-6">
-              <AgendaList rows={rows} filter={filter} hasFeatured={featured !== null} />
+              <AgendaList rows={rows} filter={filter} />
             </div>
             <div className="mt-12 md:mt-16">
               <ShareEventBox />

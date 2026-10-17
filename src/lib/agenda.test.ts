@@ -32,19 +32,17 @@ describe("buildAgenda", () => {
       com("c2", "2026-10-24T03:30:00Z"),
       com("c1", "2026-10-19T23:00:00Z"),
     ],
-    featuredId: null,
     now,
   };
 
-  it("excludes the featured event", () => {
+  it("includes every upcoming Design Dinners event, even the next one", () => {
     const rows = buildAgenda({
       ddEvents: [dd("a", "2026-11-01T00:00:00Z"), dd("b", "2026-11-12T23:00:00Z")],
       communityEvents: [],
-      featuredId: "a",
       filter: "todos",
       now,
     });
-    expect(ids(rows)).toEqual(["b"]);
+    expect(ids(rows)).toEqual(["a", "b"]);
   });
 
   it("merges and sorts both kinds by start time", () => {
@@ -57,7 +55,6 @@ describe("buildAgenda", () => {
     const rows = buildAgenda({
       ddEvents: [dd("d", "2026-10-20T00:00:00Z")],
       communityEvents: [com("c", "2026-10-20T00:00:00Z")],
-      featuredId: null,
       filter: "todos",
       now,
     });
@@ -73,7 +70,6 @@ describe("buildAgenda", () => {
     const rows = buildAgenda({
       ddEvents: [dd("old", "2026-10-15T23:00:00Z")],
       communityEvents: [com("c", "2026-10-10T00:00:00Z")],
-      featuredId: null,
       filter: "todos",
       now: new Date("2026-10-15T23:30:00Z"),
     });
@@ -84,16 +80,15 @@ describe("buildAgenda", () => {
     const rows = buildAgenda({
       ddEvents: [],
       communityEvents: [com("b", "2026-10-10T00:00:00Z"), com("a", "2026-10-10T00:00:00Z")],
-      featuredId: null,
       filter: "todos",
       now,
     });
     expect(ids(rows)).toEqual(["a", "b"]);
   });
 
-  it("handles empty inputs and null featuredId", () => {
+  it("handles empty inputs", () => {
     expect(
-      buildAgenda({ ddEvents: [], communityEvents: [], featuredId: null, filter: "todos", now }),
+      buildAgenda({ ddEvents: [], communityEvents: [], filter: "todos", now }),
     ).toEqual([]);
     expect(ids(buildAgenda({ ...input, filter: "design-dinners" }))).toEqual(["b"]);
   });
