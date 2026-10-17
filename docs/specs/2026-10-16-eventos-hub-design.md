@@ -53,14 +53,14 @@ Top to bottom:
 2. **Title** "Eventos" and one line: "Las cenas de Design Dinners y lo que se mueve en la comunidad de diseño." *(My call, copy can change.)*
 3. **"Próximo evento" — the featured Design Dinners event.** The soonest upcoming Design Dinners event (same rule as the landing's `NextEvent`: `splitEvents(...).upcoming[0]`). It shows the same thing the landing block shows: poster, type label (Cena / Taller / Otro), title, date + time, place, seats line, and the "Reservar puesto" (or waitlist) button linking to `/eventos/[id]`. It wears that month's colors (`theme_bg/ink/accent`) like the landing. **Reuse `NextEvent`** (or the part of it that draws the card) instead of building a second version. With no upcoming Design Dinners event, show NextEvent's existing "Estamos cocinando" empty state.
 4. **"Agenda" — the list.** All upcoming events, sorted by start time, soonest first:
-   - Upcoming Design Dinners events **except the featured one** (it is already above).
+   - All upcoming Design Dinners events, **including the featured one** (owner, 2026-10-17: the Agenda must list every event, even the one in the big card).
    - Upcoming community events (from `community_events_public`, same rule as today: hidden after their Puerto Rico day).
    - **Filter buttons** above the list: "Todos", "Design Dinners", "Comunidad". They are links that set `?tipo=` on the URL (`?tipo=design-dinners`, `?tipo=comunidad`; no param = Todos), so a filtered view can be shared and works without JavaScript. The active one has `aria-current="true"` and the filled style. An unknown `tipo` value means Todos.
    - **Design Dinners row:** a red band (or the event's month `theme_bg` — *builder's call; red is the default*) with a date block (day + month), title, place, type label, and a "Reservar" button. The whole row links to `/eventos/[id]`, same tab.
    - **Community row:** plain (cream, black rule above), date block, title, place, organizer if set, "Gratis"/"Pago" if set, a "Comunidad" tag, and an external-link arrow. The whole row links to the organizer's `link` in a new tab with `rel="noopener noreferrer nofollow ugc"` and an accessible name ending in "(abre en otra pestaña)". No poster in the row. *(My call: posters stay in admin and the landing teaser; the list stays compact as in the mockup.)*
    - **Empty states** (text in the list area, no illustration needed):
      - Todos, nothing at all: "No hay más eventos en la agenda por ahora."
-     - Design Dinners filter, nothing besides the featured one: "La próxima cena está arriba. Pronto anunciamos más."
+     - Design Dinners filter, nothing: "Pronto anunciamos la próxima cena."
      - Comunidad filter, nothing: "No hay eventos de la comunidad por ahora."
 5. **"Comparte un evento" box.** Always shown, under the list, whatever the filter. A dashed-border box: "¿Organizas un evento de diseño?" / "Compártelo con la comunidad. Lo revisamos y lo publicamos aquí." + button "Comparte un evento" → `/eventos/enviar`.
 6. **"Eventos pasados".** Reuse the landing's `PastEvents` section as-is (past Design Dinners events, host line, empty state). Past community events never show.
@@ -116,8 +116,8 @@ Top to bottom:
 4. **Rendering.** `/eventos` is dynamic per request (`searchParams`); no extra caching. `revalidatePath("/eventos")` calls stay (harmless, and right if caching is added later).
 5. **Route clash.** `/eventos/enviar` is a static segment and wins over `/eventos/[id]` in Next. `/eventos/[id]` already 404s on a non-uuid id (`getPublicEvent` checks `isUuid`), so `[id]/page.tsx` is not touched. Browser check confirms both.
 6. **Moved form.** The form has no path-keyed config (no Turnstile, no CSP/sitemap entries; `proxy.ts` matches only `/admin` and `/vitrina`). Builder greps once to confirm.
-7. **Agenda function contract.** `buildAgenda({ ddEvents, communityEvents, featuredId, filter, now })`:
-   - `ddEvents`: all Design Dinners events; the function keeps only upcoming ones (`isUpcoming(e, now)`) and drops `featuredId` (may be `null`).
+7. **Agenda function contract.** `buildAgenda({ ddEvents, communityEvents, filter, now })`:
+   - `ddEvents`: all Design Dinners events; the function keeps only upcoming ones (`isUpcoming(e, now)`) (the featured event is included — owner, 2026-10-17).
    - `communityEvents`: already filtered upstream by `listUpcomingEvents` (Puerto Rico day rule); used as given.
    - `filter`: `"todos" | "design-dinners" | "comunidad"`; parse unknown `?tipo` to `"todos"` in a separate `parseAgendaFilter`.
    - Returns rows `{ kind: "dd", event } | { kind: "comunidad", event }` sorted by start time ascending; ties: Design Dinners first, then by id.
