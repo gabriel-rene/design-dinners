@@ -45,6 +45,18 @@ from (
     ) t
   ) u
 ) s
-where e.id = s.id and e.slug is null;
+where e.id = s.id and e.slug is null
+  and not exists (
+    select 1 from events o
+    where o.id <> e.id and (o.slug = s.slug or s.slug = any(o.old_slugs))
+  );
+-- Titles like X, X, "X 2" can produce the same slug twice in one pass.
+-- Keep the oldest and null the rest (they fall back to their id until saved).
+update events set slug = null where id in (
+  select id from (
+    select id, row_number() over (partition by slug order by created_at, id) as n
+    from events where slug is not null
+  ) d where n > 1
+);
 create unique index if not exists events_slug_uidx on events (slug);
 create index if not exists events_old_slugs_idx on events using gin (old_slugs);

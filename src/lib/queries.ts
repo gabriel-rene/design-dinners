@@ -79,7 +79,8 @@ export async function findPublicEvent(slugOrId: string): Promise<EventLookup> {
     const other = DEMO_EVENTS.find(
       (e) => e.id === slugOrId || e.old_slugs.includes(slugOrId),
     );
-    return other ? { event: other, canonical: false } : null;
+    if (!other) return null;
+    return { event: other, canonical: other.slug === null && other.id === slugOrId };
   }
 
   const sql = getDb();
@@ -99,14 +100,14 @@ export async function findPublicEvent(slugOrId: string): Promise<EventLookup> {
       or ${slugOrId} = any(e.old_slugs)
       or (${isUuid(slugOrId)} and e.id::text = ${slugOrId})
     group by e.id
-    order by (e.slug = ${slugOrId}) desc
+    order by (e.slug = ${slugOrId}) desc nulls last
     limit 1
   `;
   const row = rows[0] as JoinedEventRow | undefined;
   if (!row) return null;
   return {
     event: { ...row, speakers: row.speakers ?? [] },
-    canonical: row.slug === slugOrId,
+    canonical: row.slug === slugOrId || (row.slug === null && row.id === slugOrId),
   };
 }
 
