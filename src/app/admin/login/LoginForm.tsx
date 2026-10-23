@@ -21,8 +21,8 @@ export default function LoginForm() {
       >
         <p className="text-lg font-semibold">Revisa tu correo</p>
         <p className="mt-2 text-[15px] leading-relaxed">
-          Enviamos un enlace de acceso a <strong>{state.email}</strong>. Ábrelo
-          desde este mismo navegador para entrar al panel.
+          Enviamos un enlace de acceso a <strong>{state.email}</strong>. Puedes
+          abrirlo en cualquier navegador. Si no llega en un minuto, revisa spam.
         </p>
       </div>
     );
