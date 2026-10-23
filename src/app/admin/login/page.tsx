@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ setup?: string }>;
+  searchParams: Promise<{ setup?: string; error?: string }>;
 }) {
-  const { setup } = await searchParams;
+  const { setup, error } = await searchParams;
   const missingSupabase =
     setup === "supabase" ||
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -42,6 +42,14 @@ export default async function AdminLoginPage({
               El CMS está instalado, pero Supabase Auth todavía no está conectado
               en Vercel. Añade la URL y la llave publicable del proyecto para
               activar el acceso.
+            </p>
+          )}
+          {error === "link" && (
+            <p
+              role="alert"
+              className="mb-5 rounded-md border border-dd-red/30 bg-dd-red/5 px-4 py-3 text-sm leading-relaxed text-dd-black"
+            >
+              Ese enlace ya se usó o venció. Pide uno nuevo abajo.
             </p>
           )}
           <LoginForm />
