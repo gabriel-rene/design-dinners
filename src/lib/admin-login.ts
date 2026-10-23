@@ -18,10 +18,16 @@ export function loginOrigin(
   proto: string | null,
   fallback: string,
 ): string {
-  const hostname = (host ?? "").split(":")[0].toLowerCase();
+  // Rebuild the origin from checked parts only; never echo the raw header
+  // (e.g. "designdinners.com:x@evil.com" would point the link at evil.com).
+  const match = /^([a-z0-9.-]+)(?::(\d{1,5}))?$/i.exec(host ?? "");
+  if (!match) return fallback.replace(/\/$/, "");
+  const hostname = match[1].toLowerCase();
   if (!ALLOWED_HOSTS.includes(hostname)) return fallback.replace(/\/$/, "");
-  const scheme = proto === "http" || proto === "https" ? proto : "https";
-  return `${scheme}://${host}`;
+  const isLocal = hostname === "localhost" || hostname === "127.0.0.1";
+  const scheme = isLocal && proto === "http" ? "http" : "https";
+  const port = isLocal && match[2] ? `:${match[2]}` : "";
+  return `${scheme}://${hostname}${port}`;
 }
 
 export function loginLink(origin: string, tokenHash: string): string {

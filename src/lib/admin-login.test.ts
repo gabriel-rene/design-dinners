@@ -14,6 +14,8 @@ describe("loginOrigin", () => {
   it("uses the fallback for unknown or missing hosts", () => {
     expect(loginOrigin("evil.example", "https", FALLBACK)).toBe("https://design-dinners.vercel.app");
     expect(loginOrigin(null, null, FALLBACK)).toBe("https://design-dinners.vercel.app");
+    expect(loginOrigin("designdinners.com:x@evil.com", "https", FALLBACK)).toBe("https://design-dinners.vercel.app");
+    expect(loginOrigin("designdinners.com:443", "http", FALLBACK)).toBe("https://designdinners.com");
   });
 });
 
