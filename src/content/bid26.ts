@@ -25,6 +25,9 @@ export type Bid26Work = {
   /** Full BID description, one string per paragraph. */
   description: string[];
   client?: string;
+  clientUrl?: string;
+  /** BID "Editor / Productor" field. */
+  producer?: string;
   photography?: string;
   links: { label: string; href: string }[];
   bidUrl: string;
@@ -109,7 +112,8 @@ export const BID26_WORKS: Bid26Work[] = [
       "El diseño se organiza mediante un paseo circular-radial de un cuarto de milla, senderos diagonales y “sub-parques” con jardines, zonas de ejercicios, agricultura urbana, plaza y quiosco central. La intervención aumentó los árboles de 112 a 181, con nuevas especies nativas, e incorporó estanques de retención y sistemas naturales de drenaje. Se estima una mejora de 185% en la absorción de CO₂.",
       "El proceso evolucionó de un ejercicio formal de diseño urbano a una estrategia de resiliencia frente contra inundaciones, isla de calor y pérdida de hábitat, convirtiendo un predio olvidado en un nuevo pulmón para la ciudad.",
     ],
-    client: "Municipio de San Juan, Ciudad Capital",
+    client: "Municipio de San Juan, Ciudad Capital; Hon. Miguel Romero, Alcalde",
+    clientUrl: "https://sanjuan.pr/",
     photography: "José Fernando Vázquez Pérez, Jean Delgado (fotografía aérea)",
     links: [{ label: "Ver el video", href: "https://www.youtube.com/watch?v=0eZyB6lixO0" }],
     bidUrl: `${BID}el-parque/`,
@@ -140,6 +144,7 @@ export const BID26_WORKS: Bid26Work[] = [
       "Con visores Meta Quest, el público avanza por un paisaje parcialmente inundado y encuentra rastros de un futuro posible: un vehículo abandonado o una casa tradicional que emerge del agua todavía habitada. La experiencia relaciona el aumento del nivel del mar con la crisis de vivienda y el desplazamiento en San Juan, utilizando la transformación virtual del propio museo para imaginar qué podría permanecer en ese territorio.",
     ],
     client: "MeshMap",
+    clientUrl: "https://www.meshmap.com/",
     photography: "Ricardo José Rodríguez",
     links: [{ label: "Ver el video", href: "https://youtu.be/PhTWoyD-jyA" }],
     bidUrl: `${BID}devuelta-al-manglar/`,
@@ -156,7 +161,8 @@ export const BID26_WORKS: Bid26Work[] = [
     id: "ciencia-colab",
     chapter: 0,
     title: "Ciencia CoLab",
-    credit: "Ramdwin González Otero y equipo",
+    credit:
+      "Ramdwin González Otero, Mónica Feliú Mójer, Ana Luisa Emmanuelli Coronas, Xavier D. Ortiz Torres, Edmy Ayala Rosado, Andrea Isabel López, Nathaly Villareal, Angélica Valdés Valderrama, Natalia Vázquez Berríos",
     authors: [
       "Ramdwin González Otero",
       "Mónica Feliú Mójer",
@@ -180,6 +186,8 @@ export const BID26_WORKS: Bid26Work[] = [
       "El sistema se organiza en módulos de aprendizaje, herramientas metodológicas y tarjetas-guía co-diseñadas para acompañar cada etapa. Las comunidades aportan el conocimiento situado sobre sus condiciones de vida y utilizan estos recursos para estructurarlo, producir evidencia y desarrollar sus propuestas. Hasta 2025, dos cohortes con siete líderes comunitarios desarrollaron siete proyectos.",
     ],
     client: "Ciencia Puerto Rico",
+    clientUrl: "https://www.cienciapr.org",
+    producer: "Ciencia Puerto Rico",
     photography: "Ramdwin González Otero",
     links: [{ label: "Ver el proyecto", href: "https://tembol.co/work/cienciacolab" }],
     bidUrl: `${BID}ciencia-colab/`,
@@ -209,6 +217,8 @@ export const BID26_WORKS: Bid26Work[] = [
       "Aunque con algunos precedentes clave y de mucho valor durante la década de los 80s y 90s, Puerto Rico Negrx es la primera exhibición a esta escala en una de las más importantes instituciones de arte en Puerto Rico. El libro es una pieza que marca este tiempo en la historia del arte contemporáneo resaltando el tema de la negritud a una escala mayor en nuestro archipiélago. TEMBOL colaboró directamente con las curadoras María Elena Ortíz y Marina Reyes Franco en el diseño de esta publicación que se lanzó el 24 de abril de 2025.",
     ],
     client: "Museo de Arte Contemporáneo de Puerto Rico (MAC)",
+    clientUrl: "https://www.museomac.org/",
+    producer: "María Elena Ortiz, Marina Reyes Franco",
     photography: "Raquel Pérez Puig (obras y salas), Ricardo Alcaraz (performances), Emanuel González Ríos (libro)",
     links: [
       { label: "Ver el proyecto", href: "https://tembol.co/work/prnegrx" },
@@ -271,6 +281,7 @@ export const BID26_WORKS: Bid26Work[] = [
       "La entrada gratuita, visitas guiadas, talleres y programación pública ampliaron el acceso y la participación. El aprendizaje principal fue entender el diseño como archivo vivo, herramienta pedagógica y espacio de representación comunitaria.",
     ],
     client: "WaterFire Arts Center",
+    clientUrl: "https://waterfire.org/about-the-waterfire-arts-center/",
     photography: "Glenn Turner, Jenni Ugarte · Video: Ross Lipmann",
     links: [
       { label: "Ver el proyecto", href: "https://graficalatina.com/" },
@@ -307,6 +318,8 @@ export const BID26_WORKS: Bid26Work[] = [
       "Se ha perfeccionado la integración entre colaboradores y se han optimizado tanto el mapa como la ruta del transporte colectivo, que actualmente movilizan a 2,000 personas por evento. A nivel municipal, el ayuntamiento ha comenzado a revisar y actualizar algunas de sus políticas públicas en temas de seguridad, iluminación y accesos peatonales. La iniciativa se ha convertido en un motor de desarrollo artístico y económico en uno de los momentos de crisis más graves en Puerto Rico.",
     ],
     client: "Martes de Galería",
+    clientUrl: "https://martesdegaleria.org/",
+    producer: "Alexis Figueroa, Coral Cotto, Yarimil Figueroa, Rina Herrero, Javier Olmeda",
     photography: "Javier Olmeda",
     links: [{ label: "Ver el video", href: "https://www.instagram.com/reel/DcHTznnPf5u/" }],
     bidUrl: `${BID}martes-de-galeria-la-ciudad-como-escaparate-cultural/`,
@@ -337,6 +350,7 @@ export const BID26_WORKS: Bid26Work[] = [
       "El resultado unifica la red de parques bajo un lenguaje visual claro y acogedor, promoviendo caminabilidad, acceso, participación ciudadana y sentido de pertenencia. El aprendizaje principal fue entender la señalética como infraestructura pública, cultural y comunitaria.",
     ],
     client: "Downtown Providence Parks Network",
+    clientUrl: "https://www.downtownparks.org/wayfinding/",
     photography: "Ross Lippman",
     links: [
       { label: "Ver el proyecto", href: "https://www.downtownparks.org/wayfinding/" },
@@ -370,6 +384,7 @@ export const BID26_WORKS: Bid26Work[] = [
       "El diseño tradujo datos e información compleja en una narrativa clara y fácil de navegar, utilizando un sistema visual basado en las secciones del libro, colores, patrones y gradientes de la identidad de marca. Los “oasis” - citas, datos y textos breves- generaron pausas y puntos de entrada para profundizar. Fotografía y video reforzaron la narrativa.",
       "La publicación amplió el acceso al conocimiento, fue presentada en más de 10 charlas y distribuida en formatos impreso y digital. Sus casos de estudio contribuyeron a crear una comunidad de diseño de más de 400 profesionales. El proyecto demostró el poder del diseño editorial para convertir investigación compleja en conocimiento ágil, comprensible y movilizador.",
     ],
+    producer: "Dyanis De Jesús, Natalia Pi, Josue Oquendo, Carla Torres, Ricardo Burgos",
     photography: "Ángel Luis García",
     links: [
       { label: "Ver el proyecto", href: "https://www.puertoricocreativo.com/" },
@@ -392,7 +407,8 @@ export const BID26_WORKS: Bid26Work[] = [
     id: "conoce-las-especies",
     chapter: 3,
     title: "Conoce las especies",
-    credit: "Ramdwin González Otero y equipo",
+    credit:
+      "Ramdwin González Otero, Rima Ibrahim, Luis “Tuto” González, Pedro Anibarro, Emanuel González, Ana Teresa Colón García, Félix Matos, Lorena Rivera Orraca, Jualiann Rosado, Natalia Muñoz, Anayari Fernández",
     authors: [
       "Ramdwin González Otero",
       "Rima Ibrahim",
@@ -417,6 +433,7 @@ export const BID26_WORKS: Bid26Work[] = [
       "Cada ficha combina fotografías, ilustraciones, audiodescripciones y textos sobre distribución, tamaño, velocidad de crecimiento, servicios ecosistémicos y tolerancias. La plataforma traslada estos datos a un formato pensado para apoyar decisiones de plantación a escala individual, comunitaria o institucional. Desde su publicación en abril de 2026 se han impreso más de 1.500 tarjetas de especies para actividades de orientación del programa de reforestación.",
     ],
     client: "Para la Naturaleza",
+    clientUrl: "https://www.paralanaturaleza.org",
     photography: "Ramdwin González, Emanuel González",
     links: [{ label: "Ver el proyecto", href: "https://www.paralanaturaleza.org/reforestacion/arboles" }],
     bidUrl: `${BID}arboles-para-la-naturaleza-conoce-las-especies/`,
@@ -447,6 +464,7 @@ export const BID26_WORKS: Bid26Work[] = [
       "La identidad utiliza así sus propias reglas gráficas para poner en escena el debate entre estructuras establecidas y otras formas posibles de comunicar conocimiento.",
     ],
     client: "Beatrice Steinert, Noah Toyonaga, Daniel Faccini, Soumya Ghosh",
+    clientUrl: "https://www.unfiguring.org/",
     photography: "Tatiana Gómez Gaggero",
     links: [{ label: "Ver el proyecto", href: "https://www.unfiguring.org/" }],
     bidUrl: `${BID}unfiguring-experiments-in-the-practice-of-science-and-art/`,
@@ -462,12 +480,57 @@ export const BID26_WORKS: Bid26Work[] = [
 ];
 
 /** People index: who is behind the works, grouped by studio. */
-export const BID26_STUDIOS: { studio: string; people: string[]; works: string[] }[] = [
-  { studio: "TEMBOL", people: ["Ramdwin González Otero", "Luis “Tuto” González Medina"], works: ["ciencia-colab", "puerto-rico-negrx", "conoce-las-especies"] },
-  { studio: "Buena Gráfica Social Studio", people: ["José R. Menéndez López", "Tatiana Gómez Gaggero"], works: ["voces-graficas", "tu-haces-parte", "unfiguring"] },
-  { studio: "HACEDORMAKER_ARQUITECTOS", people: ["José Fernando Vázquez Pérez"], works: ["el-parque"] },
-  { studio: "AGar Estudio", people: ["Adriana C. García Soto"], works: ["devuelta-al-manglar"] },
-  { studio: "Estudio Interlínea", people: ["Alberto Rigau"], works: ["quiebrasol"] },
-  { studio: "Constructo", people: ["Javier Olmeda Raya", "Jan Alexis Figueroa"], works: ["martes-de-galeria"] },
-  { studio: "Puerto Rico Creativo", people: ["Dyanis De Jesús", "Natalia Pi"], works: ["puerto-rico-creativo"] },
+/**
+ * People index. `people` are the studio leads, set large; `team` is everyone
+ * else BID credits on those works (co-authors and "Editor / Productor").
+ */
+export const BID26_STUDIOS: { studio: string; people: string[]; team: string[]; works: string[] }[] = [
+  {
+    studio: "TEMBOL",
+    people: ["Ramdwin González Otero", "Luis “Tuto” González Medina"],
+    team: [
+      "Mónica Feliú Mójer",
+      "Ana Luisa Emmanuelli Coronas",
+      "Xavier D. Ortiz Torres",
+      "Edmy Ayala Rosado",
+      "Andrea Isabel López",
+      "Nathaly Villareal",
+      "Angélica Valdés Valderrama",
+      "Natalia Vázquez Berríos",
+      "Marina Reyes Franco",
+      "María Elena Ortiz",
+      "Abdiel Torres Tirado",
+      "Rima Ibrahim",
+      "Pedro Anibarro",
+      "Emanuel González",
+      "Ana Teresa Colón García",
+      "Félix Matos",
+      "Lorena Rivera Orraca",
+      "Jualiann Rosado",
+      "Natalia Muñoz",
+      "Anayari Fernández",
+    ],
+    works: ["ciencia-colab", "puerto-rico-negrx", "conoce-las-especies"],
+  },
+  {
+    studio: "Buena Gráfica Social Studio",
+    people: ["José R. Menéndez López", "Tatiana Gómez Gaggero"],
+    team: [],
+    works: ["voces-graficas", "tu-haces-parte", "unfiguring"],
+  },
+  { studio: "HACEDORMAKER_ARQUITECTOS", people: ["José Fernando Vázquez Pérez"], team: [], works: ["el-parque"] },
+  { studio: "AGar Estudio", people: ["Adriana C. García Soto"], team: [], works: ["devuelta-al-manglar"] },
+  { studio: "Estudio Interlínea", people: ["Alberto Rigau"], team: [], works: ["quiebrasol"] },
+  {
+    studio: "Constructo",
+    people: ["Javier Olmeda Raya", "Jan Alexis Figueroa"],
+    team: ["Coral Cotto", "Yarimil Figueroa", "Rina Herrero"],
+    works: ["martes-de-galeria"],
+  },
+  {
+    studio: "Puerto Rico Creativo",
+    people: ["Dyanis De Jesús", "Natalia Pi"],
+    team: ["Josue Oquendo", "Carla Torres", "Ricardo Burgos"],
+    works: ["puerto-rico-creativo"],
+  },
 ];

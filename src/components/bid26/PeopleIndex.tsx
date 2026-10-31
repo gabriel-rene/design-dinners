@@ -7,6 +7,7 @@ import s from "./bid26.module.css";
 export type PeopleRow = {
   studio: string;
   people: string[];
+  team: string[];
   works: { id: string; title: string; cover: string }[];
 };
 
@@ -15,6 +16,11 @@ export type PeopleRow = {
  * With a fine pointer, a small cover trails the cursor (below-right, so the
  * hovered row stays readable).
  */
+/** "a, b y c" */
+function listEs(names: string[]) {
+  return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} y ${names.at(-1)}`;
+}
+
 export default function PeopleIndex({ rows }: { rows: PeopleRow[] }) {
   const peek = useRef<HTMLDivElement>(null);
   const [cover, setCover] = useState<string | null>(null);
@@ -36,7 +42,10 @@ export default function PeopleIndex({ rows }: { rows: PeopleRow[] }) {
       <ul onPointerLeave={() => setCover(null)}>
         {rows.map((r) => (
           <li key={r.studio} onPointerEnter={(e) => e.pointerType === "mouse" && setCover(r.works[0].cover)}>
-            <span className={s.names}>{r.people.join(", ")}</span>
+            <span className={s.people}>
+              <span className={s.names}>{r.people.join(", ")}</span>
+              {r.team.length > 0 && <span className={s.team}>Con {listEs(r.team)}</span>}
+            </span>
             <span className={s.studio}>{r.studio}</span>
             <span className={s.workLinks}>
               {r.works.map((w) => (
