@@ -590,7 +590,8 @@ export const BID26_SUBMISSIONS: { name: string; projects: { title: string; work?
 
 /**
  * Puerto Rico in the FABid26, the BID academic forum (program of 27 Oct 2026).
- * Times are Madrid time. `cases` lists the work a talk presents.
+ * Times are Madrid time. `cases` lists the work a talk presents. Posters have
+ * no set time in the program, only shared poster sessions.
  */
 export const BID26_FORUM: {
   name: string;
@@ -623,6 +624,16 @@ export const BID26_FORUM: {
     talks: [
       { when: "Jue 5 nov · 9:50", title: "Diseñar desde Puerto Rico: materiales, manufactura y territorios productivos" },
       { when: "Jue 5 nov · 10:30", title: "Hacia una historia del diseño en Puerto Rico: cultura material indígena" },
+    ],
+  },
+  {
+    name: "Karina Defelippe y Sally Torres Vega",
+    affiliation: "Escuela de Artes, Diseño e Industrias Creativas, Universidad del Sagrado Corazón",
+    talks: [
+      {
+        when: "Póster académico",
+        title: "ANTES de la FORMA: Prácticas textiles entre la investigación, error y repetición",
+      },
     ],
   },
 ];
