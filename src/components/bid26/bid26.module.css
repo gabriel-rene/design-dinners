@@ -446,6 +446,38 @@
   }
 }
 
+/* Text blocks rise in as they enter, the quiet partner of the site-wide
+   dd-reveal-title / dd-reveal-plate. Same progressive-enhancement rule. */
+@supports (animation-timeline: view()) {
+  .lede,
+  .introMeta,
+  .opener .kicker,
+  .opener p,
+  .text,
+  .who li,
+  .end p,
+  .ctas {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+
+  .introMeta {
+    animation-range: entry 15% entry 75%;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ---------- Image strip ---------- */
 
 .strip {
@@ -838,7 +870,15 @@
   }
 
   .cover img,
-  .dialog[open] {
+  .dialog[open],
+  .lede,
+  .introMeta,
+  .opener .kicker,
+  .opener p,
+  .text,
+  .who li,
+  .end p,
+  .ctas {
     animation: none;
   }
 

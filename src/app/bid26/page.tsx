@@ -52,7 +52,7 @@ function WorkSpread({ work, layout }: { work: Bid26Work; layout: string }) {
         <span className={s.cat}>
           {work.category} · {work.year}
         </span>
-        <h3 id={`${work.id}-title`}>{work.title}</h3>
+        <h3 id={`${work.id}-title`} className="dd-reveal-title">{work.title}</h3>
         <p className={s.credit} data-long={work.authors.length > 4 || undefined}>
           {work.credit}
           <small>{work.studio}</small>
@@ -139,11 +139,17 @@ export default function Bid26Page() {
             <span className={s.kicker}>
               {c.kicker} · {byChapter[ci].length} proyectos
             </span>
-            <h2 id={`capitulo-${ci + 1}-title`}>{c.title}</h2>
+            <h2 id={`capitulo-${ci + 1}-title`} className="dd-reveal-title">{c.title}</h2>
             <p>{c.intro}</p>
             <div className={s.thumbs}>
-              {byChapter[ci].map((w) => (
-                <a key={w.id} href={`#${w.id}`} aria-label={w.title}>
+              {byChapter[ci].map((w, ti) => (
+                <a
+                  key={w.id}
+                  href={`#${w.id}`}
+                  aria-label={w.title}
+                  className="dd-reveal-plate"
+                  style={{ "--dd-tilt": `${ti % 2 ? 3 : -3}deg` } as React.CSSProperties}
+                >
                   <Image src={w.images[0].src} alt="" width={96} height={96} sizes="96px" />
                 </a>
               ))}
@@ -156,12 +162,12 @@ export default function Bid26Page() {
       ))}
 
       <section className={s.who} aria-labelledby="quien-titulo">
-        <h2 id="quien-titulo">Quién está detrás</h2>
+        <h2 id="quien-titulo" className="dd-reveal-title">Quién está detrás</h2>
         <PeopleIndex rows={people} />
       </section>
 
       <section className={s.end} aria-labelledby="cierre-titulo">
-        <h2 id="cierre-titulo">El diseño se sienta a cenar. Y a veces, viaja.</h2>
+        <h2 id="cierre-titulo" className="dd-reveal-title">El diseño se sienta a cenar. Y a veces, viaja.</h2>
         <p>
           Design Dinners celebra a la gente que pone a Puerto Rico en la mesa del diseño iberoamericano. La
           próxima conversación es en la cena.
