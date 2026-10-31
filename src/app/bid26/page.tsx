@@ -45,7 +45,7 @@ function WorkSpread({ work, layout }: { work: Bid26Work; layout: string }) {
           alt={cover.alt}
           width={cover.width}
           height={cover.height}
-          sizes={layout === s.wide ? "100vw" : "(max-width: 820px) 100vw, 60vw"}
+          sizes={layout === s.wide ? "(max-width: 1320px) 100vw, 1320px" : "(max-width: 820px) 100vw, 800px"}
         />
       </figure>
       <div className={s.text}>

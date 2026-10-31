@@ -198,12 +198,14 @@
     animation-range: entry 0% entry 70%;
   }
   @keyframes dd-slot-up {
+    /* Negative top/side insets leave room for accents (Ó, É) above the
+       line box; leading-none titles would otherwise lose them. */
     from {
-      clip-path: inset(0 0 100% 0);
+      clip-path: inset(-0.35em -0.1em calc(100% + 0.35em) -0.1em);
       transform: translateY(0.6em);
     }
     to {
-      clip-path: inset(0 0 -0.2em 0);
+      clip-path: inset(-0.35em -0.1em -0.2em -0.1em);
       transform: none;
     }
   }
