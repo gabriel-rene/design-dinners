@@ -358,6 +358,11 @@
   line-height: 1.3;
 }
 
+.credit[data-long] {
+  font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+  line-height: 1.45;
+}
+
 .credit small {
   display: block;
   margin-top: 6px;
@@ -633,6 +638,18 @@
   font-size: clamp(1.3rem, 2.6vw, 2.1rem);
   font-weight: 700;
   line-height: 1.1;
+}
+
+.people {
+  display: grid;
+  gap: 10px;
+}
+
+.team {
+  max-width: 60ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #3a1a0c;
 }
 
 .studio {

@@ -53,7 +53,7 @@ function WorkSpread({ work, layout }: { work: Bid26Work; layout: string }) {
           {work.category} · {work.year}
         </span>
         <h3 id={`${work.id}-title`}>{work.title}</h3>
-        <p className={s.credit}>
+        <p className={s.credit} data-long={work.authors.length > 4 || undefined}>
           {work.credit}
           <small>{work.studio}</small>
         </p>
@@ -77,6 +77,7 @@ export default function Bid26Page() {
   const people: PeopleRow[] = BID26_STUDIOS.map((st) => ({
     studio: st.studio,
     people: st.people,
+    team: st.team,
     works: st.works.map((id) => {
       const w = BID26_WORKS.find((x) => x.id === id)!;
       return { id, title: w.title, cover: w.images[0].src };

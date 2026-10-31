@@ -145,7 +145,21 @@ function Panel({ work }: { work: Bid26Work }) {
           {work.client && (
             <>
               <dt>Cliente</dt>
-              <dd>{work.client}</dd>
+              <dd>
+                {work.clientUrl ? (
+                  <a href={work.clientUrl} target="_blank" rel="noopener noreferrer">
+                    {work.client}
+                  </a>
+                ) : (
+                  work.client
+                )}
+              </dd>
+            </>
+          )}
+          {work.producer && (
+            <>
+              <dt>Edición y producción</dt>
+              <dd>{work.producer}</dd>
             </>
           )}
           {work.photography && (
