@@ -2,74 +2,45 @@
 
 import Link from "next/link";
 
-import { INSTAGRAM_URL } from "@/lib/social";
-
-const LINK_BASE =
-  "text-[13px] font-bold uppercase tracking-wide underline sm:text-sm decoration-dd-red decoration-2 underline-offset-4 transition-colors hover:text-dd-red focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-black";
-
-type Current = "eventos" | "vitrina";
-
-function cls(active: boolean) {
-  return active ? `${LINK_BASE} text-dd-red` : LINK_BASE;
-}
+import SiteNav, { type SiteNavCurrent, type SiteNavTone } from "@/components/SiteNav";
 
 export default function SiteHeader({
   whatsappUrl,
   current,
+  tone = "light",
+  contained = true,
 }: {
   whatsappUrl: string;
-  current?: Current;
+  current?: SiteNavCurrent;
+  /** "dark" for headers sitting on a red/dark hero. */
+  tone?: SiteNavTone;
+  /** false when the parent already sets width and side padding. */
+  contained?: boolean;
 }) {
-  const logo = (
-    <img
-      src="/brand/primary-black.svg"
-      alt="Design Dinners"
-      className="h-7 w-auto shrink-0 sm:h-8 md:h-9"
-    />
-  );
+  const logo =
+    tone === "dark" ? (
+      <img src="/brand/icon-mayo-cream.svg" alt="Design Dinners" className="h-[34px] w-auto shrink-0" />
+    ) : (
+      <img src="/brand/primary-black.svg" alt="Design Dinners" className="h-7 w-auto shrink-0 sm:h-8 md:h-9" />
+    );
+  const focus = tone === "dark" ? "focus-visible:outline-dd-yellow" : "focus-visible:outline-dd-black";
 
   return (
-    <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 pt-6 md:px-8">
+    <header
+      className={`relative flex w-full items-center justify-between gap-4 ${
+        contained ? "mx-auto max-w-6xl px-5 pt-6 md:px-8" : ""
+      }`}
+    >
       {current ? (
-        <Link
-          href="/"
-          className="block shrink-0 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-dd-black"
-        >
+        <Link href="/" className={`block shrink-0 focus-visible:outline-3 focus-visible:outline-offset-4 ${focus}`}>
           {logo}
         </Link>
       ) : (
         logo
       )}
-      <nav
-        aria-label="Enlaces"
-        className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 sm:gap-x-5 md:gap-x-7"
-      >
-        <Link
-          href="/eventos"
-          aria-current={current === "eventos" ? "page" : undefined}
-          className={cls(current === "eventos")}
-        >
-          Eventos
-        </Link>
-        <Link
-          href="/vitrina"
-          aria-current={current === "vitrina" ? "page" : undefined}
-          className={cls(current === "vitrina")}
-        >
-          Vitrina
-        </Link>
-        <a
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={LINK_BASE}
-        >
-          Instagram
-        </a>
-        <a href={whatsappUrl} className={LINK_BASE}>
-          WhatsApp
-        </a>
-      </nav>
+      <div className="flex items-center gap-x-5 lg:gap-x-7">
+        <SiteNav whatsappUrl={whatsappUrl} current={current} tone={tone} />
+      </div>
     </header>
   );
 }

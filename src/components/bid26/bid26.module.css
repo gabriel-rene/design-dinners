@@ -35,33 +35,7 @@
   position: absolute;
   inset: 0 0 auto;
   z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
   padding: 18px var(--inline);
-}
-
-.topbar img {
-  height: 34px;
-  width: auto;
-}
-
-.topbar nav {
-  display: flex;
-  gap: clamp(12px, 2vw, 24px);
-}
-
-.topbar nav a {
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #fff;
-  text-decoration: underline;
-  text-decoration-color: var(--dd-yellow);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
 }
 
 .heroCopy {
@@ -853,10 +827,6 @@
 
   .peek {
     display: none;
-  }
-
-  .topbar nav a {
-    font-size: 13px;
   }
 }
 

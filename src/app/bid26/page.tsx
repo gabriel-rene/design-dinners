@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- local SVG brand asset needs no optimization */
-
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +8,7 @@ import PeopleIndex, { type PeopleRow } from "@/components/bid26/PeopleIndex";
 import WorkMedia from "@/components/bid26/WorkMedia";
 import s from "@/components/bid26/bid26.module.css";
 import About from "@/components/landing/About";
+import SiteHeader from "@/components/SiteHeader";
 import {
   BID26_CHAPTERS,
   BID26_GALLERY_URL,
@@ -87,16 +86,9 @@ export default function Bid26Page() {
   return (
     <main className={s.page}>
       <HeroPile works={pile}>
-        <header className={s.topbar}>
-          <Link href="/" aria-label="Design Dinners, inicio">
-            <img src="/brand/icon-mayo-cream.svg" alt="" />
-          </Link>
-          <nav aria-label="Enlaces">
-            <Link href="/eventos">Eventos</Link>
-            <Link href="/vitrina">Vitrina</Link>
-            <a href={whatsappUrl}>WhatsApp</a>
-          </nav>
-        </header>
+        <div className={s.topbar}>
+          <SiteHeader whatsappUrl={whatsappUrl} current="bid26" tone="dark" contained={false} />
+        </div>
         <div className={s.heroCopy}>
           <h1 id="bid26-title">De PeErre a Madrid.</h1>
           <p>
