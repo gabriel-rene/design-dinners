@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- local SVG brand asset needs no optimization */
-
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +8,7 @@ import PeopleIndex, { type PeopleRow } from "@/components/bid26/PeopleIndex";
 import WorkMedia from "@/components/bid26/WorkMedia";
 import s from "@/components/bid26/bid26.module.css";
 import About from "@/components/landing/About";
+import SiteHeader from "@/components/SiteHeader";
 import {
   BID26_CHAPTERS,
   BID26_GALLERY_URL,
@@ -45,14 +44,14 @@ function WorkSpread({ work, layout }: { work: Bid26Work; layout: string }) {
           alt={cover.alt}
           width={cover.width}
           height={cover.height}
-          sizes={layout === s.wide ? "100vw" : "(max-width: 820px) 100vw, 60vw"}
+          sizes={layout === s.wide ? "(max-width: 1320px) 100vw, 1320px" : "(max-width: 820px) 100vw, 800px"}
         />
       </figure>
       <div className={s.text}>
         <span className={s.cat}>
           {work.category} · {work.year}
         </span>
-        <h3 id={`${work.id}-title`}>{work.title}</h3>
+        <h3 id={`${work.id}-title`} className="dd-reveal-title">{work.title}</h3>
         <p className={s.credit} data-long={work.authors.length > 4 || undefined}>
           {work.credit}
           <small>{work.studio}</small>
@@ -87,18 +86,11 @@ export default function Bid26Page() {
   return (
     <main className={s.page}>
       <HeroPile works={pile}>
-        <header className={s.topbar}>
-          <Link href="/" aria-label="Design Dinners, inicio">
-            <img src="/brand/icon-mayo-cream.svg" alt="" />
-          </Link>
-          <nav aria-label="Enlaces">
-            <Link href="/eventos">Eventos</Link>
-            <Link href="/vitrina">Vitrina</Link>
-            <a href={whatsappUrl}>WhatsApp</a>
-          </nav>
-        </header>
+        <div className={s.topbar}>
+          <SiteHeader whatsappUrl={whatsappUrl} current="bid26" tone="dark" contained={false} />
+        </div>
         <div className={s.heroCopy}>
-          <h1 id="bid26-title">Once proyectos. Una isla. Madrid.</h1>
+          <h1 id="bid26-title">De PeErre a Madrid.</h1>
           <p>
             Puerto Rico llegó a la Bienal Iberoamericana de Diseño con parques, libros, manglares
             virtuales y carteras que citan a Klumb. Esta es su historia, y la de quienes los hicieron.
@@ -139,11 +131,17 @@ export default function Bid26Page() {
             <span className={s.kicker}>
               {c.kicker} · {byChapter[ci].length} proyectos
             </span>
-            <h2 id={`capitulo-${ci + 1}-title`}>{c.title}</h2>
+            <h2 id={`capitulo-${ci + 1}-title`} className="dd-reveal-title">{c.title}</h2>
             <p>{c.intro}</p>
             <div className={s.thumbs}>
-              {byChapter[ci].map((w) => (
-                <a key={w.id} href={`#${w.id}`} aria-label={w.title}>
+              {byChapter[ci].map((w, ti) => (
+                <a
+                  key={w.id}
+                  href={`#${w.id}`}
+                  aria-label={w.title}
+                  className="dd-reveal-plate"
+                  style={{ "--dd-tilt": `${ti % 2 ? 3 : -3}deg` } as React.CSSProperties}
+                >
                   <Image src={w.images[0].src} alt="" width={96} height={96} sizes="96px" />
                 </a>
               ))}
@@ -156,12 +154,12 @@ export default function Bid26Page() {
       ))}
 
       <section className={s.who} aria-labelledby="quien-titulo">
-        <h2 id="quien-titulo">Quién está detrás</h2>
+        <h2 id="quien-titulo" className="dd-reveal-title">Quién está detrás</h2>
         <PeopleIndex rows={people} />
       </section>
 
       <section className={s.end} aria-labelledby="cierre-titulo">
-        <h2 id="cierre-titulo">El diseño se sienta a cenar. Y a veces, viaja.</h2>
+        <h2 id="cierre-titulo" className="dd-reveal-title">El diseño se sienta a cenar. Y a veces, viaja.</h2>
         <p>
           Design Dinners celebra a la gente que pone a Puerto Rico en la mesa del diseño iberoamericano. La
           próxima conversación es en la cena.

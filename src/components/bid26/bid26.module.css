@@ -4,6 +4,10 @@
 
 .page {
   --gutter: clamp(16px, 4vw, 56px);
+  /* Wider than the rest of the site (1152px) so spreads can breathe, but
+     capped so desktop doesn't sprawl. Backgrounds stay full-bleed. */
+  --max: 1320px;
+  --inline: max(var(--gutter), calc((100% - var(--max)) / 2));
   --z-rail: 20;
   --z-peek: 30;
   background: var(--dd-cream);
@@ -31,39 +35,13 @@
   position: absolute;
   inset: 0 0 auto;
   z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px var(--gutter);
-}
-
-.topbar img {
-  height: 34px;
-  width: auto;
-}
-
-.topbar nav {
-  display: flex;
-  gap: clamp(12px, 2vw, 24px);
-}
-
-.topbar nav a {
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #fff;
-  text-decoration: underline;
-  text-decoration-color: var(--dd-yellow);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  padding: 18px var(--inline);
 }
 
 .heroCopy {
   position: absolute;
-  left: var(--gutter);
-  right: var(--gutter);
+  left: var(--inline);
+  right: var(--inline);
   bottom: clamp(28px, 6vh, 64px);
   z-index: 3;
   pointer-events: none;
@@ -125,7 +103,7 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 24px;
-  padding: clamp(72px, 12vw, 160px) var(--gutter);
+  padding: clamp(72px, 9vw, 128px) var(--inline);
 }
 
 .lede {
@@ -172,7 +150,7 @@
   display: flex;
   gap: 4px;
   overflow-x: auto;
-  padding: 10px var(--gutter);
+  padding: 10px var(--inline);
   background: var(--dd-cream);
   border-bottom: 1px solid rgb(0 0 0 / 0.15);
   scrollbar-width: none;
@@ -220,8 +198,7 @@
   grid-template-columns: repeat(12, 1fr);
   align-content: end;
   gap: 24px;
-  min-height: 90vh;
-  padding: clamp(64px, 10vw, 140px) var(--gutter) 48px;
+  padding: clamp(64px, 8vw, 112px) var(--inline) clamp(48px, 5vw, 64px);
 }
 
 .opener .kicker {
@@ -279,7 +256,7 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: clamp(16px, 2.4vw, 32px);
-  padding: clamp(56px, 8vw, 120px) var(--gutter);
+  padding: clamp(56px, 6vw, 88px) var(--inline);
   border-top: 1px solid color-mix(in oklch, var(--fg) 25%, transparent);
   scroll-margin-top: 48px;
 }
@@ -302,7 +279,7 @@
   grid-column: 8 / 13;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
 .flip .cover {
@@ -325,7 +302,7 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   column-gap: 24px;
-  row-gap: 18px;
+  row-gap: 24px;
 }
 
 .wide .text > * {
@@ -345,6 +322,7 @@
 }
 
 .work h3 {
+  margin-top: -14px;
   font-size: clamp(1.9rem, 3.6vw, 3rem);
   font-weight: 800;
   line-height: 1.02;
@@ -401,6 +379,8 @@
 
 .more {
   align-self: flex-start;
+  justify-self: start;
+  margin-top: 4px;
   padding: 12px 20px;
   border: 0;
   border-radius: 999px;
@@ -440,13 +420,45 @@
   }
 }
 
+/* Text blocks rise in as they enter, the quiet partner of the site-wide
+   dd-reveal-title / dd-reveal-plate. Same progressive-enhancement rule. */
+@supports (animation-timeline: view()) {
+  .lede,
+  .introMeta,
+  .opener .kicker,
+  .opener p,
+  .text,
+  .who li,
+  .end p,
+  .ctas {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+
+  .introMeta {
+    animation-range: entry 15% entry 75%;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ---------- Image strip ---------- */
 
 .strip {
   grid-column: 1 / -1;
   display: flex;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: clamp(8px, 2vw, 24px);
   padding-bottom: 10px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -602,7 +614,7 @@
 
 .who {
   position: relative;
-  padding: clamp(72px, 10vw, 140px) var(--gutter);
+  padding: clamp(72px, 8vw, 112px) var(--inline);
 }
 
 .who h2 {
@@ -714,7 +726,7 @@
 .end {
   display: grid;
   gap: 28px;
-  padding: clamp(80px, 12vw, 160px) var(--gutter);
+  padding: clamp(80px, 9vw, 128px) var(--inline);
   background: var(--dd-red);
   color: var(--dd-cream);
 }
@@ -816,10 +828,6 @@
   .peek {
     display: none;
   }
-
-  .topbar nav a {
-    font-size: 13px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -832,7 +840,15 @@
   }
 
   .cover img,
-  .dialog[open] {
+  .dialog[open],
+  .lede,
+  .introMeta,
+  .opener .kicker,
+  .opener p,
+  .text,
+  .who li,
+  .end p,
+  .ctas {
     animation: none;
   }
 
