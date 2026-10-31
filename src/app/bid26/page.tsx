@@ -11,6 +11,7 @@ import About from "@/components/landing/About";
 import SiteHeader from "@/components/SiteHeader";
 import {
   BID26_CHAPTERS,
+  BID26_FORUM,
   BID26_GALLERY_URL,
   BID26_STUDIOS,
   BID26_SUBMISSIONS,
@@ -160,6 +161,42 @@ export default function Bid26Page() {
       <section className={s.who} aria-labelledby="quien-titulo">
         <h2 id="quien-titulo" className="dd-reveal-title">Quién está detrás</h2>
         <PeopleIndex rows={people} />
+      </section>
+
+      <section className={s.forum} aria-labelledby="foro-titulo">
+        <h2 id="foro-titulo" className="dd-reveal-title">
+          En el foro académico
+        </h2>
+        <p className={s.forumLede}>
+          La BID también investiga. En el FABid26, su foro académico, Aurorisa Mateo y Ana Rebecca Campos presentan
+          cuatro investigaciones sobre el diseño hecho en Puerto Rico.
+        </p>
+        <div className={s.forumGrid}>
+          {BID26_FORUM.map((p) => (
+            <article key={p.name}>
+              <h3>{p.name}</h3>
+              <p className={s.forumAff}>{p.affiliation}</p>
+              <ol>
+                {p.talks.map((t) => (
+                  <li key={t.title}>
+                    <span className={s.forumWhen}>{t.when}</span>
+                    <span className={s.forumTitle}>{t.title}</span>
+                    {t.note && <span className={s.forumNote}>{t.note}</span>}
+                    {t.cases && (
+                      <ul>
+                        {t.cases.map((c) => (
+                          <li key={c.title}>
+                            <b>{c.title}</b> · {c.credit}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className={s.subs} aria-labelledby="postulaciones-titulo">

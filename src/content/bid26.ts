@@ -587,3 +587,42 @@ export const BID26_SUBMISSIONS: { name: string; projects: { title: string; work?
     ],
   },
 ];
+
+/**
+ * Puerto Rico in the FABid26, the BID academic forum (program of 27 Oct 2026).
+ * Times are Madrid time. `cases` lists the work a talk presents.
+ */
+export const BID26_FORUM: {
+  name: string;
+  affiliation: string;
+  talks: { when: string; title: string; note?: string; cases?: { title: string; credit: string }[] }[];
+}[] = [
+  {
+    name: "Aurorisa Mateo",
+    affiliation: "Escuela de Artes, Diseño e Industrias Creativas, Universidad del Sagrado Corazón",
+    talks: [
+      { when: "Mié 4 nov · 9:50", title: "Olores de la memoria: diseño olfativo y aprendizaje en el contexto intertropical" },
+      {
+        when: "Mié 4 nov · 10:00",
+        title: "Marcas territoriales: diseño, identidad y valor de origen desde Puerto Rico",
+        note: "Uno de los temas del Día del Diseño en Sagrado, en abril. Presenta tres casos:",
+        cases: [
+          { title: "Del Oeste", credit: "Josué Oquendo Natal" },
+          {
+            title: "Café El Mesón",
+            credit: "Moisés Cruz, Mampostea’o, con Ramdwin González Otero, Uriel García, Esteban Mercado y Yetzal González",
+          },
+          { title: "Agua Palma Coyor", credit: "Pedro Medina Leandry" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Ana Rebecca Campos",
+    affiliation: "Escuela de Artes, Diseño e Industrias Creativas, Universidad del Sagrado Corazón",
+    talks: [
+      { when: "Jue 5 nov · 9:50", title: "Diseñar desde Puerto Rico: materiales, manufactura y territorios productivos" },
+      { when: "Jue 5 nov · 10:30", title: "Hacia una historia del diseño en Puerto Rico: cultura material indígena" },
+    ],
+  },
+];
