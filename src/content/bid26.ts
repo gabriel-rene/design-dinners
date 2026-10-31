@@ -32,6 +32,8 @@ export type Bid26Work = {
   links: { label: string; href: string }[];
   bidUrl: string;
   images: Bid26Image[];
+  /** Kept in the data but not shown on the page. */
+  hidden?: boolean;
 };
 
 export type Bid26Chapter = {
@@ -66,7 +68,7 @@ export const BID26_CHAPTERS: Bid26Chapter[] = [
     title: "Diseño desde el territorio",
     short: "Territorio",
     kicker: "Capítulo dos",
-    intro: "Memoria negra, modernismo tropical y cartel latinoamericano. Diseñar desde lo que somos.",
+    intro: "Memoria negra y cartel latinoamericano. Diseñar desde lo que somos.",
     bg: "#7a3418",
     fg: "#f8e3ca",
     accent: "#faa61a",
@@ -94,7 +96,7 @@ export const BID26_CHAPTERS: Bid26Chapter[] = [
 const TEMBOL = { studio: "TEMBOL", studioUrl: "https://tembol.co/" };
 const BUENA = { studio: "Buena Gráfica Social Studio", studioUrl: "https://buenagrafica.com/" };
 
-export const BID26_WORKS: Bid26Work[] = [
+const ALL_WORKS: Bid26Work[] = [
   {
     id: "el-parque",
     chapter: 0,
@@ -236,6 +238,7 @@ export const BID26_WORKS: Bid26Work[] = [
   },
   {
     id: "quiebrasol",
+    hidden: true,
     chapter: 1,
     title: "Quiebrasol",
     credit: "Alberto Rigau",
@@ -480,6 +483,9 @@ export const BID26_WORKS: Bid26Work[] = [
 ];
 
 /** People index: who is behind the works, grouped by studio. */
+/** The works shown on the page. */
+export const BID26_WORKS = ALL_WORKS.filter((w) => !w.hidden);
+
 /**
  * People index. `people` are the studio leads, set large; `team` is everyone
  * else BID credits on those works (co-authors and "Editor / Productor").
@@ -520,7 +526,6 @@ export const BID26_STUDIOS: { studio: string; people: string[]; team: string[]; 
   },
   { studio: "HACEDORMAKER_ARQUITECTOS", people: ["José Fernando Vázquez Pérez"], team: [], works: ["el-parque"] },
   { studio: "AGar Estudio", people: ["Adriana C. García Soto"], team: [], works: ["devuelta-al-manglar"] },
-  { studio: "Estudio Interlínea", people: ["Alberto Rigau"], team: [], works: ["quiebrasol"] },
   {
     studio: "Constructo",
     people: ["Javier Olmeda Raya", "Jan Alexis Figueroa"],
@@ -532,5 +537,92 @@ export const BID26_STUDIOS: { studio: string; people: string[]; team: string[]; 
     people: ["Dyanis De Jesús", "Natalia Pi"],
     team: ["Josue Oquendo", "Carla Torres", "Ricardo Burgos"],
     works: ["puerto-rico-creativo"],
+  },
+];
+
+/**
+ * Everyone from Puerto Rico who sent work to BID26, from the submissions
+ * sheet. `work` links a submission to its spread on this page.
+ */
+export const BID26_SUBMISSIONS: { name: string; projects: { title: string; work?: string }[] }[] = [
+  { name: "Adriana C. García Soto", projects: [{ title: "Devuelta al manglar", work: "devuelta-al-manglar" }, { title: "Inmersión bioluminiscente en el Ecoexploratorio" }] },
+  {
+    name: "Alberto Rigau",
+    projects: [
+      { title: "¡Vaqueros ahí!" },
+      { title: "Señalética Paseos Imaging" },
+      { title: "Tandem" },
+      { title: "Señalética Clínica de Ojos" },
+      { title: "Traba" },
+      { title: "Quiebrasol" },
+    ],
+  },
+  { name: "Dyanis De Jesús", projects: [{ title: "Puerto Rico Creativo", work: "puerto-rico-creativo" }] },
+  { name: "Elizabeth Barreto Ortiz", projects: [{ title: "Tiro Libre" }] },
+  { name: "Génesis Velez Cantres", projects: [{ title: "Buka" }, { title: "Sons" }] },
+  { name: "Javier Olmeda Raya", projects: [{ title: "Martes de Galería", work: "martes-de-galeria" }] },
+  {
+    name: "José Fernando Vázquez Pérez",
+    projects: [{ title: "El Parque", work: "el-parque" }],
+  },
+  {
+    name: "José R. Menéndez López",
+    projects: [
+      { title: "Voces Gráficas de América Latina", work: "voces-graficas" },
+      { title: "Tú haces parte", work: "tu-haces-parte" },
+      { title: "Unfiguring", work: "unfiguring" },
+    ],
+  },
+  { name: "Josué Oquendo Natal", projects: [{ title: "Tipografía «Modestia»" }, { title: "Exhibición 10 años MAC en el Barrio" }] },
+  { name: "Luis “Tuto” González Medina", projects: [{ title: "Puerto Rico Negrx", work: "puerto-rico-negrx" }] },
+  { name: "María Laura Martínez", projects: [{ title: "Rediseño Cervezas del Oeste" }] },
+  { name: "Natalia Cristina Núñez Torres", projects: [{ title: "Plan Estatal de Conservación Histórica de P.R. 2025-2030" }] },
+  { name: "Pedro Medina", projects: [{ title: "Supermotive" }, { title: "Asekia: cosechando cambio" }] },
+  {
+    name: "Ramdwin González Otero",
+    projects: [
+      { title: "Ciencia CoLab", work: "ciencia-colab" },
+      { title: "Conoce las especies", work: "conoce-las-especies" },
+      { title: "Veredas para la Naturaleza" },
+    ],
+  },
+];
+
+/**
+ * Puerto Rico in the FABid26, the BID academic forum (program of 27 Oct 2026).
+ * Times are Madrid time. `cases` lists the work a talk presents.
+ */
+export const BID26_FORUM: {
+  name: string;
+  affiliation: string;
+  talks: { when: string; title: string; note?: string; cases?: { title: string; credit: string }[] }[];
+}[] = [
+  {
+    name: "Aurorisa Mateo",
+    affiliation: "Escuela de Artes, Diseño e Industrias Creativas, Universidad del Sagrado Corazón",
+    talks: [
+      { when: "Mié 4 nov · 9:50", title: "Olores de la memoria: diseño olfativo y aprendizaje en el contexto intertropical" },
+      {
+        when: "Mié 4 nov · 10:00",
+        title: "Marcas territoriales: diseño, identidad y valor de origen desde Puerto Rico",
+        note: "Uno de los temas del Día del Diseño en Sagrado, en abril. Presenta tres casos:",
+        cases: [
+          { title: "Del Oeste", credit: "Josué Oquendo Natal y Esteban Ruiz" },
+          {
+            title: "Café El Mesón",
+            credit: "Moisés Cruz (Mampostea’o), con Ramdwin González Otero, Uriel García, Esteban Mercado y Yetzal González",
+          },
+          { title: "Agua Palma Coyor", credit: "Pedro Medina Leandry" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Ana Rebecca Campos",
+    affiliation: "Escuela de Artes, Diseño e Industrias Creativas, Universidad del Sagrado Corazón",
+    talks: [
+      { when: "Jue 5 nov · 9:50", title: "Diseñar desde Puerto Rico: materiales, manufactura y territorios productivos" },
+      { when: "Jue 5 nov · 10:30", title: "Hacia una historia del diseño en Puerto Rico: cultura material indígena" },
+    ],
   },
 ];

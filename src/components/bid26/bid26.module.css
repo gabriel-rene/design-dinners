@@ -692,6 +692,170 @@
   color: var(--dd-red);
 }
 
+/* En el foro académico: the FABid26 talks, on Patty Brown. */
+.forum {
+  padding: clamp(72px, 10vw, 140px) var(--gutter);
+  background: var(--dd-brown);
+  color: var(--dd-cream);
+}
+
+.forum h2 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.forumLede {
+  max-width: 52ch;
+  margin: 20px 0 48px;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.5;
+}
+
+.forumGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 48px clamp(32px, 5vw, 72px);
+}
+
+.forumGrid h3 {
+  font-family: var(--font-jost), sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.forumAff {
+  margin: 8px 0 24px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.forumGrid ol {
+  display: grid;
+  list-style: none;
+  padding: 0;
+}
+
+.forumGrid ol > li {
+  display: grid;
+  gap: 6px;
+  padding: 18px 0 20px;
+  border-top: 1px solid rgb(248 227 202 / 0.45);
+}
+
+.forumWhen {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.forumTitle {
+  font-family: var(--font-jost), sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.forumNote {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.forumGrid ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.forumGrid ul b {
+  font-weight: 700;
+}
+
+/* Todas las postulaciones: every submission, set as an index on black. */
+.subs {
+  padding: clamp(72px, 10vw, 140px) var(--gutter);
+  background: #000;
+  color: var(--dd-cream);
+}
+
+.subs h2 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.subsLede {
+  max-width: 46ch;
+  margin: 20px 0 48px;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.5;
+}
+
+.subsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0 32px;
+  list-style: none;
+  padding: 0;
+}
+
+.subsList > li {
+  padding: 20px 0 24px;
+  border-top: 1px solid rgb(248 227 202 / 0.35);
+}
+
+.subsName {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.subsList ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.subsList a {
+  color: var(--dd-cream);
+  text-decoration: underline;
+  text-decoration-color: var(--dd-yellow);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.subsList a:hover {
+  color: var(--dd-yellow);
+}
+
+.subsMark {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--dd-yellow);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+
 .peek {
   position: fixed;
   left: 0;
