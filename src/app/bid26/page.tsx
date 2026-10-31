@@ -168,8 +168,8 @@ export default function Bid26Page() {
           En el foro académico
         </h2>
         <p className={s.forumLede}>
-          La BID también investiga. En el FABid26, su foro académico, Aurorisa Mateo y Ana Rebecca Campos presentan
-          cuatro investigaciones sobre el diseño hecho en Puerto Rico.
+          La BID también investiga. En el FABid26, su foro académico, cuatro docentes de la Universidad del
+          Sagrado Corazón llevan cuatro ponencias y un póster sobre el diseño hecho en Puerto Rico.
         </p>
         <div className={s.forumGrid}>
           {BID26_FORUM.map((p) => (
