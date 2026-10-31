@@ -607,10 +607,10 @@ export const BID26_FORUM: {
         title: "Marcas territoriales: diseño, identidad y valor de origen desde Puerto Rico",
         note: "Uno de los temas del Día del Diseño en Sagrado, en abril. Presenta tres casos:",
         cases: [
-          { title: "Del Oeste", credit: "Josué Oquendo Natal" },
+          { title: "Del Oeste", credit: "Josué Oquendo Natal y Esteban Mercado" },
           {
             title: "Café El Mesón",
-            credit: "Moisés Cruz, Mampostea’o, con Ramdwin González Otero, Uriel García, Esteban Mercado y Yetzal González",
+            credit: "Moisés Cruz (Mampostea’o), con Ramdwin González Otero, Uriel García, Esteban Mercado y Yetzal González",
           },
           { title: "Agua Palma Coyor", credit: "Pedro Medina Leandry" },
         ],
