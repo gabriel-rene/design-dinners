@@ -692,6 +692,83 @@
   color: var(--dd-red);
 }
 
+/* Todas las postulaciones: every submission, set as an index on black. */
+.subs {
+  padding: clamp(72px, 10vw, 140px) var(--gutter);
+  background: #000;
+  color: var(--dd-cream);
+}
+
+.subs h2 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.subsLede {
+  max-width: 46ch;
+  margin: 20px 0 48px;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.5;
+}
+
+.subsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0 32px;
+  list-style: none;
+  padding: 0;
+}
+
+.subsList > li {
+  padding: 20px 0 24px;
+  border-top: 1px solid rgb(248 227 202 / 0.35);
+}
+
+.subsName {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.subsList ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.subsList a {
+  color: var(--dd-cream);
+  text-decoration: underline;
+  text-decoration-color: var(--dd-yellow);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.subsList a:hover {
+  color: var(--dd-yellow);
+}
+
+.subsMark {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--dd-yellow);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+
 .peek {
   position: fixed;
   left: 0;

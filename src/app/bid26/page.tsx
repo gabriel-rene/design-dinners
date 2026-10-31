@@ -13,13 +13,14 @@ import {
   BID26_CHAPTERS,
   BID26_GALLERY_URL,
   BID26_STUDIOS,
+  BID26_SUBMISSIONS,
   BID26_WORKS,
   type Bid26Work,
 } from "@/content/bid26";
 
 const TITLE = "Puerto Rico en la BID26 — Design Dinners";
 const DESCRIPTION =
-  "Once proyectos de Puerto Rico en la Bienal Iberoamericana de Diseño 2026, en Madrid. Las obras, sus temas y la gente que las hizo.";
+  "Puerto Rico en la Bienal Iberoamericana de Diseño 2026, en Madrid. Las obras, sus temas, la gente que las hizo y todas las postulaciones de la isla.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -72,7 +73,11 @@ export default function Bid26Page() {
   const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
   const byChapter = BID26_CHAPTERS.map((_, i) => BID26_WORKS.filter((w) => w.chapter === i));
   // The last print sits on top of the pile: lead with the mangrove.
-  const pile = [...BID26_WORKS.filter((w) => w.id !== "devuelta-al-manglar"), BID26_WORKS[1]];
+  const pile = [
+    ...BID26_WORKS.filter((w) => w.id !== "devuelta-al-manglar"),
+    BID26_WORKS.find((w) => w.id === "devuelta-al-manglar")!,
+  ];
+  const submissionCount = BID26_SUBMISSIONS.reduce((n, p) => n + p.projects.length, 0);
   const people: PeopleRow[] = BID26_STUDIOS.map((st) => ({
     studio: st.studio,
     people: st.people,
@@ -93,22 +98,21 @@ export default function Bid26Page() {
           <h1 id="bid26-title">De PeErre a Madrid.</h1>
           <p>
             Puerto Rico llegó a la Bienal Iberoamericana de Diseño con parques, libros, manglares
-            virtuales y carteras que citan a Klumb. Esta es su historia, y la de quienes los hicieron.
+            virtuales y ciencia hecha en comunidad. Esta es su historia, y la de quienes los hicieron.
           </p>
         </div>
       </HeroPile>
 
       <section className={s.intro} aria-label="Sobre la BID26">
         <p className={s.lede}>
-          La BID es la gran vitrina del diseño iberoamericano. Este año, <em>once proyectos de Puerto Rico</em>{" "}
-          entraron a su galería. No vinieron a decorar: vinieron a resolver inundaciones, memoria, ciencia y
+          La BID es la gran vitrina del diseño iberoamericano. Este año, <em>Puerto Rico entró a su galería</em>. No vinieron a decorar: vinieron a resolver inundaciones, memoria, ciencia y
           ciudad.
         </p>
         <p className={s.introMeta}>
           <b>BID26</b>
           Central de Diseño · Matadero Madrid
           <br />
-          Cuatro temas. Siete estudios.
+          Cuatro temas. Seis estudios.
           <br />
           <a href={BID26_GALLERY_URL} target="_blank" rel="noopener noreferrer">
             Ver la galería oficial ↗
@@ -156,6 +160,37 @@ export default function Bid26Page() {
       <section className={s.who} aria-labelledby="quien-titulo">
         <h2 id="quien-titulo" className="dd-reveal-title">Quién está detrás</h2>
         <PeopleIndex rows={people} />
+      </section>
+
+      <section className={s.subs} aria-labelledby="postulaciones-titulo">
+        <h2 id="postulaciones-titulo" className="dd-reveal-title">
+          Todas las postulaciones
+        </h2>
+        <p className={s.subsLede}>
+          {submissionCount} propuestas de {BID26_SUBMISSIONS.length} diseñadores de Puerto Rico se postularon a
+          la BID26. Aquí están todas.
+        </p>
+        <ul className={s.subsList}>
+          {BID26_SUBMISSIONS.map((p) => (
+            <li key={p.name}>
+              <span className={s.subsName}>{p.name}</span>
+              <ul>
+                {p.projects.map((pr) => (
+                  <li key={pr.title}>
+                    {pr.work ? (
+                      <a href={`#${pr.work}`}>
+                        {pr.title}
+                        <span className={s.subsMark}>En la galería</span>
+                      </a>
+                    ) : (
+                      pr.title
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className={s.end} aria-labelledby="cierre-titulo">
