@@ -98,7 +98,7 @@ export default function Bid26Page() {
           </nav>
         </header>
         <div className={s.heroCopy}>
-          <h1 id="bid26-title">Once proyectos. Una isla. Madrid.</h1>
+          <h1 id="bid26-title">De PeErre a Madrid.</h1>
           <p>
             Puerto Rico llegó a la Bienal Iberoamericana de Diseño con parques, libros, manglares
             virtuales y carteras que citan a Klumb. Esta es su historia, y la de quienes los hicieron.
