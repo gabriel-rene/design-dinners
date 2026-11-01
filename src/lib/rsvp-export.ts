@@ -5,6 +5,7 @@ import "server-only";
 
 import { createHash, timingSafeEqual } from "node:crypto";
 
+import { disciplineLabel } from "./disciplines";
 import { RSVP_STATUS_LABEL } from "./rsvp";
 import type { RsvpStatus } from "./types";
 
@@ -32,9 +33,13 @@ export type ExportRow = {
   email: string;
   status: RsvpStatus;
   created_at: string;
+  discipline: string | null;
+  discipline_other: string | null;
 };
 
-export const EXPORT_HEADER = ["Evento", "Fecha del evento", "Nombre", "Correo", "Estado", "Reservó"];
+// New columns go at the end, so formulas in the sheet that point at the old
+// columns keep working.
+export const EXPORT_HEADER = ["Evento", "Fecha del evento", "Nombre", "Correo", "Estado", "Reservó", "Disciplina"];
 
 const TIME_ZONE = "America/Puerto_Rico";
 
@@ -69,5 +74,6 @@ export function buildExportRows(rows: ExportRow[]): string[][] {
     sheetCell(row.email),
     RSVP_STATUS_LABEL[row.status],
     formatSheetDate(row.created_at),
+    sheetCell(disciplineLabel(row.discipline, row.discipline_other)),
   ]);
 }

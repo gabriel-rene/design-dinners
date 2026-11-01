@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { JOIN_PATH } from "@/lib/community";
 import ChapterRail from "@/components/bid26/ChapterRail";
 import HeroPile from "@/components/bid26/HeroPile";
 import PeopleIndex, { type PeopleRow } from "@/components/bid26/PeopleIndex";
@@ -71,7 +72,7 @@ function WorkSpread({ work, layout }: { work: Bid26Work; layout: string }) {
 }
 
 export default function Bid26Page() {
-  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappUrl = JOIN_PATH;
   const byChapter = BID26_CHAPTERS.map((_, i) => BID26_WORKS.filter((w) => w.chapter === i));
   // The last print sits on top of the pile: lead with the mangrove.
   const pile = [

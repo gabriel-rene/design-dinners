@@ -3,7 +3,14 @@
 import type { Sql } from "./db";
 import type { RsvpStatus } from "./types";
 
-type InsertInput = { eventId: string; name: string; email: string; ipHash: string | null };
+type InsertInput = {
+  eventId: string;
+  name: string;
+  email: string;
+  ipHash: string | null;
+  discipline?: string | null;
+  disciplineOther?: string | null;
+};
 type InsertResult = { status: "confirmed" | "waitlist"; position: number; cancelToken: string };
 
 /**
@@ -17,12 +24,14 @@ type InsertResult = { status: "confirmed" | "waitlist"; position: number; cancel
  */
 export async function insertRsvp(sql: Sql, input: InsertInput): Promise<InsertResult | null> {
   const { eventId, name, email, ipHash } = input;
+  const discipline = input.discipline ?? null;
+  const disciplineOther = input.disciplineOther ?? null;
   const results = await sql.transaction((txn) => [
     // Canonical uuid text: the id may arrive in any letter case.
     txn`select pg_advisory_xact_lock(hashtext(${eventId}::uuid::text))`,
     txn`
       with ins as (
-        insert into rsvps (event_id, name, email, status, ip_hash)
+        insert into rsvps (event_id, name, email, status, ip_hash, discipline, discipline_other)
         select
           e.id, ${name}, ${email},
           case
@@ -31,7 +40,7 @@ export async function insertRsvp(sql: Sql, input: InsertInput): Promise<InsertRe
             then 'confirmed'
             else 'waitlist'
           end,
-          ${ipHash}
+          ${ipHash}, ${discipline}, ${disciplineOther}
         from events e
         where e.id = ${eventId}
           and e.event_date >= now()

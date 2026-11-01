@@ -1,6 +1,7 @@
 // Pure RSVP logic — no network, no Next imports, no Node built-ins: client
 // components import it (the IP helpers live in ip-hash.ts). "now" is
 // injectable so every function is deterministic in tests.
+import { disciplineLabel } from "./disciplines";
 import type { EventRow, RsvpRow, RsvpStatus } from "./types";
 
 export const MAX_NAME = 120;
@@ -91,20 +92,21 @@ export const RSVP_STATUS_LABEL: Record<RsvpStatus, string> = {
   cancelled: "Cancelado",
 };
 
-function csvCell(value: string): string {
+export function csvCell(value: string): string {
   // Spreadsheet formula injection guard.
   const guarded = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
   return `"${guarded.replace(/"/g, '""')}"`;
 }
 
 export function buildRsvpCsv(
-  rows: Pick<RsvpRow, "name" | "email" | "status" | "created_at">[],
+  rows: Pick<RsvpRow, "name" | "email" | "status" | "created_at" | "discipline" | "discipline_other">[],
 ): string {
   const lines = [
-    ["Nombre", "Correo", "Estado", "Reservó (UTC)"],
+    ["Nombre", "Correo", "Disciplina", "Estado", "Reservó (UTC)"],
     ...rows.map((row) => [
       row.name,
       row.email,
+      disciplineLabel(row.discipline, row.discipline_other),
       RSVP_STATUS_LABEL[row.status],
       new Date(row.created_at).toISOString(),
     ]),

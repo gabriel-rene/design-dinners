@@ -7,6 +7,7 @@ import AgendaFilters from "@/components/eventos/AgendaFilters";
 import AgendaList from "@/components/eventos/AgendaList";
 import About from "@/components/landing/About";
 import ShareEventBox from "@/components/eventos/ShareEventBox";
+import { JOIN_PATH } from "@/lib/community";
 import { buildAgenda, parseAgendaFilter } from "@/lib/agenda";
 import { splitEvents } from "@/lib/derive";
 import { getEventsWithSpeakers } from "@/lib/queries";
@@ -50,7 +51,7 @@ export default async function EventosPage({
     filter,
     now,
   });
-  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappUrl = JOIN_PATH;
 
   return (
     <main className="flex-1">

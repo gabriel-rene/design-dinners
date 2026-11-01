@@ -118,11 +118,20 @@ describe("parseCapacity", () => {
 describe("buildRsvpCsv", () => {
   it("writes a BOM, a header, quoted cells and guards formulas", () => {
     const csv = buildRsvpCsv([
-      { name: '=HYPERLINK("x")', email: "a@b.co", status: "waitlist", created_at: "2026-10-02T13:14:00.000Z" },
+      {
+        name: '=HYPERLINK("x")',
+        email: "a@b.co",
+        status: "waitlist",
+        created_at: "2026-10-02T13:14:00.000Z",
+        discipline: "otra",
+        discipline_other: "Diseño sonoro",
+      },
+      { name: "Ana", email: "ana@b.co", status: "confirmed", created_at: "2026-10-02T13:15:00.000Z", discipline: null, discipline_other: null },
     ]);
     expect(csv.startsWith("\uFEFF")).toBe(true);
     const lines = csv.slice(1).trimEnd().split("\r\n");
-    expect(lines[0]).toBe('"Nombre","Correo","Estado","Reservó (UTC)"');
-    expect(lines[1]).toBe('"\'=HYPERLINK(""x"")","a@b.co","Lista de espera","2026-10-02T13:14:00.000Z"');
+    expect(lines[0]).toBe('"Nombre","Correo","Disciplina","Estado","Reservó (UTC)"');
+    expect(lines[1]).toBe('"\'=HYPERLINK(""x"")","a@b.co","Otra: Diseño sonoro","Lista de espera","2026-10-02T13:14:00.000Z"');
+    expect(lines[2]).toBe('"Ana","ana@b.co","","Confirmado","2026-10-02T13:15:00.000Z"');
   });
 });

@@ -56,6 +56,26 @@ describe.skipIf(!url)("rsvp-db (needs DATABASE_URL)", () => {
     expect(rows[0].n).toBe(1);
   });
 
+  it("stores the discipline, and leaves it null when not given", async () => {
+    const eventId = await makeEvent({ capacity: null });
+    await insertRsvp(sql, {
+      eventId,
+      name: "A",
+      email: "a@x.co",
+      ipHash: null,
+      discipline: "otra",
+      disciplineOther: "Diseño sonoro",
+    });
+    await insertRsvp(sql, { eventId, name: "B", email: "b@x.co", ipHash: null });
+    const rows = (await sql`
+      select email, discipline, discipline_other from rsvps where event_id = ${eventId} order by email
+    `) as { email: string; discipline: string | null; discipline_other: string | null }[];
+    expect(rows).toEqual([
+      { email: "a@x.co", discipline: "otra", discipline_other: "Diseño sonoro" },
+      { email: "b@x.co", discipline: null, discipline_other: null },
+    ]);
+  });
+
   it("refuses past events and events with an external link", async () => {
     const pastId = await makeEvent({ capacity: null, date: past });
     const extId = await makeEvent({ capacity: null, registrationUrl: "https://example.com" });

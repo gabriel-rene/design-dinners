@@ -40,9 +40,13 @@ describe("buildExportRows", () => {
           email: "g@ejemplo.com",
           status: "waitlist",
           created_at: "2026-10-07T16:05:00Z",
+          discipline: "ux-ui",
+          discipline_other: null,
         },
       ]),
-    ).toEqual([["Cena #1", "2026-10-23 19:00", "Gabriela Ortiz", "g@ejemplo.com", "Lista de espera", "2026-10-07 12:05"]]);
+    ).toEqual([
+      ["Cena #1", "2026-10-23 19:00", "Gabriela Ortiz", "g@ejemplo.com", "Lista de espera", "2026-10-07 12:05", "UX/UI"],
+    ]);
   });
 
   it("guards against formula injection", () => {
@@ -54,9 +58,12 @@ describe("buildExportRows", () => {
         email: "@x.com",
         status: "confirmed",
         created_at: "2026-10-07T16:05:00Z",
+        discipline: "otra",
+        discipline_other: "=cmd",
       },
     ]);
     expect(row[0]).toBe("'=IMPORTXML()");
+    expect(row[6]).toBe("Otra: =cmd");
     expect(row[2]).toBe("'+1 Malo");
     expect(row[3]).toBe("'@x.com");
   });
