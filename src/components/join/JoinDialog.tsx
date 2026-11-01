@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { JOIN_PATH, hasJoinedCookie } from "@/lib/community";
+import { ENTER_PATH, JOIN_PATH, hasJoinedCookie } from "@/lib/community";
 import JoinForm from "./JoinForm";
 
 const HEADING_ID = "join-dialog-title";
@@ -21,8 +21,9 @@ function joinLinkFrom(event: MouseEvent): HTMLAnchorElement | null {
 /**
  * Mounted once in the root layout. Every "Únete al WhatsApp" button is a
  * plain link to /unete; this catches the click and opens the sign-up form
- * in a modal instead. Without JS, or once the visitor has signed up (cookie),
- * the link goes through and /unete answers on the server.
+ * in a modal instead. Once the visitor has signed up (cookie), the click goes
+ * to /unete/entrar, which redirects to the group. Without JS the link opens
+ * the /unete landing.
  */
 export default function JoinDialog() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -33,8 +34,12 @@ export default function JoinDialog() {
     const onClick = (event: MouseEvent) => {
       const link = joinLinkFrom(event);
       if (!link || window.location.pathname === JOIN_PATH) return;
-      if (hasJoinedCookie(document.cookie)) return;
       event.preventDefault();
+      // Already signed up: skip the form (the /unete landing always shows it).
+      if (hasJoinedCookie(document.cookie)) {
+        window.location.assign(ENTER_PATH);
+        return;
+      }
       opener.current = link;
       setOpen(true);
     };
