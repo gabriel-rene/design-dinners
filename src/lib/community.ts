@@ -5,8 +5,11 @@ import { disciplineLabel } from "./disciplines";
 import { csvCell } from "./rsvp";
 
 /** Every "Únete al WhatsApp" button points here. With JS the click opens the
- *  sign-up dialog; without JS (or once signed up) the page does the work. */
+ *  sign-up dialog; without JS it is a landing page with the same form. */
 export const JOIN_PATH = "/unete";
+
+/** Server redirect to the group for visitors who already signed up. */
+export const ENTER_PATH = "/unete/entrar";
 
 /** Set after the sign-up form or an RSVP. Not httpOnly: the dialog reads it
  *  to skip the form. It holds no secret, so faking it only skips a soft gate. */

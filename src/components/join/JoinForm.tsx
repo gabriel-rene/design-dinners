@@ -40,9 +40,21 @@ function WhatsAppIcon() {
  * The WhatsApp sign-up: name, email, discipline. Once the server saves it,
  * the form turns into the button with the real invite link (the link only
  * ever arrives in this answer, never in the page). Used by the dialog and by
- * the /unete page.
+ * the /unete landing, which passes its own title and button label.
  */
-export default function JoinForm({ headingId, onDone }: { headingId: string; onDone?: () => void }) {
+export default function JoinForm({
+  headingId,
+  onDone,
+  title = "Únete al WhatsApp",
+  intro = "Es el grupo de la comunidad de diseño de Puerto Rico. Antes de entrar, cuéntanos quién eres.",
+  submitLabel = "Ver el enlace",
+}: {
+  headingId: string;
+  onDone?: () => void;
+  title?: string;
+  intro?: string | null;
+  submitLabel?: string;
+}) {
   const [state, formAction, pending] = useActionState<JoinState, FormData>(joinCommunity, { status: "idle" });
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -84,6 +96,9 @@ export default function JoinForm({ headingId, onDone }: { headingId: string; onD
               Entrar al grupo
               <span className="sr-only">(se abre en WhatsApp)</span>
             </a>
+            <p className="text-sm leading-relaxed text-dd-black/75">
+              ¿Ya estás en el grupo? Listo, no tienes que hacer nada más. Gracias por contarnos de ti.
+            </p>
           </>
         ) : (
           <p className="text-[15px] leading-relaxed text-dd-black">
@@ -107,11 +122,9 @@ export default function JoinForm({ headingId, onDone }: { headingId: string; onD
   return (
     <div>
       <h2 id={headingId} className="font-display text-[32px] font-bold uppercase leading-none text-dd-red md:text-4xl">
-        Únete al WhatsApp
+        {title}
       </h2>
-      <p className="mt-2.5 text-[15px] leading-relaxed text-dd-black">
-        Es el grupo de la comunidad de diseño de Puerto Rico. Antes de entrar, cuéntanos quién eres.
-      </p>
+      {intro && <p className="mt-2.5 text-[15px] leading-relaxed text-dd-black">{intro}</p>}
 
       {state.status === "error" && state.message && (
         <p role="alert" className="mt-4 rounded-[10px] border-2 border-dd-black bg-dd-yellow px-3.5 py-2.5 text-sm font-semibold text-dd-black">
@@ -189,7 +202,7 @@ export default function JoinForm({ headingId, onDone }: { headingId: string; onD
           disabled={pending}
           className="mt-1 h-14 w-full rounded-full border-2 border-dd-black bg-dd-red font-display text-[19px] font-bold uppercase tracking-[0.03em] text-dd-cream dd-btn disabled:opacity-70 md:h-[58px] md:text-xl"
         >
-          {pending ? "Guardando…" : "Ver el enlace"}
+          {pending ? "Guardando…" : submitLabel}
         </button>
 
         <p className="text-[13px] leading-snug text-dd-black/75">
