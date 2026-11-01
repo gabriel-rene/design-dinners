@@ -9,6 +9,7 @@ export default function SiteHeader({
   current,
   tone = "light",
   contained = true,
+  linkLogo = Boolean(current),
 }: {
   whatsappUrl: string;
   current?: SiteNavCurrent;
@@ -16,6 +17,8 @@ export default function SiteHeader({
   tone?: SiteNavTone;
   /** false when the parent already sets width and side padding. */
   contained?: boolean;
+  /** Logo links home. Defaults to on whenever a nav item is current. */
+  linkLogo?: boolean;
 }) {
   const logo =
     tone === "dark" ? (
@@ -31,7 +34,7 @@ export default function SiteHeader({
         contained ? "mx-auto max-w-6xl px-5 pt-6 md:px-8" : ""
       }`}
     >
-      {current ? (
+      {linkLogo ? (
         <Link href="/" className={`block shrink-0 focus-visible:outline-3 focus-visible:outline-offset-4 ${focus}`}>
           {logo}
         </Link>

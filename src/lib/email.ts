@@ -14,6 +14,8 @@ export type EmailMessage = {
   subject: string;
   html: string;
   text: string;
+  /** Defaults to EMAIL_REPLY_TO. */
+  replyTo?: string;
   /** `content` is plain text; it is base64-encoded for Resend here. */
   attachments?: { filename: string; content: string }[];
 };
@@ -41,7 +43,7 @@ export async function sendEmail(
       body: JSON.stringify({
         from: EMAIL_FROM,
         to: [message.to],
-        reply_to: EMAIL_REPLY_TO,
+        reply_to: message.replyTo ?? EMAIL_REPLY_TO,
         subject: message.subject,
         html: message.html,
         text: message.text,
