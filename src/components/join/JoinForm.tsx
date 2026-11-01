@@ -48,12 +48,15 @@ export default function JoinForm({
   title = "Únete al WhatsApp",
   intro = "Es el grupo de la comunidad de diseño de Puerto Rico. Antes de entrar, cuéntanos quién eres.",
   submitLabel = "Ver el enlace",
+  note = "Nunca vendemos tus datos. Nada de spam.",
 }: {
   headingId: string;
   onDone?: () => void;
   title?: string;
   intro?: string | null;
   submitLabel?: string;
+  /** Small print after "* Requerido." (null: just that). */
+  note?: string | null;
 }) {
   const [state, formAction, pending] = useActionState<JoinState, FormData>(joinCommunity, { status: "idle" });
   const nameRef = useRef<HTMLInputElement>(null);
@@ -77,12 +80,12 @@ export default function JoinForm({
     return (
       <div className="flex flex-col gap-5">
         <h2 id={headingId} className="font-display text-[32px] font-bold uppercase leading-none text-dd-red md:text-4xl">
-          ¡Ya tienes silla!
+          ¡Gracias!
         </h2>
         {state.url ? (
           <>
             <p className="text-[15px] leading-relaxed text-dd-black">
-              Toca el botón para entrar al grupo. Ahí avisamos primero de cada cena, taller y evento.
+              Toca el botón para entrar al grupo de WhatsApp.
             </p>
             <a
               ref={doneRef}
@@ -97,7 +100,7 @@ export default function JoinForm({
               <span className="sr-only">(se abre en WhatsApp)</span>
             </a>
             <p className="text-sm leading-relaxed text-dd-black/75">
-              ¿Ya estás en el grupo? Listo, no tienes que hacer nada más. Gracias por contarnos de ti.
+              ¿Ya estás en el grupo? Listo, no tienes que hacer nada más.
             </p>
           </>
         ) : (
@@ -206,8 +209,7 @@ export default function JoinForm({
         </button>
 
         <p className="text-[13px] leading-snug text-dd-black/75">
-          <span aria-hidden className="text-dd-red">*</span> Requerido. Solo lo usamos para conocer la comunidad.
-          Nada de spam.
+          <span aria-hidden className="text-dd-red">*</span> Requerido.{note && ` ${note}`}
         </p>
       </form>
     </div>
