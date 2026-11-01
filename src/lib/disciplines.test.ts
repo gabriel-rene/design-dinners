@@ -39,6 +39,15 @@ describe("parseDisciplineInput", () => {
   });
 });
 
+describe("parseDisciplineInput control characters", () => {
+  it("refuses NUL and other control characters in Otra", () => {
+    expect(parseDisciplineInput({ discipline: "otra", disciplineOther: "a\u0000b" })).toEqual({
+      ok: false,
+      errors: { disciplineOther: "Tiene caracteres que no se permiten." },
+    });
+  });
+});
+
 describe("disciplineLabel", () => {
   it("shows the label, the visitor's words for Otra, or blank for old rows", () => {
     expect(disciplineLabel("grafico", null)).toBe("Diseño gráfico");

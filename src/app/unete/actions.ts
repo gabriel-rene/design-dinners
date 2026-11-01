@@ -3,8 +3,8 @@
 import { headers } from "next/headers";
 
 import { JOIN_RATE_LIMIT_PER_HOUR } from "@/lib/community";
-import { countRecentMembersByIp, upsertMember } from "@/lib/community-db";
-import { getDb, hasDatabaseConfig } from "@/lib/db";
+import { insertMember } from "@/lib/community-db";
+import { dbErrorSummary, getDb, hasDatabaseConfig } from "@/lib/db";
 import { parseDisciplineInput, type DisciplineErrors } from "@/lib/disciplines";
 import { clientIpFrom, hashIp, warnIfRateLimitDisabled } from "@/lib/ip-hash";
 import { isHoneypotFilled, parseRsvpInput, type RsvpFieldErrors } from "@/lib/rsvp";
@@ -46,21 +46,23 @@ export async function joinCommunity(_prev: JoinState, formData: FormData): Promi
   // per-IP limit only decides what gets stored (a whole dinner shares the
   // venue's Wi-Fi IP), and a DB hiccup is logged, never shown.
   if (hasDatabaseConfig) {
-    const sql = getDb();
     try {
-      const overLimit = ipHash !== null && (await countRecentMembersByIp(sql, ipHash)) >= JOIN_RATE_LIMIT_PER_HOUR;
-      if (!overLimit) {
-        await upsertMember(sql, {
+      // Stores nothing for a repeat email or past the per-IP limit; the
+      // visitor gets the same answer either way.
+      await insertMember(
+        getDb(),
+        {
           name: person.name,
           email: person.email,
           discipline: discipline.discipline,
           disciplineOther: discipline.disciplineOther,
           ipHash,
-        });
-      }
+        },
+        JOIN_RATE_LIMIT_PER_HOUR,
+      );
     } catch (error) {
-      // Log the error object only, never the visitor's name or email.
-      console.error("joinCommunity failed", error);
+      // Code and message only: a Postgres error's detail can echo the row.
+      console.error("joinCommunity failed", dbErrorSummary(error));
     }
   }
 

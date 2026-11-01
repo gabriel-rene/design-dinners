@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { JOIN_PATH } from "@/lib/community";
 import About from "@/components/landing/About";
 import PulsoPage from "@/components/pulso/PulsoPage";
 import SiteHeader from "@/components/SiteHeader";
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 
 export default async function PulsoRoute({ searchParams }: { searchParams: Promise<{ lang?: string | string[] }> }) {
   const { lang } = await searchParams;
-  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappUrl = JOIN_PATH;
 
   return (
     <PulsoPage

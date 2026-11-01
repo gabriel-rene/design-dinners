@@ -14,3 +14,16 @@ export function getDb(): Sql {
 
   return neon(connectionString);
 }
+
+/** What is safe to log from a DB error: Postgres `detail` (and the driver's
+ *  copy of it) can contain the failing row, i.e. a visitor's name or email. */
+export function dbErrorSummary(error: unknown): { code?: string; message: string } {
+  if (error && typeof error === "object") {
+    const { code, message } = error as { code?: unknown; message?: unknown };
+    return {
+      code: typeof code === "string" ? code : undefined,
+      message: typeof message === "string" ? message : "unknown error",
+    };
+  }
+  return { message: String(error) };
+}

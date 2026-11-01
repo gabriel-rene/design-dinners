@@ -10,6 +10,8 @@ type InsertInput = {
   ipHash: string | null;
   discipline?: string | null;
   disciplineOther?: string | null;
+  /** RSVPs allowed per IP hash per hour; checked in the same transaction. */
+  rateLimitPerHour?: number;
 };
 type InsertResult = { status: "confirmed" | "waitlist"; position: number; cancelToken: string };
 
@@ -21,12 +23,17 @@ type InsertResult = { status: "confirmed" | "waitlist"; position: number; cancel
  * missing event. The lock key is the canonical uuid text, so differently-cased
  * ids of one event share a lock. `position` is the seat number (confirmed) or
  * the place in line (waitlist); the CTE's subquery cannot see the new row, hence `+ 1`.
+ * With an IP hash and a limit, a per-IP lock (taken before the event lock,
+ * always in that order) makes the hourly count and the insert one step, so
+ * parallel requests can't slip past the limit; over it, the result is null.
  */
 export async function insertRsvp(sql: Sql, input: InsertInput): Promise<InsertResult | null> {
   const { eventId, name, email, ipHash } = input;
   const discipline = input.discipline ?? null;
   const disciplineOther = input.disciplineOther ?? null;
+  const limit = ipHash && input.rateLimitPerHour !== undefined ? input.rateLimitPerHour : null;
   const results = await sql.transaction((txn) => [
+    ...(limit !== null ? [txn`select pg_advisory_xact_lock(hashtext(${`rsvp-ip:${ipHash}`}))`] : []),
     // Canonical uuid text: the id may arrive in any letter case.
     txn`select pg_advisory_xact_lock(hashtext(${eventId}::uuid::text))`,
     txn`
@@ -45,6 +52,10 @@ export async function insertRsvp(sql: Sql, input: InsertInput): Promise<InsertRe
         where e.id = ${eventId}
           and e.event_date >= now()
           and e.registration_url is null
+          and (
+            ${limit}::int is null
+            or (select count(*) from rsvps r where r.ip_hash = ${ipHash} and r.created_at > now() - interval '1 hour') < ${limit}::int
+          )
         on conflict (event_id, lower(email)) do nothing
         returning status, cancel_token
       )
@@ -55,7 +66,7 @@ export async function insertRsvp(sql: Sql, input: InsertInput): Promise<InsertRe
       from ins
     `,
   ]);
-  const rows = results[1] as unknown as InsertResult[];
+  const rows = results[results.length - 1] as unknown as InsertResult[];
   return rows[0] ?? null;
 }
 

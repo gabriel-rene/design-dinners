@@ -33,7 +33,7 @@ const PROMISES = ["Nunca vendemos tus datos.", "Se guardan en un lugar seguro.",
 export default function UnetePage() {
   return (
     <>
-      <SiteHeader whatsappUrl={FORM_ANCHOR} />
+      <SiteHeader whatsappUrl={FORM_ANCHOR} linkLogo />
 
       <main className="flex-1">
         <div className="mx-auto grid w-full max-w-6xl items-start gap-x-16 gap-y-10 px-5 pb-16 pt-10 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:px-8 md:pb-24 md:pt-16">

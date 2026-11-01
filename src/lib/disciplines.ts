@@ -60,5 +60,9 @@ export function parseDisciplineInput(input: { discipline: unknown; disciplineOth
   if (other.length > MAX_DISCIPLINE_OTHER) {
     return { ok: false, errors: { disciplineOther: "Usa 80 letras o menos." } };
   }
+  // Control characters (NUL, escapes…); kept local so this module stays dependency-free.
+  if (/[\u0000-\u001F\u007F]/.test(other)) {
+    return { ok: false, errors: { disciplineOther: "Tiene caracteres que no se permiten." } };
+  }
   return { ok: true, discipline, disciplineOther: other };
 }
