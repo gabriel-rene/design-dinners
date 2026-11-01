@@ -11,6 +11,8 @@ export const RATE_LIMIT_PER_HOUR = 5;
 export const PLATE_VISUAL_MAX = 40;
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Control characters (NUL, escapes…) never belong in a name or an email. */
+export const CONTROL_CHAR_RE = /[\u0000-\u001F\u007F]/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function isUuid(value: string): boolean {
@@ -30,9 +32,10 @@ export function parseRsvpInput(input: { name: unknown; email: unknown }): Parsed
 
   if (!name) errors.name = "Escribe tu nombre.";
   else if (name.length > MAX_NAME) errors.name = "Ese nombre es muy largo. Usa 120 letras o menos.";
+  else if (CONTROL_CHAR_RE.test(name)) errors.name = "Ese nombre tiene caracteres que no se permiten.";
 
   if (!email) errors.email = "Escribe tu correo.";
-  else if (email.length > MAX_EMAIL || !EMAIL_RE.test(email)) {
+  else if (email.length > MAX_EMAIL || !EMAIL_RE.test(email) || CONTROL_CHAR_RE.test(email)) {
     errors.email = "A ese correo le falta algo. Revisa que termine en algo como .com";
   }
 

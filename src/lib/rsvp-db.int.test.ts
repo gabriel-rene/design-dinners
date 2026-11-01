@@ -76,6 +76,18 @@ describe.skipIf(!url)("rsvp-db (needs DATABASE_URL)", () => {
     ]);
   });
 
+  it("never passes the per-IP hourly limit, even in parallel", async () => {
+    const eventId = await makeEvent({ capacity: null });
+    const ipHash = `${stamp}-burst-ip`;
+    const results = await Promise.all(
+      Array.from({ length: 8 }, (_, i) =>
+        insertRsvp(sql, { eventId, name: `B${i}`, email: `b${i}@x.co`, ipHash, rateLimitPerHour: 3 }),
+      ),
+    );
+    expect(results.filter(Boolean)).toHaveLength(3);
+    expect(await countRecentByIp(sql, ipHash)).toBe(3);
+  });
+
   it("refuses past events and events with an external link", async () => {
     const pastId = await makeEvent({ capacity: null, date: past });
     const extId = await makeEvent({ capacity: null, registrationUrl: "https://example.com" });

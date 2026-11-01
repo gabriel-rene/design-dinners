@@ -115,6 +115,19 @@ describe("parseCapacity", () => {
   });
 });
 
+describe("parseRsvpInput control characters", () => {
+  it("refuses NUL and other control characters", () => {
+    const result = parseRsvpInput({ name: "Ana\u0000", email: "a\u0007@b.co" });
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        name: "Ese nombre tiene caracteres que no se permiten.",
+        email: "A ese correo le falta algo. Revisa que termine en algo como .com",
+      },
+    });
+  });
+});
+
 describe("buildRsvpCsv", () => {
   it("writes a BOM, a header, quoted cells and guards formulas", () => {
     const csv = buildRsvpCsv([

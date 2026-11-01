@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { after } from "next/server";
 
-import { getDb, hasDatabaseConfig } from "@/lib/db";
+import { dbErrorSummary, getDb, hasDatabaseConfig } from "@/lib/db";
 import { parseDisciplineInput, type DisciplineErrors } from "@/lib/disciplines";
 import {
   RATE_LIMIT_PER_HOUR,
@@ -72,14 +72,20 @@ export async function submitRsvp(
       ipHash,
       discipline: discipline.discipline,
       disciplineOther: discipline.disciplineOther,
+      rateLimitPerHour: RATE_LIMIT_PER_HOUR,
     });
 
     if (!result) {
       if (!(await isEventOpenForRsvp(sql, eventId))) {
         return { status: "error", message: "Este evento ya no acepta reservas.", values };
       }
-      // Duplicate email: same neutral answer for everyone, so the form never
-      // reveals who already signed up.
+      // Lost a parallel race for the last slots of this IP's hourly limit.
+      if (ipHash && (await countRecentByIp(sql, ipHash)) >= RATE_LIMIT_PER_HOUR) {
+        return { status: "error", message: "Demasiados intentos. Intenta más tarde.", values };
+      }
+      // Duplicate email: a neutral answer. A new RSVP shows its seat, so this
+      // does tell a prober the email was already booked for this event; the
+      // probe itself books (and emails) anyone who wasn't, so it's noisy.
       await rememberJoined();
       return { status: "received" };
     }
@@ -108,8 +114,8 @@ export async function submitRsvp(
       ? { status: "confirmed", name: parsed.name, position: result.position }
       : { status: "waitlist", name: parsed.name, email: parsed.email, position: result.position };
   } catch (error) {
-    // Log the error object only, never the visitor's name or email.
-    console.error("submitRsvp failed", error);
+    // Code and message only: a Postgres error's detail can echo the row.
+    console.error("submitRsvp failed", dbErrorSummary(error));
     return { status: "error", message: "No pudimos guardar tu reserva. Intenta de nuevo.", values };
   }
 }
