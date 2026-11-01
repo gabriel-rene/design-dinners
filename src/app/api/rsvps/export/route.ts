@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const sql = getDb();
   // Newest event first; inside an event, sign-up order.
   const rows = (await sql`
-    select e.title as event_title, e.event_date, r.name, r.email, r.status, r.created_at
+    select e.title as event_title, e.event_date, r.name, r.email, r.status, r.created_at, r.discipline, r.discipline_other
     from rsvps r
     join events e on e.id = r.event_id
     order by e.event_date desc, r.created_at asc

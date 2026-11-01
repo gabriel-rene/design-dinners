@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JOIN_PATH } from "@/lib/community";
 import About from "@/components/landing/About";
 import SubmitEventForm from "@/components/otros-eventos/SubmitEventForm";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function EnviarEventoPage() {
-  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappUrl = JOIN_PATH;
   return (
     <main className="flex-1 bg-dd-cream text-dd-black">
       <div className="mx-auto w-full max-w-2xl px-5 pb-16 pt-8 md:pb-24 md:pt-14">

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 
+import DisciplineField from "@/components/DisciplineField";
 import SeatTable from "./SeatTable";
 import RsvpTicket, { TICKET_HEADING_ID } from "./RsvpTicket";
 import { submitRsvp, type RsvpState } from "@/app/eventos/[slug]/actions";
@@ -23,6 +24,8 @@ export type PanelEvent = {
 
 const INPUT =
   "h-[52px] w-full rounded-[10px] border-2 bg-[#FFF8EE] px-3.5 text-base font-medium text-dd-black outline-none placeholder:text-dd-black/60 focus-visible:ring-4 focus-visible:ring-dd-yellow/70";
+const LABEL = "text-sm font-bold text-white";
+const control = (invalid: boolean) => `${INPUT} ${invalid ? "border-[3px] border-dd-yellow" : "border-dd-black"}`;
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
@@ -60,6 +63,7 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
   const seatsRef = useRef<HTMLElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
+  const disciplineRef = useRef<HTMLSelectElement>(null);
 
   const justConfirmed = state.status === "confirmed";
   const justWaitlisted = state.status === "waitlist";
@@ -106,7 +110,8 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
   }
 
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
-  const values = state.status === "error" ? state.values : { name: "", email: "" };
+  const values =
+    state.status === "error" ? state.values : { name: "", email: "", discipline: "", disciplineOther: "" };
   const ticketVariant =
     state.status === "confirmed" || state.status === "waitlist" || state.status === "received" ? state.status : null;
 
@@ -117,6 +122,8 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
     if (state.status === "error") {
       if (state.errors?.name) nameRef.current?.focus();
       else if (state.errors?.email) emailRef.current?.focus();
+      else if (state.errors?.discipline) disciplineRef.current?.focus();
+      else if (state.errors?.disciplineOther) document.getElementById("rsvp-discipline-other")?.focus();
       return;
     }
     if (state.status === "idle") return;
@@ -181,7 +188,7 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
           <p className="mt-2.5 text-[15px] leading-normal text-white">
             {isFull
               ? "Pero aún tienes oportunidad de sentarte. Apúntate en la lista de espera."
-              : "Solo tu nombre y tu correo. Toma diez segundos."}
+              : "Tu nombre, tu correo y lo que haces. Toma diez segundos."}
           </p>
 
           {state.status === "error" && state.message && (
@@ -241,6 +248,18 @@ export default function RsvpPanel({ event }: { event: PanelEvent }) {
               />
               <FieldError id="rsvp-email-error" message={errors.email} />
             </div>
+
+            <DisciplineField
+              key={`discipline-${state.status === "error" ? `${values.discipline}|${values.disciplineOther}` : "idle"}`}
+              ref={disciplineRef}
+              idPrefix="rsvp"
+              defaultDiscipline={values.discipline}
+              defaultOther={values.disciplineOther}
+              errors={errors}
+              labelClassName={LABEL}
+              controlClassName={control}
+              renderError={(id, message) => <FieldError id={id} message={message} />}
+            />
 
             <button
               type="submit"

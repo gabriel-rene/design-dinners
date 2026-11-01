@@ -11,6 +11,7 @@ const sections = [
   { href: "/admin/speakers", label: "Speakers" },
   { href: "/admin/vitrina", label: "Vitrina" },
   { href: "/admin/otros-eventos", label: "Otros eventos" },
+  { href: "/admin/comunidad", label: "Comunidad" },
 ];
 
 export default function AdminNav({

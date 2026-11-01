@@ -10,6 +10,7 @@ import RsvpPanel from "@/components/event/RsvpPanel";
 import ShareButton from "@/components/event/ShareButton";
 import SpeakerSpotlight from "@/components/SpeakerSpotlight";
 import About from "@/components/landing/About";
+import { JOIN_PATH } from "@/lib/community";
 import { EVENT_TYPE_LABEL, formatDateParts, formatEventDate, formatEventTime } from "@/lib/format";
 import { findPublicEvent } from "@/lib/queries";
 import { rsvpMode } from "@/lib/rsvp";
@@ -124,7 +125,7 @@ export default async function EventPage({ params }: Props) {
   const mode = rsvpMode(event);
   const isPast = mode === "closed";
   const url = `${SITE}${eventPath(event)}`;
-  const whatsappGroup = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappGroup = JOIN_PATH;
   const parts = formatDateParts(event.event_date);
   const dateLabel = cap(formatEventDate(event.event_date));
   // "7:00 p. m." must never wrap between "p." and "m.".

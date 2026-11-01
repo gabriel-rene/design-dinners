@@ -125,7 +125,7 @@ export async function getEventRsvps(eventId: string): Promise<RsvpRow[]> {
   if (!hasDatabaseConfig || !isUuid(eventId)) return [];
   const sql = getDb();
   return (await sql`
-    select id, event_id, name, email, status, created_at, updated_at
+    select id, event_id, name, email, status, discipline, discipline_other, created_at, updated_at
     from rsvps
     where event_id = ${eventId}
     order by updated_at asc

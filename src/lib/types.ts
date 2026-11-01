@@ -56,6 +56,8 @@ export interface RsvpRow {
   name: string;
   email: string;
   status: RsvpStatus;
+  discipline: string | null;
+  discipline_other: string | null;
   created_at: string;
   updated_at: string;
 }

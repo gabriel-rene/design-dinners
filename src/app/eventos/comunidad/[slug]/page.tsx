@@ -8,6 +8,7 @@ import { cache } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import ShareButton from "@/components/event/ShareButton";
 import About from "@/components/landing/About";
+import { JOIN_PATH } from "@/lib/community";
 import { formatDateParts, formatEventDate, formatEventTime } from "@/lib/format";
 import { getPublishedCommunityEventBySlug } from "@/lib/otros-eventos/db";
 import { PRICE_LABEL } from "@/lib/otros-eventos/validate";
@@ -80,7 +81,7 @@ export default async function CommunityEventPage({ params }: Props) {
   if (!event) notFound();
 
   const { isPast } = event;
-  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappUrl = JOIN_PATH;
   const parts = formatDateParts(event.startsAt);
   const dateLabel = cap(formatEventDate(event.startsAt));
   // "7:00 p. m." must never wrap between "p." and "m.".

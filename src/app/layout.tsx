@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import JoinDialog from "@/components/join/JoinDialog";
 import { inter, jost } from "./fonts";
 import "./globals.css";
 
@@ -24,7 +25,11 @@ export default function RootLayout({
       lang="es"
       className={`${inter.variable} ${jost.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        {/* Catches every "Únete al WhatsApp" click (links to /unete). */}
+        <JoinDialog />
+      </body>
       {isProduction && <GoogleAnalytics gaId={GA_ID} />}
     </html>
   );

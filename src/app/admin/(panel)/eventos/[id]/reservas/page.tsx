@@ -11,6 +11,7 @@ import {
   secondaryBtnSm,
 } from "@/components/admin/formStyles";
 import { requireAdmin } from "@/lib/auth";
+import { disciplineLabel } from "@/lib/disciplines";
 import { EVENT_TYPE_LABEL, formatArchiveDate, formatEventTime } from "@/lib/format";
 import { getEventById, getEventRsvps } from "@/lib/queries";
 import { PLATE_VISUAL_MAX } from "@/lib/rsvp";
@@ -56,6 +57,22 @@ function ArrowUp({ size = 14 }: { size?: number }) {
 // shared by the header row so the labels line up with the cells.
 const CONFIRMED_COLS = "sm:grid-cols-[2.5rem_minmax(0,1.2fr)_minmax(0,1.5fr)_minmax(9.5rem,1fr)_6.5rem]";
 const WAITLIST_COLS = "lg:grid-cols-[2.5rem_minmax(0,1.2fr)_minmax(0,1.5fr)_minmax(9.5rem,1fr)_auto]";
+
+/** Name with the guest's discipline under it (blank for RSVPs from before
+ *  the question existed). */
+function Guest({ rsvp }: { rsvp: RsvpRow }) {
+  const discipline = disciplineLabel(rsvp.discipline, rsvp.discipline_other);
+  return (
+    <span className="min-w-0">
+      <span className="block truncate text-[15px] font-semibold text-dd-black">{rsvp.name}</span>
+      {discipline && (
+        <span className="block truncate text-[13px] text-dd-brown" title={discipline}>
+          {discipline}
+        </span>
+      )}
+    </span>
+  );
+}
 
 function Email({ value }: { value: string }) {
   return (
@@ -272,7 +289,7 @@ export default async function ReservasPage({ params }: { params: Promise<{ id: s
                   className={`grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 border-t border-dd-black/[0.08] px-4 py-3 first:border-t-0 sm:gap-4 sm:px-5 sm:first:border-t ${CONFIRMED_COLS}`}
                 >
                   <span className="font-display text-base font-bold text-dd-black/55">{i + 1}</span>
-                  <span className="truncate text-[15px] font-semibold text-dd-black">{r.name}</span>
+                  <Guest rsvp={r} />
                   <span className="col-start-2 sm:col-start-auto">
                     <Email value={r.email} />
                   </span>
@@ -311,7 +328,7 @@ export default async function ReservasPage({ params }: { params: Promise<{ id: s
                 className={`grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 border-t border-dd-black/[0.08] px-4 py-3 first:border-t-0 lg:gap-4 lg:px-5 ${WAITLIST_COLS}`}
               >
                 <span className="font-display text-base font-bold text-dd-brown">#{i + 1}</span>
-                <span className="truncate text-[15px] font-semibold text-dd-black">{r.name}</span>
+                <Guest rsvp={r} />
                 <span className="col-start-2 lg:col-start-auto">
                   <Email value={r.email} />
                 </span>

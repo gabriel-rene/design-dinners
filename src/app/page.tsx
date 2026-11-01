@@ -5,6 +5,7 @@ import About from "@/components/landing/About";
 import VitrinaTeaser from "@/components/landing/VitrinaTeaser";
 import OtrosEventosTeaser from "@/components/landing/OtrosEventosTeaser";
 import SpeakerSpotlight from "@/components/SpeakerSpotlight";
+import { JOIN_PATH } from "@/lib/community";
 import { getEventsWithSpeakers } from "@/lib/queries";
 import { splitEvents, upcomingSpotlights } from "@/lib/derive";
 import { formatDateParts, formatEventTime } from "@/lib/format";
@@ -51,7 +52,7 @@ export default async function Home() {
   const now = new Date();
   const { upcoming, past } = splitEvents(events, now);
   const spotlights = upcomingSpotlights(events, now);
-  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL || "#";
+  const whatsappUrl = JOIN_PATH;
 
   return (
     <main className="flex-1">

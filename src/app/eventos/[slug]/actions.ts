@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { after } from "next/server";
 
 import { getDb, hasDatabaseConfig } from "@/lib/db";
+import { parseDisciplineInput, type DisciplineErrors } from "@/lib/disciplines";
 import {
   RATE_LIMIT_PER_HOUR,
   isHoneypotFilled,
@@ -15,10 +16,13 @@ import {
 import { clientIpFrom, hashIp, warnIfRateLimitDisabled } from "@/lib/ip-hash";
 import { countRecentByIp, insertRsvp, isEventOpenForRsvp } from "@/lib/rsvp-db";
 import { notifyRsvp } from "@/lib/rsvp-notify";
+import { rememberJoined } from "@/lib/whatsapp";
+
+type RsvpValues = { name: string; email: string; discipline: string; disciplineOther: string };
 
 export type RsvpState =
   | { status: "idle" }
-  | { status: "error"; message?: string; errors?: RsvpFieldErrors; values: { name: string; email: string } }
+  | { status: "error"; message?: string; errors?: RsvpFieldErrors & DisciplineErrors; values: RsvpValues }
   | { status: "confirmed"; name: string; position: number }
   | { status: "waitlist"; name: string; email: string; position: number }
   | { status: "received" };
@@ -31,12 +35,21 @@ export async function submitRsvp(
   // Bots fill the hidden field: pretend it worked, store nothing.
   if (isHoneypotFilled(formData.get("website"))) return { status: "received" };
 
-  const values = {
+  const values: RsvpValues = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
+    discipline: String(formData.get("discipline") ?? ""),
+    disciplineOther: String(formData.get("discipline_other") ?? ""),
   };
   const parsed = parseRsvpInput(values);
-  if (!parsed.ok) return { status: "error", errors: parsed.errors, values };
+  const discipline = parseDisciplineInput(values);
+  if (!parsed.ok || !discipline.ok) {
+    return {
+      status: "error",
+      errors: { ...(parsed.ok ? {} : parsed.errors), ...(discipline.ok ? {} : discipline.errors) },
+      values,
+    };
+  }
 
   if (!hasDatabaseConfig || !isUuid(eventId)) {
     return { status: "error", message: "Las reservas no están disponibles ahora mismo.", values };
@@ -52,7 +65,14 @@ export async function submitRsvp(
       return { status: "error", message: "Demasiados intentos. Intenta más tarde.", values };
     }
 
-    const result = await insertRsvp(sql, { eventId, name: parsed.name, email: parsed.email, ipHash });
+    const result = await insertRsvp(sql, {
+      eventId,
+      name: parsed.name,
+      email: parsed.email,
+      ipHash,
+      discipline: discipline.discipline,
+      disciplineOther: discipline.disciplineOther,
+    });
 
     if (!result) {
       if (!(await isEventOpenForRsvp(sql, eventId))) {
@@ -60,8 +80,12 @@ export async function submitRsvp(
       }
       // Duplicate email: same neutral answer for everyone, so the form never
       // reveals who already signed up.
+      await rememberJoined();
       return { status: "received" };
     }
+
+    // They gave the same answers as the WhatsApp sign-up: skip that form.
+    await rememberJoined();
 
     revalidatePath("/");
     revalidatePath("/eventos/[slug]", "page");
