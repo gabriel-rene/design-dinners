@@ -8,6 +8,7 @@ export type CommunityMember = {
   email: string;
   discipline: string;
   discipline_other: string | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
 };
@@ -47,8 +48,18 @@ export async function insertMember(sql: Sql, input: InsertInput, limitPerHour: n
 
 export async function listMembers(sql: Sql): Promise<CommunityMember[]> {
   return (await sql`
-    select id, name, email, discipline, discipline_other, created_at, updated_at
+    select id, name, email, discipline, discipline_other, tags, created_at, updated_at
     from community_members
     order by created_at desc
   `) as CommunityMember[];
+}
+
+/** Replaces a member's tags (admin only). Returns false when the id is unknown. */
+export async function setMemberTags(sql: Sql, id: string, tags: string[]): Promise<boolean> {
+  const rows = await sql`
+    update community_members set tags = ${tags}, updated_at = now()
+    where id = ${id}
+    returning id
+  `;
+  return rows.length > 0;
 }

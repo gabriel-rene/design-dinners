@@ -1,9 +1,13 @@
+import Link from "next/link";
+
+import MemberTagsEditor from "@/components/admin/MemberTagsEditor";
 import { primaryBtn } from "@/components/admin/formStyles";
 import { requireAdmin } from "@/lib/auth";
 import { countByDiscipline } from "@/lib/community";
 import { listMembers } from "@/lib/community-db";
 import { getDb, hasDatabaseConfig } from "@/lib/db";
 import { disciplineLabel } from "@/lib/disciplines";
+import { countByTag, tagSlug } from "@/lib/member-tags";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +18,21 @@ const shortDate = new Intl.DateTimeFormat("es-PR", {
   timeZone: "America/Puerto_Rico",
 });
 
-const COLS = "sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_minmax(0,1.1fr)_7.5rem]";
+const COLS = "sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1.2fr)_7rem]";
 
-export default async function AdminComunidadPage() {
+const chip = "rounded-full px-3 py-1 text-[13px] font-semibold";
+
+export default async function AdminComunidadPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ etiqueta?: string | string[] }>;
+}) {
   await requireAdmin();
-  const members = hasDatabaseConfig ? await listMembers(getDb()) : [];
+  const { etiqueta } = await searchParams;
+  const activeTag = typeof etiqueta === "string" ? tagSlug(etiqueta) : "";
+  const allMembers = hasDatabaseConfig ? await listMembers(getDb()) : [];
+  const byTag = countByTag(allMembers);
+  const members = activeTag ? allMembers.filter((m) => m.tags.includes(activeTag)) : allMembers;
   const byDiscipline = countByDiscipline(members);
 
   return (
@@ -26,13 +40,13 @@ export default async function AdminComunidadPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold uppercase">
-            Comunidad <span className="text-dd-brown">{members.length}</span>
+            Comunidad <span className="text-dd-brown">{allMembers.length}</span>
           </h1>
           <p className="mt-1 text-[15px] text-dd-black/70">
             Quién llenó el formulario para entrar al WhatsApp. Las reservas tienen su propia lista en cada evento.
           </p>
         </div>
-        {members.length > 0 && (
+        {allMembers.length > 0 && (
           <a href="/admin/comunidad/csv" className={`${primaryBtn} gap-2`}>
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M12 3v12" />
@@ -48,9 +62,39 @@ export default async function AdminComunidadPage() {
         <p role="alert" className="text-dd-red">Falta DATABASE_URL en el servidor.</p>
       )}
 
+      {byTag.length > 0 && (
+        <section aria-labelledby="etiquetas-h">
+          <h2 id="etiquetas-h" className="font-display text-lg font-bold uppercase text-dd-black">
+            Por etiqueta
+          </h2>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            <li>
+              <Link
+                href="/admin/comunidad"
+                aria-current={activeTag ? undefined : "page"}
+                className={`${chip} ${activeTag ? "bg-dd-black/[0.06] text-dd-black/80 hover:bg-dd-black/10" : "bg-dd-black text-dd-cream"}`}
+              >
+                Todos <span className="tabular-nums opacity-70">{allMembers.length}</span>
+              </Link>
+            </li>
+            {byTag.map(({ tag, count }) => (
+              <li key={tag}>
+                <Link
+                  href={`/admin/comunidad?etiqueta=${encodeURIComponent(tag)}`}
+                  aria-current={tag === activeTag ? "page" : undefined}
+                  className={`${chip} ${tag === activeTag ? "bg-dd-red text-dd-cream" : "bg-dd-red/10 text-dd-red hover:bg-dd-red/20"}`}
+                >
+                  {tag} <span className="tabular-nums opacity-70">{count}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {members.length === 0 ? (
         <p className="rounded-lg border border-dashed border-dd-black/25 px-5 py-5 text-[15px] text-dd-black/65">
-          Todavía nadie ha llenado el formulario.
+          {activeTag ? `Nadie tiene la etiqueta “${activeTag}”.` : "Todavía nadie ha llenado el formulario."}
         </p>
       ) : (
         <>
@@ -78,6 +122,7 @@ export default async function AdminComunidadPage() {
               <span>Nombre</span>
               <span>Correo</span>
               <span>Disciplina</span>
+              <span>Etiquetas</span>
               <span>Se unió</span>
             </div>
             <ul>
@@ -95,6 +140,7 @@ export default async function AdminComunidadPage() {
                     <span className="truncate text-sm text-dd-brown" title={discipline}>
                       {discipline}
                     </span>
+                    <MemberTagsEditor id={m.id} name={m.name} tags={m.tags} />
                     <span className="whitespace-nowrap text-sm tabular-nums text-dd-black/65">
                       {shortDate.format(new Date(m.created_at))}
                     </span>

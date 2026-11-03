@@ -29,16 +29,18 @@ type MemberCsvRow = {
   email: string;
   discipline: string;
   discipline_other: string | null;
+  tags: string[];
   created_at: string;
 };
 
 export function buildMembersCsv(rows: MemberCsvRow[]): string {
   const lines = [
-    ["Nombre", "Correo", "Disciplina", "Se unió (UTC)"],
+    ["Nombre", "Correo", "Disciplina", "Etiquetas", "Se unió (UTC)"],
     ...rows.map((row) => [
       row.name,
       row.email,
       disciplineLabel(row.discipline, row.discipline_other),
+      row.tags.join(", "),
       new Date(row.created_at).toISOString(),
     ]),
   ].map((cols) => cols.map(csvCell).join(","));
