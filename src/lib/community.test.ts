@@ -18,12 +18,12 @@ describe("hasJoinedCookie", () => {
 describe("buildMembersCsv", () => {
   it("writes a BOM, labels disciplines and guards formulas", () => {
     const csv = buildMembersCsv([
-      { name: "=x", email: "a@b.co", discipline: "otra", discipline_other: "Sonido", created_at: "2026-10-31T13:00:00.000Z" },
+      { name: "=x", email: "a@b.co", discipline: "otra", discipline_other: "Sonido", tags: ["comite", "organizador"], created_at: "2026-10-31T13:00:00.000Z" },
     ]);
     expect(csv.startsWith("\uFEFF")).toBe(true);
     const lines = csv.slice(1).trimEnd().split("\r\n");
-    expect(lines[0]).toBe('"Nombre","Correo","Disciplina","Se unió (UTC)"');
-    expect(lines[1]).toBe('"\'=x","a@b.co","Otra: Sonido","2026-10-31T13:00:00.000Z"');
+    expect(lines[0]).toBe('"Nombre","Correo","Disciplina","Etiquetas","Se unió (UTC)"');
+    expect(lines[1]).toBe('"\'=x","a@b.co","Otra: Sonido","comite, organizador","2026-10-31T13:00:00.000Z"');
   });
 });
 

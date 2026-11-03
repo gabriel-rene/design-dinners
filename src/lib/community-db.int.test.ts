@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { afterAll, describe, expect, it } from "vitest";
 
-import { insertMember, listMembers } from "./community-db";
+import { insertMember, listMembers, setMemberTags } from "./community-db";
 
 const url = process.env.DATABASE_URL;
 const stamp = `jointest-${Date.now()}`;
@@ -36,5 +36,15 @@ describe.skipIf(!url)("community-db (needs DATABASE_URL)", () => {
     expect(results.filter(Boolean)).toHaveLength(3);
     const rows = (await sql`select count(*)::int as n from community_members where ip_hash = ${burstIp}`) as { n: number }[];
     expect(rows[0].n).toBe(3);
+  });
+
+  it("starts with no tags and replaces them on save", async () => {
+    const tagged = `${stamp}-tags@x.co`;
+    await insertMember(sql, { name: "T", email: tagged, discipline: "grafico", disciplineOther: null, ipHash: null }, 30);
+    const before = (await listMembers(sql)).find((m) => m.email === tagged)!;
+    expect(before.tags).toEqual([]);
+    expect(await setMemberTags(sql, before.id, ["comite", "organizador"])).toBe(true);
+    expect((await listMembers(sql)).find((m) => m.email === tagged)!.tags).toEqual(["comite", "organizador"]);
+    expect(await setMemberTags(sql, "00000000-0000-0000-0000-000000000000", ["x"])).toBe(false);
   });
 });
