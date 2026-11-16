@@ -131,7 +131,7 @@ const ALL_WORKS: Bid26Work[] = [
   {
     id: "devuelta-al-manglar",
     chapter: 0,
-    title: "Devuelta al manglar",
+    title: "De vuelta al manglar",
     credit: "Adriana C. García Soto",
     authors: ["Adriana C. García Soto"],
     studio: "AGar Estudio",
@@ -142,7 +142,7 @@ const ALL_WORKS: Bid26Work[] = [
     excerpt:
       "El atrio del MAPR fue ciénaga. Con visores Meta Quest, el público camina un paisaje inundado y encuentra una casa que todavía está habitada.",
     description: [
-      "Devuelta al manglar es una experiencia de realidad aumentada creada para el atrio del Museo de Arte de Puerto Rico, en Santurce, un territorio que fue originalmente una ciénaga. Tras escanear el espacio en 3D, el proyecto superpone sobre su arquitectura un manglar virtual construido con ilustraciones, modelos tridimensionales, animación y sonidos grabados en el Estuario de la Bahía.",
+      "De vuelta al manglar es una experiencia de realidad aumentada creada para el atrio del Museo de Arte de Puerto Rico, en Santurce, un territorio que fue originalmente una ciénaga. Tras escanear el espacio en 3D, el proyecto superpone sobre su arquitectura un manglar virtual construido con ilustraciones, modelos tridimensionales, animación y sonidos grabados en el Estuario de la Bahía.",
       "Con visores Meta Quest, el público avanza por un paisaje parcialmente inundado y encuentra rastros de un futuro posible: un vehículo abandonado o una casa tradicional que emerge del agua todavía habitada. La experiencia relaciona el aumento del nivel del mar con la crisis de vivienda y el desplazamiento en San Juan, utilizando la transformación virtual del propio museo para imaginar qué podría permanecer en ese territorio.",
     ],
     client: "MeshMap",
@@ -409,7 +409,7 @@ const ALL_WORKS: Bid26Work[] = [
   {
     id: "conoce-las-especies",
     chapter: 3,
-    title: "Conoce las especies",
+    title: "Árboles para la naturaleza",
     credit:
       "Ramdwin González Otero, Rima Ibrahim, Luis “Tuto” González, Pedro Anibarro, Emanuel González, Ana Teresa Colón García, Félix Matos, Lorena Rivera Orraca, Jualiann Rosado, Natalia Muñoz, Anayari Fernández",
     authors: [
@@ -432,7 +432,7 @@ const ALL_WORKS: Bid26Work[] = [
     excerpt:
       "Una herramienta para escoger qué sembrar: árboles endémicos, nativos, naturalizados o introducidos. Hecha para Para la Naturaleza.",
     description: [
-      "Conoce las especies es una herramienta digital para orientar la selección de árboles y arbustos en proyectos de reforestación en Puerto Rico. Reúne información botánica y académica con datos procedentes de iNaturalist y la Lista Roja de la UICN, y organiza las especies según su origen: endémicas, nativas, naturalizadas o introducidas.",
+      "Árboles para la naturaleza es una herramienta digital para orientar la selección de árboles y arbustos en proyectos de reforestación en Puerto Rico. Reúne información botánica y académica con datos procedentes de iNaturalist y la Lista Roja de la UICN, y organiza las especies según su origen: endémicas, nativas, naturalizadas o introducidas.",
       "Cada ficha combina fotografías, ilustraciones, audiodescripciones y textos sobre distribución, tamaño, velocidad de crecimiento, servicios ecosistémicos y tolerancias. La plataforma traslada estos datos a un formato pensado para apoyar decisiones de plantación a escala individual, comunitaria o institucional. Desde su publicación en abril de 2026 se han impreso más de 1.500 tarjetas de especies para actividades de orientación del programa de reforestación.",
     ],
     client: "Para la Naturaleza",
@@ -545,7 +545,7 @@ export const BID26_STUDIOS: { studio: string; people: string[]; team: string[]; 
  * sheet. `work` links a submission to its spread on this page.
  */
 export const BID26_SUBMISSIONS: { name: string; projects: { title: string; work?: string }[] }[] = [
-  { name: "Adriana C. García Soto", projects: [{ title: "Devuelta al manglar", work: "devuelta-al-manglar" }, { title: "Inmersión bioluminiscente en el Ecoexploratorio" }] },
+  { name: "Adriana C. García Soto", projects: [{ title: "De vuelta al manglar", work: "devuelta-al-manglar" }, { title: "Inmersión bioluminiscente en el Ecoexploratorio" }] },
   {
     name: "Alberto Rigau",
     projects: [
@@ -582,7 +582,7 @@ export const BID26_SUBMISSIONS: { name: string; projects: { title: string; work?
     name: "Ramdwin González Otero",
     projects: [
       { title: "Ciencia CoLab", work: "ciencia-colab" },
-      { title: "Conoce las especies", work: "conoce-las-especies" },
+      { title: "Árboles para la naturaleza", work: "conoce-las-especies" },
       { title: "Veredas para la Naturaleza" },
     ],
   },
